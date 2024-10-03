@@ -23,7 +23,7 @@ func (player *Player) Send(data []byte) error {
 
 func (player *Player) SendPacket(packetId uint32, data []byte) error {
 	stream := common.NewIOStream([]byte{}, binary.BigEndian)
-	stream.WriteU32(0x87)
+	stream.WriteU8(0x87)
 	stream.WriteU32(packetId)
 	stream.WriteU32(uint32(len(data)))
 	stream.Write(data)
