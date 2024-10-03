@@ -36,8 +36,11 @@ func (info *ClientInfo) String() string {
 		"Adapters: " + strings.Join(info.Adapters, ":") + ", " +
 		"Hash1: " + info.Hash1 + ", " +
 		"Hash2: " + info.Hash2 + ", " +
-		"Hash3: " + info.Hash3 +
-		"}"
+		"Hash3: " + info.Hash3 + "}"
+}
+
+func (info *ClientInfo) IsWine() bool {
+	return strings.HasPrefix(info.Hash3, "unk")
 }
 
 type VersionInfo struct {
