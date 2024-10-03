@@ -33,6 +33,14 @@ func (c *Logger) formatLogMessage(level, msg string) string {
 	return fmt.Sprintf("[%s] - <%s> %s: %s", timestamp, c.name, level, msg)
 }
 
+func (c *Logger) SetLevel(level int) {
+	c.level = level
+}
+
+func (c *Logger) GetLevel() int {
+	return c.level
+}
+
 func concatMessage(msg ...any) string {
 	// Concatenate all strings in msg
 	log := ""
