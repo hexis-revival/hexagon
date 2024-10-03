@@ -11,5 +11,6 @@ type Player struct {
 	Name    string
 	Version *VersionInfo
 	Client  *ClientInfo
+	Status  *Status
 	Logger  *common.Logger
 }
