@@ -97,6 +97,12 @@ type Status struct {
 	Beatmap *BeatmapInfo
 }
 
+func (status *Status) HasBeatmapInfo() bool {
+	return status.Action == ACTION_PLAYING ||
+		status.Action == ACTION_EDITING ||
+		status.Action == ACTION_TESTING
+}
+
 func (status Status) String() string {
 	var beatmapString string = "nil"
 	if status.Beatmap != nil {
@@ -110,56 +116,41 @@ func (status Status) String() string {
 }
 
 type BeatmapInfo struct {
-	BeatmapMD5    string
-	BeatmapID     uint32
-	BeatmapArtist string
-	BeatmapTitle  string
-	Version       string
+	Checksum string
+	Id       uint32
+	Artist   string
+	Title    string
+	Version  string
 }
 
-func (beatmap BeatmapInfo) String() string {
+func (beatmap *BeatmapInfo) String() string {
 	return "BeatmapInfo{" +
-		"BeatmapMD5: " + beatmap.BeatmapMD5 + ", " +
-		"BeatmapID: " + strconv.Itoa(int(beatmap.BeatmapID)) + ", " +
-		"BeatmapArtist: " + beatmap.BeatmapArtist + ", " +
-		"BeatmapTitle: " + beatmap.BeatmapTitle + ", " +
+		"BeatmapMD5: " + beatmap.Checksum + ", " +
+		"BeatmapID: " + strconv.Itoa(int(beatmap.Id)) + ", " +
+		"BeatmapArtist: " + beatmap.Artist + ", " +
+		"BeatmapTitle: " + beatmap.Title + ", " +
 		"Version: " + beatmap.Version + "}"
-}
-
-func HasBeatmapInfo(action uint32) bool {
-	return action == ACTION_PLAYING ||
-		action == ACTION_EDITING ||
-		action == ACTION_TESTING
 }
 
 func ReadStatusChange(stream *common.IOStream) *Status {
 	defer handlePanic()
 
-	unknown := stream.ReadU32() // TODO
-	action := stream.ReadU32()
-
-	var beatmap *BeatmapInfo = nil
-
-	if HasBeatmapInfo(action) {
-		md5 := stream.ReadString()
-		id := stream.ReadU32()
-		artist := stream.ReadString()
-		title := stream.ReadString()
-		version := stream.ReadString()
-
-		beatmap = &BeatmapInfo{
-			BeatmapMD5:    md5,
-			BeatmapID:     id,
-			BeatmapArtist: artist,
-			BeatmapTitle:  title,
-			Version:       version,
-		}
+	status := &Status{
+		Unknown: stream.ReadU32(),
+		Action:  stream.ReadU32(),
+		Beatmap: nil,
 	}
 
-	status := &Status{
-		Unknown: unknown,
-		Action:  action,
-		Beatmap: beatmap,
+	if !status.HasBeatmapInfo() {
+		return status
+	}
+
+	status.Beatmap = &BeatmapInfo{
+		Checksum: stream.ReadString(),
+		Id:       stream.ReadU32(),
+		Artist:   stream.ReadString(),
+		Title:    stream.ReadString(),
+		Version:  stream.ReadString(),
 	}
 
 	return status
