@@ -1,4 +1,2 @@
 github.com/lekuruu/go-raknet v0.0.0-20241003121121-43b332df40f2 h1:LfrQLhZt1RbgrhucLh1ewlee4PlIRlYZnU5kVzQ/sNc=
 github.com/lekuruu/go-raknet v0.0.0-20241003121121-43b332df40f2/go.mod h1:p52yiW5YjAbuBODMi4L1heZE7CbbPSWtTSuKkULDmRU=
-github.com/sandertv/go-raknet v1.14.1 h1:V2Gslo+0x4jfj+p0PM48mWxmMbYkxSlgeKy//y3ZrzI=
-github.com/sandertv/go-raknet v1.14.1/go.mod h1:/yysjwfCXm2+2OY8mBazLzcxJ3irnylKCyG3FLgUPVU=
