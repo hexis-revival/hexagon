@@ -14,11 +14,13 @@ type LoginRequest struct {
 }
 
 func (request *LoginRequest) String() string {
-	return "LoginRequest{" +
-		"Username: " + request.Username + ", " +
-		"Password: " + request.Password + ", " +
-		"Version: " + request.Version.String() + ", " +
-		request.Client.String() + "}"
+	return fmt.Sprintf(
+		"LoginRequest{Username: %s, Password: %s, Version: %s, %s}",
+		request.Username,
+		request.Password,
+		request.Version.String(),
+		request.Client.String(),
+	)
 }
 
 type ClientInfo struct {
@@ -30,12 +32,14 @@ type ClientInfo struct {
 }
 
 func (info *ClientInfo) String() string {
-	return "ClientInfo{" +
-		"ExecutableHash: " + info.ExecutableHash + ", " +
-		"Adapters: " + strings.Join(info.Adapters, ":") + ", " +
-		"Hash1: " + info.Hash1 + ", " +
-		"Hash2: " + info.Hash2 + ", " +
-		"Hash3: " + info.Hash3 + "}"
+	return fmt.Sprintf(
+		"Client{ExecutableHash: %s, Adapters: %v, Hash1: %s, Hash2: %s, Hash3: %s}",
+		info.ExecutableHash,
+		info.Adapters,
+		info.Hash1,
+		info.Hash2,
+		info.Hash3,
+	)
 }
 
 func (info *ClientInfo) IsWine() bool {
@@ -49,7 +53,12 @@ type VersionInfo struct {
 }
 
 func (info *VersionInfo) String() string {
-	return fmt.Sprintf("%d.%d.%d", info.Major, info.Minor, info.Patch)
+	return fmt.Sprintf(
+		"%d.%d.%d",
+		info.Major,
+		info.Minor,
+		info.Patch,
+	)
 }
 
 type Status struct {
@@ -64,16 +73,18 @@ func (status *Status) HasBeatmapInfo() bool {
 		status.Action == ACTION_TESTING
 }
 
-func (status Status) String() string {
+func (status *Status) String() string {
 	var beatmapString string = "nil"
 	if status.Beatmap != nil {
 		beatmapString = status.Beatmap.String()
 	}
 
-	return "Status{" +
-		"Unknown: " + strconv.Itoa(int(status.Unknown)) + ", " +
-		"Action: " + strconv.Itoa(int(status.Action)) + ", " +
-		"Beatmap: " + beatmapString + "}"
+	return fmt.Sprintf(
+		"Status{Unknown: %s, Action: %s, Beatmap: %s}",
+		strconv.Itoa(int(status.Unknown)),
+		strconv.Itoa(int(status.Action)),
+		beatmapString,
+	)
 }
 
 type BeatmapInfo struct {
@@ -85,10 +96,12 @@ type BeatmapInfo struct {
 }
 
 func (beatmap *BeatmapInfo) String() string {
-	return "BeatmapInfo{" +
-		"BeatmapMD5: " + beatmap.Checksum + ", " +
-		"BeatmapID: " + strconv.Itoa(int(beatmap.Id)) + ", " +
-		"BeatmapArtist: " + beatmap.Artist + ", " +
-		"BeatmapTitle: " + beatmap.Title + ", " +
-		"Version: " + beatmap.Version + "}"
+	return fmt.Sprintf(
+		"BeatmapInfo{Checksum: %s, Id: %d, Artist: %s, Title: %s, Version: %s}",
+		beatmap.Checksum,
+		beatmap.Id,
+		beatmap.Artist,
+		beatmap.Title,
+		beatmap.Version,
+	)
 }
