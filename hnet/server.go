@@ -1,6 +1,7 @@
 package hnet
 
 import (
+	"encoding/binary"
 	"fmt"
 	"net"
 	"runtime/debug"
@@ -8,6 +9,8 @@ import (
 	"github.com/lekuruu/go-raknet"
 	"github.com/lekuruu/hexagon/common"
 )
+
+const HNET_PACKET_SIZE = 9
 
 type HNetServer struct {
 	listener *raknet.Listener
@@ -50,22 +53,67 @@ func (server *HNetServer) Serve() {
 func (server *HNetServer) HandleConnection(conn net.Conn) {
 	defer server.CloseConnection(conn)
 
-	buffer := make([]byte, 1024*1024)
-	n, err := conn.Read(buffer)
+	logger := common.CreateLogger(
+		conn.RemoteAddr().String(),
+		server.logger.GetLevel(),
+	)
 
-	if err != nil {
-		server.logger.Error(err)
-		return
+	player := &Player{
+		Conn:   conn,
+		Logger: logger,
 	}
 
-	buffer = buffer[:n]
-	server.logger.Info("Received %s", string(buffer))
-	// TODO: Add Handler
+	logger.Debug("-> Connected")
+
+	for {
+		buffer := make([]byte, 1024*1024)
+		n, err := conn.Read(buffer)
+
+		if err != nil {
+			return
+		}
+
+		if n < HNET_PACKET_SIZE {
+			server.logger.Errorf("Invalid packet size: %d", n)
+			return
+		}
+
+		buffer = buffer[:n]
+		magicByte := buffer[0]
+		packetId := common.ReadU32BE(buffer[1:5])
+		packetSize := common.ReadU32BE(buffer[5:9])
+
+		if magicByte != 0x87 {
+			server.logger.Errorf("Invalid magic byte: %d", magicByte)
+			return
+		}
+
+		packetData := buffer[HNET_PACKET_SIZE:packetSize]
+		server.logger.Verbosef("-> %d: %s", packetId, packetData)
+
+		handler, ok := Handlers[packetId]
+
+		if !ok {
+			server.logger.Warningf("Unknown packet id: %d", packetId)
+			continue
+		}
+
+		stream := common.NewIOStream(packetData, binary.BigEndian)
+		err = handler(stream, player)
+
+		if err != nil {
+			server.logger.Errorf("Error handling packet: %s", err)
+			continue
+		}
+	}
 }
 
 func (server *HNetServer) CloseConnection(conn net.Conn) {
 	if r := recover(); r != nil {
-		server.logger.Error("Panic: %s", r)
-		debug.PrintStack()
+		server.logger.Errorf("Panic: '%s'", r)
+		server.logger.Debug(string(debug.Stack()))
 	}
+
+	conn.Close()
+	server.logger.Debug("-> Connection closed")
 }
