@@ -51,8 +51,6 @@ func (server *HNetServer) Serve() {
 }
 
 func (server *HNetServer) HandleConnection(conn net.Conn) {
-	defer server.CloseConnection(conn)
-
 	logger := common.CreateLogger(
 		conn.RemoteAddr().String(),
 		server.logger.GetLevel(),
@@ -64,6 +62,7 @@ func (server *HNetServer) HandleConnection(conn net.Conn) {
 	}
 
 	logger.Debug("-> Connected")
+	defer server.CloseConnection(player)
 
 	for {
 		buffer := make([]byte, 1024*1024)
@@ -108,12 +107,12 @@ func (server *HNetServer) HandleConnection(conn net.Conn) {
 	}
 }
 
-func (server *HNetServer) CloseConnection(conn net.Conn) {
+func (server *HNetServer) CloseConnection(player *Player) {
 	if r := recover(); r != nil {
 		server.logger.Errorf("Panic: '%s'", r)
 		server.logger.Debug(string(debug.Stack()))
 	}
 
-	conn.Close()
-	server.logger.Debug("-> Connection closed")
+	player.Conn.Close()
+	player.Logger.Debug("-> Connection closed")
 }
