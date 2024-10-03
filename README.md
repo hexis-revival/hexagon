@@ -1,6 +1,6 @@
 # Hexagon
 
-Hexagon is a work-in progress backend for the now defunct game [hexis](https://web.archive.org/web/20171120081249/http://hexis.dienay.net/).
+Hexagon is a work-in progress backend replacement server for the now defunct game [hexis](https://web.archive.org/web/20171120081249/http://hexis.dienay.net/).
 
 ## Connection Details
 
