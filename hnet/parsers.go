@@ -2,6 +2,7 @@ package hnet
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/lekuruu/hexagon/common"
@@ -88,6 +89,71 @@ func ParseClientInfo(clientInfoString string) *ClientInfo {
 		Hash2:          parts[3],
 		Hash3:          parts[4],
 	}
+}
+
+type Status struct {
+	Unknown uint32 // TODO
+	Action  uint32
+	Beatmap *BeatmapInfo
+}
+
+func (status *Status) HasBeatmapInfo() bool {
+	return status.Action == ACTION_PLAYING ||
+		status.Action == ACTION_EDITING ||
+		status.Action == ACTION_TESTING
+}
+
+func (status Status) String() string {
+	var beatmapString string = "nil"
+	if status.Beatmap != nil {
+		beatmapString = status.Beatmap.String()
+	}
+
+	return "Status{" +
+		"Unknown: " + strconv.Itoa(int(status.Unknown)) + ", " +
+		"Action: " + strconv.Itoa(int(status.Action)) + ", " +
+		"Beatmap: " + beatmapString + "}"
+}
+
+type BeatmapInfo struct {
+	Checksum string
+	Id       uint32
+	Artist   string
+	Title    string
+	Version  string
+}
+
+func (beatmap *BeatmapInfo) String() string {
+	return "BeatmapInfo{" +
+		"BeatmapMD5: " + beatmap.Checksum + ", " +
+		"BeatmapID: " + strconv.Itoa(int(beatmap.Id)) + ", " +
+		"BeatmapArtist: " + beatmap.Artist + ", " +
+		"BeatmapTitle: " + beatmap.Title + ", " +
+		"Version: " + beatmap.Version + "}"
+}
+
+func ReadStatusChange(stream *common.IOStream) *Status {
+	defer handlePanic()
+
+	status := &Status{
+		Unknown: stream.ReadU32(),
+		Action:  stream.ReadU32(),
+		Beatmap: nil,
+	}
+
+	if !status.HasBeatmapInfo() {
+		return status
+	}
+
+	status.Beatmap = &BeatmapInfo{
+		Checksum: stream.ReadString(),
+		Id:       stream.ReadU32(),
+		Artist:   stream.ReadString(),
+		Title:    stream.ReadString(),
+		Version:  stream.ReadString(),
+	}
+
+	return status
 }
 
 func handlePanic() {

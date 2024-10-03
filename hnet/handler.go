@@ -31,7 +31,14 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 }
 
 func handleStatusChange(stream *common.IOStream, player *Player) error {
-	// TODO
+	status := ReadStatusChange(stream)
+
+	if status == nil {
+		return fmt.Errorf("failed to read status change")
+	}
+
+	player.Status = status
+	player.Logger.Debugf("-> %s", status.String())
 	return nil
 }
 
