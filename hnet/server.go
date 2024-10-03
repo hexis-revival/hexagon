@@ -16,12 +16,12 @@ type HNetServer struct {
 	port     int
 }
 
-func NewServer(host string, port int, logger *common.Logger) (*HNetServer, error) {
+func NewServer(host string, port int, logger *common.Logger) *HNetServer {
 	return &HNetServer{
 		logger: logger,
 		host:   host,
 		port:   port,
-	}, nil
+	}
 }
 
 func (server *HNetServer) Serve() {
