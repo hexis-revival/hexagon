@@ -1,2 +1,4 @@
 github.com/lekuruu/go-raknet v0.0.0-20241003121121-43b332df40f2 h1:LfrQLhZt1RbgrhucLh1ewlee4PlIRlYZnU5kVzQ/sNc=
 github.com/lekuruu/go-raknet v0.0.0-20241003121121-43b332df40f2/go.mod h1:p52yiW5YjAbuBODMi4L1heZE7CbbPSWtTSuKkULDmRU=
+golang.org/x/exp v0.0.0-20240909161429-701f63a606c0 h1:e66Fs6Z+fZTbFBAxKfP3PALWBtpfqks2bwGcexMxgtk=
+golang.org/x/exp v0.0.0-20240909161429-701f63a606c0/go.mod h1:2TbTHSBQa924w8M6Xs1QcRcFwyucIwBGpK1p2f1YFFY=
