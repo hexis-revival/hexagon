@@ -15,15 +15,27 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 		return fmt.Errorf("failed to read login request")
 	}
 
-	player.Logger.Debug("-> %s", request.String())
+	player.Logger.Debugf("-> %s", request.String())
 	player.Name = request.Username
 	player.Version = request.Version
 	player.Client = request.Client
+
+	player.Logger.Infof(
+		"Login attempt as '%s' with version %s",
+		player.Name,
+		player.Version.String(),
+	)
 
 	// TODO: Username & Password validation
 	return nil
 }
 
+func handleStatusChange(stream *common.IOStream, player *Player) error {
+	// TODO
+	return nil
+}
+
 func init() {
 	Handlers[CLIENT_LOGIN] = handleLogin
+	Handlers[CLIENT_CHANGE_STATUS] = handleStatusChange
 }
