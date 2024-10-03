@@ -10,7 +10,7 @@ func main() {
 	server := hnet.NewServer(
 		"0.0.0.0",
 		21556,
-		common.CreateLogger("hnet", common.INFO),
+		common.CreateLogger("hnet", common.DEBUG),
 	)
 
 	server.Serve()
