@@ -8,6 +8,7 @@ Website - `hexis.dienay.net`
 RakNet - `hnet.dienay.net`  
 Score Server - `hscore.dienay.net`  
 Chat Server - `irc.dienay.net`  
+Crash Report Server - `hcrash.dienay.net`
 
 ## Credits
 
