@@ -4,7 +4,14 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/lekuruu/hexagon/common"
 )
+
+type Serializable interface {
+	Serialize(stream *common.IOStream)
+	String() string
+}
 
 type LoginRequest struct {
 	Username string
@@ -13,7 +20,7 @@ type LoginRequest struct {
 	Client   *ClientInfo
 }
 
-func (request *LoginRequest) String() string {
+func (request LoginRequest) String() string {
 	return fmt.Sprintf(
 		"LoginRequest{Username: %s, Password: %s, Version: %s, %s}",
 		request.Username,
@@ -31,7 +38,7 @@ type ClientInfo struct {
 	Hash3          string // TODO
 }
 
-func (info *ClientInfo) String() string {
+func (info ClientInfo) String() string {
 	return fmt.Sprintf(
 		"Client{ExecutableHash: %s, Adapters: %v, Hash1: %s, Hash2: %s, Hash3: %s}",
 		info.ExecutableHash,
@@ -42,7 +49,7 @@ func (info *ClientInfo) String() string {
 	)
 }
 
-func (info *ClientInfo) IsWine() bool {
+func (info ClientInfo) IsWine() bool {
 	return strings.HasPrefix(info.Hash3, "unk")
 }
 
@@ -52,7 +59,7 @@ type VersionInfo struct {
 	Patch uint32
 }
 
-func (info *VersionInfo) String() string {
+func (info VersionInfo) String() string {
 	return fmt.Sprintf(
 		"%d.%d.%d",
 		info.Major,
@@ -67,13 +74,13 @@ type Status struct {
 	Beatmap *BeatmapInfo
 }
 
-func (status *Status) HasBeatmapInfo() bool {
+func (status Status) HasBeatmapInfo() bool {
 	return status.Action == ACTION_PLAYING ||
 		status.Action == ACTION_EDITING ||
 		status.Action == ACTION_TESTING
 }
 
-func (status *Status) String() string {
+func (status Status) String() string {
 	var beatmapString string = "nil"
 	if status.Beatmap != nil {
 		beatmapString = status.Beatmap.String()
@@ -95,7 +102,7 @@ type BeatmapInfo struct {
 	Version  string
 }
 
-func (beatmap *BeatmapInfo) String() string {
+func (beatmap BeatmapInfo) String() string {
 	return fmt.Sprintf(
 		"BeatmapInfo{Checksum: %s, Id: %d, Artist: %s, Title: %s, Version: %s}",
 		beatmap.Checksum,
@@ -112,7 +119,7 @@ type LoginResponse struct {
 	UserId   uint32
 }
 
-func (response *LoginResponse) String() string {
+func (response LoginResponse) String() string {
 	return fmt.Sprintf(
 		"LoginResponse{Username: %s, Unknown: %s, UserId: %d}",
 		response.Username,
