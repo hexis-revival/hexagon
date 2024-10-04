@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/lekuruu/hexagon/common"
 )
@@ -16,7 +17,7 @@ type ScoreSubmissionResponse struct {
 
 type ScoreSubmissionRequest struct {
 	Replay      []byte
-	ProcessList string
+	ProcessList []string
 	ScoreData   string
 	Password    string
 	ClientData  string
@@ -24,9 +25,9 @@ type ScoreSubmissionRequest struct {
 
 func (req *ScoreSubmissionRequest) String() string {
 	return fmt.Sprintf(
-		"ScoreSubmissionRequest{Replay: %d bytes, ProcessList: '%s', ScoreData: '%s', Password: '%s', ClientData: %s}",
+		"ScoreSubmissionRequest{Replay: %d bytes, ProcessList: %d processes, ScoreData: '%s', Password: '%s', ClientData: %s}",
 		len(req.Replay),
-		req.ProcessList,
+		len(req.ProcessList),
 		req.ScoreData,
 		req.Password,
 		req.ClientData,
@@ -90,10 +91,17 @@ func NewScoreSubmissionRequest(request *http.Request) (*ScoreSubmissionRequest, 
 	return &ScoreSubmissionRequest{
 		Replay:      replay,
 		Password:    password,
-		ProcessList: string(processListDecrypted),
+		ProcessList: ParseProcessList(processListDecrypted),
 		ScoreData:   string(scoreDataDecrypted),
 		ClientData:  string(clientDataDecrypted),
 	}, nil
+}
+
+func ParseProcessList(processListBytes []byte) []string {
+	processListStr := strings.ReplaceAll(string(processListBytes), "\n", "")
+	processListStr = strings.ReplaceAll(processListStr, "; ", "")
+	processList := strings.Split(processListStr, "| ")
+	return processList
 }
 
 func ScoreSubmissionHandler(ctx *Context) {
