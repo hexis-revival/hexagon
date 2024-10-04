@@ -80,6 +80,7 @@ func NewScoreSubmissionRequest(request *http.Request) (*ScoreSubmissionRequest, 
 		return nil, fmt.Errorf("failed to decode base64: %w", err)
 	}
 
+	// TODO: Parse process list, score data & client data
 	return &ScoreSubmissionRequest{
 		Replay:      replay,
 		Password:    password,
