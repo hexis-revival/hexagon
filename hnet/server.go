@@ -71,7 +71,7 @@ func (server *HNetServer) HandleConnection(conn net.Conn) {
 		buffer, err := player.Receive(1024 * 1024)
 
 		if err != nil {
-			server.logger.Errorf("Failed to read data: '%s'", err)
+			server.logger.Debugf("Failed to read data: '%s'", err)
 			return
 		}
 
