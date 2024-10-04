@@ -58,7 +58,7 @@ func ReadStatusChange(stream *common.IOStream) *Status {
 
 	status.Beatmap = &BeatmapInfo{
 		Checksum: stream.ReadString(),
-		Id:       stream.ReadU32(),
+		Id:       stream.ReadI32(),
 		Artist:   stream.ReadString(),
 		Title:    stream.ReadString(),
 		Version:  stream.ReadString(),

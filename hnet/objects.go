@@ -96,7 +96,7 @@ func (status Status) String() string {
 
 type BeatmapInfo struct {
 	Checksum string
-	Id       uint32
+	Id       int32
 	Artist   string
 	Title    string
 	Version  string

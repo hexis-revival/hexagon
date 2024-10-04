@@ -43,7 +43,7 @@ func (status Status) Serialize(stream *common.IOStream) {
 
 func (info BeatmapInfo) Serialize(stream *common.IOStream) {
 	stream.WriteString(info.Checksum)
-	stream.WriteU32(info.Id)
+	stream.WriteI32(info.Id)
 	stream.WriteString(info.Artist)
 	stream.WriteString(info.Title)
 	stream.WriteString(info.Version)
