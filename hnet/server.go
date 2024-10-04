@@ -13,6 +13,7 @@ import (
 const HNET_PACKET_SIZE = 9
 
 type HNetServer struct {
+	Players  PlayerCollection
 	listener *raknet.Listener
 	logger   *common.Logger
 	host     string
@@ -21,9 +22,10 @@ type HNetServer struct {
 
 func NewServer(host string, port int, logger *common.Logger) *HNetServer {
 	return &HNetServer{
-		logger: logger,
-		host:   host,
-		port:   port,
+		Players: NewPlayerCollection(),
+		logger:  logger,
+		host:    host,
+		port:    port,
 	}
 }
 
