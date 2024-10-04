@@ -50,7 +50,18 @@ func handleStatusChange(stream *common.IOStream, player *Player) error {
 	return nil
 }
 
+func handleRequestStats(stream *common.IOStream, player *Player) error {
+	var userId = stream.ReadU32()
+
+	player.Logger.Infof("Requested stats of user %d", userId)
+
+	// TODO: pull stats, and enqueue them
+
+	return nil
+}
+
 func init() {
 	Handlers[CLIENT_LOGIN] = handleLogin
 	Handlers[CLIENT_CHANGE_STATUS] = handleStatusChange
+	Handlers[CLIENT_REQUEST_STATS] = handleRequestStats
 }
