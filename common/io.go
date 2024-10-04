@@ -93,12 +93,9 @@ func (stream *IOStream) ReadString() string {
 	data := stream.Read(int(length))
 	chars := make([]rune, 0, length)
 
-	for _, char := range data {
-		if char == 0 {
-			continue
-		}
-
-		chars = append(chars, rune(char))
+	for i := 0; i < len(data); i += 2 {
+		char := rune(stream.endian.Uint16(data[i : i+2]))
+		chars = append(chars, char)
 	}
 
 	return string(chars)
@@ -134,11 +131,6 @@ func (stream *IOStream) WriteString(value string) {
 	stream.WriteU32(uint32(len(value) * 2))
 
 	for _, c := range value {
-		stream.Write([]byte{
-			0x00,
-			byte(c),
-		})
+		stream.WriteU16(uint16(c))
 	}
-
-	stream.Write([]byte{0x00})
 }
