@@ -1,12 +1,17 @@
 package common
 
 import (
+	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"errors"
 )
 
 func DecryptScoreData(iv []byte, encryptedData []byte) ([]byte, error) {
+	if len(encryptedData) == 0 {
+		return []byte{}, nil
+	}
+
 	encryptionKey := "9viq4mujm86947ujxs7i5z82sa6rrzhz"
 	data, err := AESDecrypt(encryptionKey, iv, encryptedData)
 
