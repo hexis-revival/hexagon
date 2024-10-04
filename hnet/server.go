@@ -65,19 +65,18 @@ func (server *HNetServer) HandleConnection(conn net.Conn) {
 	defer server.CloseConnection(player)
 
 	for {
-		buffer := make([]byte, 1024*1024)
-		n, err := conn.Read(buffer)
+		buffer, err := player.Receive(1024 * 1024)
 
 		if err != nil {
+			server.logger.Errorf("Failed to read data: '%s'", err)
 			return
 		}
 
-		if n < HNET_PACKET_SIZE {
-			server.logger.Errorf("Invalid packet size: %d", n)
+		if len(buffer) < HNET_PACKET_SIZE {
+			server.logger.Errorf("Invalid packet size: %d", len(buffer))
 			return
 		}
 
-		buffer = buffer[:n]
 		magicByte := buffer[0]
 		packetId := common.ReadU32BE(buffer[1:5])
 		packetSize := common.ReadU32BE(buffer[5:9])
@@ -88,8 +87,6 @@ func (server *HNetServer) HandleConnection(conn net.Conn) {
 		}
 
 		packetData := buffer[HNET_PACKET_SIZE : HNET_PACKET_SIZE+packetSize]
-		server.logger.Verbosef("-> %d: %s", packetId, packetData)
-
 		handler, ok := Handlers[packetId]
 
 		if !ok {

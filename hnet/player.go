@@ -2,6 +2,7 @@ package hnet
 
 import (
 	"encoding/binary"
+	"encoding/hex"
 	"net"
 
 	"github.com/lekuruu/hexagon/common"
@@ -17,8 +18,22 @@ type Player struct {
 }
 
 func (player *Player) Send(data []byte) error {
+	player.Logger.Verbosef("<- %s", hex.EncodeToString(data))
 	_, err := player.Conn.Write(data)
 	return err
+}
+
+func (player *Player) Receive(bufSize int) ([]byte, error) {
+	buffer := make([]byte, 1024*1024)
+	n, err := player.Conn.Read(buffer)
+
+	if err != nil {
+		return nil, err
+	}
+
+	buffer = buffer[:n]
+	player.Logger.Verbosef("-> %s", hex.EncodeToString(buffer))
+	return buffer, nil
 }
 
 func (player *Player) LogIncomingPacket(packetId uint32, packet Serializable) {
