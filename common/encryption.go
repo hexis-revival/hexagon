@@ -77,7 +77,10 @@ func UnpadPKCS7(data []byte) ([]byte, error) {
 	// NOTE: Score data seems to have always 16 bytes of padding
 	//       at the end of the data. I am not sure if this is
 	//       right, but it works.
-	return data[:len(data)-16], nil
+	data = data[:len(data)-16]
+
+	// Sometimes we get trailing null bytes, for some reason...
+	return bytes.TrimRight(data, "\x00"), nil
 }
 
 func handlePanic() {
