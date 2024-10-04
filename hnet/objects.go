@@ -87,7 +87,7 @@ func (status Status) String() string {
 	}
 
 	return fmt.Sprintf(
-		"Status{Unknown: %s, Action: %s, Beatmap: %s}",
+		"Status{UserId: %s, Action: %s, Beatmap: %s}",
 		strconv.Itoa(int(status.UserId)),
 		strconv.Itoa(int(status.Action)),
 		beatmapString,
