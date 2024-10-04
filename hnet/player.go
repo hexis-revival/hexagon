@@ -10,6 +10,7 @@ import (
 
 type Player struct {
 	Conn    net.Conn
+	Id      uint32
 	Name    string
 	Version *VersionInfo
 	Client  *ClientInfo
@@ -35,6 +36,16 @@ func (player *Player) Receive(size int) ([]byte, error) {
 	buffer = buffer[:n]
 	player.Logger.Verbosef("-> %s", hex.EncodeToString(buffer))
 	return buffer, nil
+}
+
+func (player *Player) OnConnect() {
+	player.Logger.Debug("-> Connected")
+}
+
+func (player *Player) OnDisconnect() {
+	player.Logger.Debug("-> Disconnected")
+	player.Server.Players.Remove(player)
+	player.Conn.Close()
 }
 
 func (player *Player) LogIncomingPacket(packetId uint32, packet Serializable) {
