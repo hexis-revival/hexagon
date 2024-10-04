@@ -87,7 +87,7 @@ func (server *HNetServer) HandleConnection(conn net.Conn) {
 			return
 		}
 
-		packetData := buffer[HNET_PACKET_SIZE:packetSize]
+		packetData := buffer[HNET_PACKET_SIZE : HNET_PACKET_SIZE+packetSize]
 		server.logger.Verbosef("-> %d: %s", packetId, packetData)
 
 		handler, ok := Handlers[packetId]
