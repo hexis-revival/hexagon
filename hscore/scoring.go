@@ -2,11 +2,17 @@ package hscore
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"net/http"
 
 	"github.com/lekuruu/hexagon/common"
 )
+
+type ScoreSubmissionResponse struct {
+	Success bool   `json:"success"`
+	Error   string `json:"error,omitempty"`
+}
 
 type ScoreSubmissionRequest struct {
 	Replay      []byte
@@ -105,7 +111,13 @@ func ScoreSubmissionHandler(ctx *Context) {
 		return
 	}
 
-	ctx.Response.WriteHeader(http.StatusOK)
 	ctx.Server.Logger.Infof("Score submission request: %s", req.String())
-	// TODO: Process data & write response
+	// TODO: Process data & update player stats
+
+	ctx.Response.WriteHeader(http.StatusOK)
+	ctx.Response.Header().Set("Content-Type", "application/json")
+
+	// Write response
+	resp := ScoreSubmissionResponse{Success: true}
+	json.NewEncoder(ctx.Response).Encode(resp)
 }
