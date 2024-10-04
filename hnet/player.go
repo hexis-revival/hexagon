@@ -21,8 +21,15 @@ func (player *Player) Send(data []byte) error {
 	return err
 }
 
+func (player *Player) LogIncomingPacket(packetId uint32, packet Serializable) {
+	player.Logger.Debugf("-> %d: %s", packetId, packet.String())
+}
+
+func (player *Player) LogOutgoingPacket(packetId uint32, packet Serializable) {
+	player.Logger.Debugf("<- %d: %s", packetId, packet.String())
+}
+
 func (player *Player) SendPacketData(packetId uint32, data []byte) error {
-	player.Logger.Verbosef("<- %d: '%s'", packetId, string(data))
 	stream := common.NewIOStream([]byte{}, binary.BigEndian)
 	stream.WriteU8(0x87)
 	stream.WriteU32(packetId)
@@ -32,7 +39,7 @@ func (player *Player) SendPacketData(packetId uint32, data []byte) error {
 }
 
 func (player *Player) SendPacket(packetId uint32, packet Serializable) error {
-	player.Logger.Debugf("<- %d: %s", packetId, packet.String())
+	player.LogOutgoingPacket(packetId, packet)
 	stream := common.NewIOStream([]byte{}, binary.BigEndian)
 	packet.Serialize(stream)
 	return player.SendPacketData(packetId, stream.Get())

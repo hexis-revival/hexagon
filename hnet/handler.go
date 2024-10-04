@@ -15,7 +15,7 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 		return fmt.Errorf("failed to read login request")
 	}
 
-	player.Logger.Debugf("-> %s", request.String())
+	player.LogIncomingPacket(CLIENT_LOGIN, request)
 	player.Name = request.Username
 	player.Version = request.Version
 	player.Client = request.Client
@@ -46,7 +46,7 @@ func handleStatusChange(stream *common.IOStream, player *Player) error {
 	}
 
 	player.Status = status
-	player.Logger.Debugf("-> %s", status.String())
+	player.LogIncomingPacket(CLIENT_CHANGE_STATUS, status)
 	return nil
 }
 
