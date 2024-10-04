@@ -15,6 +15,7 @@ type Player struct {
 	Client  *ClientInfo
 	Status  *Status
 	Logger  *common.Logger
+	Server  *HNetServer
 }
 
 func (player *Player) Send(data []byte) error {

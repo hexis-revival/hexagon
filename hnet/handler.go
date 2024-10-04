@@ -54,7 +54,6 @@ func handleRequestStats(stream *common.IOStream, player *Player) error {
 	var userId = stream.ReadU32()
 
 	player.Logger.Infof("Requested stats of user %d", userId)
-
 	// TODO: pull stats, and enqueue them
 
 	return nil

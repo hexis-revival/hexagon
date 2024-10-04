@@ -59,6 +59,7 @@ func (server *HNetServer) HandleConnection(conn net.Conn) {
 	player := &Player{
 		Conn:   conn,
 		Logger: logger,
+		Server: server,
 	}
 
 	logger.Debug("-> Connected")
