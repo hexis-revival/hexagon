@@ -27,6 +27,14 @@ func (server *ScoreServer) Serve() {
 	http.ListenAndServe(bind, nil)
 }
 
+func NewServer(host string, port int, logger *common.Logger) *ScoreServer {
+	return &ScoreServer{
+		Host:   host,
+		Port:   port,
+		Logger: logger,
+	}
+}
+
 func withContext(handler func(*Context)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		context := &Context{
