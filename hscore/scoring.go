@@ -340,7 +340,7 @@ func ScoreSubmissionHandler(ctx *Context) {
 		return
 	}
 
-	ctx.Server.Logger.Infof("Score submission request: %s", req.String())
+	ctx.Server.Logger.Debugf("Score submission request: %s", req.String())
 	// TODO: Process data & update player stats
 
 	ctx.Response.WriteHeader(http.StatusOK)
