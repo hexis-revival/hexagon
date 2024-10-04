@@ -2,6 +2,7 @@ package hnet
 
 import (
 	"fmt"
+	"math/rand"
 
 	"github.com/lekuruu/hexagon/common"
 )
@@ -26,13 +27,17 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 		player.Version.String(),
 	)
 
+	// Set random player Id for now
+	player.Id = uint32(rand.Intn(1000))
+	player.Server.Players.Add(player)
+
 	// TODO: Username & Password validation
 	// TODO: Pull data from database
 
 	response := LoginResponse{
+		UserId:   player.Id,
 		Username: player.Name,
 		Unknown:  "Test",
-		UserId:   1,
 	}
 
 	return player.SendPacket(SERVER_LOGIN_RESPONSE, response)

@@ -64,7 +64,7 @@ func (server *HNetServer) HandleConnection(conn net.Conn) {
 		Server: server,
 	}
 
-	logger.Debug("-> Connected")
+	player.OnConnect()
 	defer server.CloseConnection(player)
 
 	for {
@@ -113,6 +113,5 @@ func (server *HNetServer) CloseConnection(player *Player) {
 		server.logger.Debug(string(debug.Stack()))
 	}
 
-	player.Conn.Close()
-	player.Logger.Debug("-> Connection closed")
+	player.OnDisconnect()
 }
