@@ -62,7 +62,7 @@ func (info *VersionInfo) String() string {
 }
 
 type Status struct {
-	Unknown uint32 // TODO
+	UserId  uint32
 	Action  uint32
 	Beatmap *BeatmapInfo
 }
@@ -81,7 +81,7 @@ func (status *Status) String() string {
 
 	return fmt.Sprintf(
 		"Status{Unknown: %s, Action: %s, Beatmap: %s}",
-		strconv.Itoa(int(status.Unknown)),
+		strconv.Itoa(int(status.UserId)),
 		strconv.Itoa(int(status.Action)),
 		beatmapString,
 	)

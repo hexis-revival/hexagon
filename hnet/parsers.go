@@ -47,7 +47,7 @@ func ReadStatusChange(stream *common.IOStream) *Status {
 	defer handlePanic()
 
 	status := &Status{
-		Unknown: stream.ReadU32(),
+		UserId:  stream.ReadU32(),
 		Action:  stream.ReadU32(),
 		Beatmap: nil,
 	}

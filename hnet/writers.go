@@ -31,7 +31,7 @@ func (info *ClientInfo) Serialize(stream *common.IOStream) {
 }
 
 func (status *Status) Serialize(stream *common.IOStream) {
-	stream.WriteU32(status.Unknown)
+	stream.WriteU32(status.UserId)
 	stream.WriteU32(status.Action)
 
 	if !status.HasBeatmapInfo() {
