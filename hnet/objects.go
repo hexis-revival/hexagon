@@ -105,3 +105,18 @@ func (beatmap *BeatmapInfo) String() string {
 		beatmap.Version,
 	)
 }
+
+type LoginResponse struct {
+	Username string
+	Unknown  string // TODO
+	UserId   uint32
+}
+
+func (response *LoginResponse) String() string {
+	return fmt.Sprintf(
+		"LoginResponse{Username: %s, Unknown: %s, UserId: %d}",
+		response.Username,
+		response.Unknown,
+		response.UserId,
+	)
+}

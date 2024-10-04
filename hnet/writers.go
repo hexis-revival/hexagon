@@ -48,3 +48,9 @@ func (info *BeatmapInfo) Serialize(stream *common.IOStream) {
 	stream.WriteString(info.Title)
 	stream.WriteString(info.Version)
 }
+
+func (response *LoginResponse) Serialize(stream *common.IOStream) {
+	stream.WriteString(response.Username)
+	stream.WriteString(response.Unknown)
+	stream.WriteU32(response.UserId)
+}

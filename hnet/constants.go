@@ -6,6 +6,10 @@ const (
 )
 
 const (
+	SERVER_LOGIN_RESPONSE uint32 = 2
+)
+
+const (
 	ACTION_IDLE    uint32 = 1
 	ACTION_PLAYING uint32 = 3
 	ACTION_EDITING uint32 = 5

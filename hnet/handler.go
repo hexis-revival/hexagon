@@ -1,6 +1,7 @@
 package hnet
 
 import (
+	"encoding/binary"
 	"fmt"
 
 	"github.com/lekuruu/hexagon/common"
@@ -27,7 +28,21 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	)
 
 	// TODO: Username & Password validation
-	return nil
+	// TODO: Pull data from database
+
+	responseStream := common.NewIOStream(
+		[]byte{},
+		binary.BigEndian,
+	)
+
+	response := LoginResponse{
+		Username: player.Name,
+		Unknown:  "",
+		UserId:   1,
+	}
+	response.Serialize(responseStream)
+
+	return player.SendPacket(SERVER_LOGIN_RESPONSE, responseStream.Get())
 }
 
 func handleStatusChange(stream *common.IOStream, player *Player) error {
