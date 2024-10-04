@@ -1,6 +1,9 @@
 package common
 
-import "encoding/binary"
+import (
+	"encoding/binary"
+	"math"
+)
 
 type IOStream struct {
 	data     []byte
@@ -83,6 +86,16 @@ func (stream *IOStream) ReadU64() uint64 {
 	return stream.endian.Uint64(stream.Read(8))
 }
 
+func (stream *IOStream) ReadF32() float32 {
+	bits := stream.ReadU32()
+	return math.Float32frombits(bits)
+}
+
+func (stream *IOStream) ReadF64() float64 {
+	bits := stream.ReadU64()
+	return math.Float64frombits(bits)
+}
+
 func (stream *IOStream) ReadString() string {
 	length := stream.ReadU32()
 
@@ -125,6 +138,16 @@ func (stream *IOStream) WriteU64(value uint64) {
 	data := make([]byte, 8)
 	stream.endian.PutUint64(data, value)
 	stream.Write(data)
+}
+
+func (stream *IOStream) WriteF32(value float32) {
+	bits := math.Float32bits(value)
+	stream.WriteU32(bits)
+}
+
+func (stream *IOStream) WriteF64(value float64) {
+	bits := math.Float64bits(value)
+	stream.WriteU64(bits)
 }
 
 func (stream *IOStream) WriteString(value string) {
