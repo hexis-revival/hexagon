@@ -86,6 +86,22 @@ func (stream *IOStream) ReadU64() uint64 {
 	return stream.endian.Uint64(stream.Read(8))
 }
 
+func (stream *IOStream) ReadI8() int8 {
+	return int8(stream.Read(1)[0])
+}
+
+func (stream *IOStream) ReadI16() int16 {
+	return int16(stream.ReadU16())
+}
+
+func (stream *IOStream) ReadI32() int32 {
+	return int32(stream.ReadU32())
+}
+
+func (stream *IOStream) ReadI64() int64 {
+	return int64(stream.ReadU64())
+}
+
 func (stream *IOStream) ReadF32() float32 {
 	bits := stream.ReadU32()
 	return math.Float32frombits(bits)
@@ -138,6 +154,22 @@ func (stream *IOStream) WriteU64(value uint64) {
 	data := make([]byte, 8)
 	stream.endian.PutUint64(data, value)
 	stream.Write(data)
+}
+
+func (stream *IOStream) WriteI8(value int8) {
+	stream.WriteU8(uint8(value))
+}
+
+func (stream *IOStream) WriteI16(value int16) {
+	stream.WriteU16(uint16(value))
+}
+
+func (stream *IOStream) WriteI32(value int32) {
+	stream.WriteU32(uint32(value))
+}
+
+func (stream *IOStream) WriteI64(value int64) {
+	stream.WriteU64(uint64(value))
 }
 
 func (stream *IOStream) WriteF32(value float32) {
