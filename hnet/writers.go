@@ -38,9 +38,13 @@ func (status *Status) Serialize(stream *common.IOStream) {
 		return
 	}
 
-	stream.WriteString(status.Beatmap.Checksum)
-	stream.WriteU32(status.Beatmap.Id)
-	stream.WriteString(status.Beatmap.Artist)
-	stream.WriteString(status.Beatmap.Title)
-	stream.WriteString(status.Beatmap.Version)
+	status.Beatmap.Serialize(stream)
+}
+
+func (info *BeatmapInfo) Serialize(stream *common.IOStream) {
+	stream.WriteString(info.Checksum)
+	stream.WriteU32(info.Id)
+	stream.WriteString(info.Artist)
+	stream.WriteString(info.Title)
+	stream.WriteString(info.Version)
 }
