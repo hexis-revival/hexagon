@@ -73,6 +73,10 @@ func (replayData *ReplayData) Serialize() []byte {
 }
 
 func ReadCompressedReplay(replay []byte) (*ReplayData, error) {
+	if len(replay) < 4 {
+		return &ReplayData{}, nil
+	}
+
 	stream := common.NewIOStream(replay, binary.BigEndian)
 	replaySize := stream.ReadU32()
 	compressedReplayData := stream.Read(int(replaySize))
