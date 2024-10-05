@@ -17,7 +17,7 @@ type ScoreSubmissionResponse struct {
 }
 
 type ScoreSubmissionRequest struct {
-	Replay      []byte
+	Replay      *ReplayData
 	ProcessList []string
 	ScoreData   *ScoreData
 	Password    string
@@ -26,8 +26,8 @@ type ScoreSubmissionRequest struct {
 
 func (req *ScoreSubmissionRequest) String() string {
 	return fmt.Sprintf(
-		"ScoreSubmissionRequest{Replay: %d bytes, ProcessList: %d processes, %s, Password: '%s', ClientData: %s}",
-		len(req.Replay),
+		"ScoreSubmissionRequest{%s, ProcessList: %d processes, %s, Password: '%s', ClientData: %s}",
+		req.Replay.String(),
 		len(req.ProcessList),
 		req.ScoreData.String(),
 		req.Password,
@@ -165,11 +165,16 @@ func NewScoreSubmissionRequest(request *http.Request) (*ScoreSubmissionRequest, 
 		return nil, err
 	}
 
+	replayData, err := ReadCompressedReplay(replay)
+	if err != nil {
+		return nil, err
+	}
+
 	processListData := ParseProcessList(processListDecrypted)
 
 	// TODO: Parse process list, score data & client data
 	return &ScoreSubmissionRequest{
-		Replay:      replay,
+		Replay:      replayData,
 		Password:    password,
 		ProcessList: processListData,
 		ScoreData:   scoreDataStruct,
