@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"math"
 	"time"
 )
 
@@ -94,6 +95,44 @@ func (header *ReplayHeader) Serialize(stream *IOStream) {
 	stream.WriteBool(header.FullCombo)
 	stream.WriteDateTime(header.Time)
 	stream.Write(header.ModsData)
+}
+
+func (header *ReplayHeader) Accuracy() float64 {
+	totalHits := header.Count300 + header.Count100 + header.Count50
+	return float64(header.Count300*300+header.Count100*100+header.Count50*50) / float64(totalHits*300)
+}
+
+func (header *ReplayHeader) Grade() Grade {
+	totalHits := header.Count300 + header.Count100 + header.Count50 + header.CountGood
+
+	if totalHits == 0 {
+		return GradeF
+	}
+
+	totalHitCount := float64(totalHits)
+	accuracyRatio := float64(header.Count300) / totalHitCount
+
+	if math.IsNaN(accuracyRatio) || accuracyRatio == 1.0 {
+		// TODO: Check if hidden is enabled
+		// if header.Mods.Hidden {
+		// 	  return GradeXH
+		// }
+		return GradeSS
+	}
+
+	if accuracyRatio <= 0.8 && header.CountGood == 0 {
+		if accuracyRatio > 0.6 {
+			return GradeC
+		}
+		return GradeD
+	}
+
+	if accuracyRatio <= 0.9 {
+		return GradeB
+	}
+
+	// Default case for remaining conditions
+	return GradeA
 }
 
 type ReplayFrame struct {
