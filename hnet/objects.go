@@ -115,15 +115,15 @@ func (beatmap BeatmapInfo) String() string {
 
 type LoginResponse struct {
 	Username string
-	Unknown  string // TODO
+	Password string
 	UserId   uint32
 }
 
 func (response LoginResponse) String() string {
 	return fmt.Sprintf(
-		"LoginResponse{Username: %s, Unknown: %s, UserId: %d}",
+		"LoginResponse{Username: %s, Password: %s, UserId: %d}",
 		response.Username,
-		response.Unknown,
+		response.Password,
 		response.UserId,
 	)
 }

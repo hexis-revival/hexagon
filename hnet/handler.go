@@ -37,7 +37,7 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	response := LoginResponse{
 		UserId:   player.Id,
 		Username: player.Name,
-		Unknown:  "Test",
+		Password: request.Password,
 	}
 
 	return player.SendPacket(SERVER_LOGIN_RESPONSE, response)

@@ -51,6 +51,6 @@ func (info BeatmapInfo) Serialize(stream *common.IOStream) {
 
 func (response LoginResponse) Serialize(stream *common.IOStream) {
 	stream.WriteString(response.Username)
-	stream.WriteString(response.Unknown)
+	stream.WriteString(response.Password)
 	stream.WriteU32(response.UserId)
 }
