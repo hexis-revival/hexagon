@@ -165,9 +165,11 @@ func NewScoreSubmissionRequest(request *http.Request) (*ScoreSubmissionRequest, 
 		return nil, err
 	}
 
-	replayData, err := ReadCompressedReplay(replay)
-	if err != nil {
-		return nil, err
+	replayData, _ := ReadCompressedReplay(replay)
+	if replayData == nil {
+		// Either invalid replay or not provided
+		// we will handle this later
+		replayData = &ReplayData{}
 	}
 
 	processListData := ParseProcessList(processListDecrypted)
