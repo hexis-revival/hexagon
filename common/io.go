@@ -211,3 +211,9 @@ func (stream *IOStream) WriteString(value string) {
 		stream.WriteU16(uint16(c))
 	}
 }
+
+func (stream *IOStream) WriteDateTime(value time.Time) {
+	// Convert time.Time to julian date
+	jd := julian.TimeToJD(value)
+	stream.WriteI32(int32(jd))
+}
