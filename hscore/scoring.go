@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -85,6 +86,43 @@ func (scoreData *ScoreData) String() string {
 func (scoreData *ScoreData) Accuracy() float64 {
 	totalHits := scoreData.Count300 + scoreData.Count100 + scoreData.Count50
 	return float64(scoreData.Count300*300+scoreData.Count100*100+scoreData.Count50*50) / float64(totalHits*300)
+}
+
+func (scoreData *ScoreData) Grade() Grade {
+	totalHits := scoreData.Count300 + scoreData.Count100 + scoreData.Count50 + scoreData.CountGood
+
+	if totalHits == 0 {
+		return GradeF
+	}
+
+	totalHitCount := float64(totalHits)
+	accuracyRatio := float64(scoreData.Count300) / totalHitCount
+
+	if !scoreData.Passed {
+		return GradeF
+	}
+
+	if math.IsNaN(accuracyRatio) || accuracyRatio == 1.0 {
+		if scoreData.Mods.Hidden {
+			return GradeXH
+		} else {
+			return GradeSS
+		}
+	}
+
+	if accuracyRatio <= 0.8 && scoreData.CountGood == 0 {
+		if accuracyRatio > 0.6 {
+			return GradeC
+		}
+		return GradeD
+	}
+
+	if accuracyRatio <= 0.9 {
+		return GradeB
+	}
+
+	// Default case for remaining conditions
+	return GradeA
 }
 
 type Mods struct {
