@@ -6,7 +6,98 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"time"
 )
+
+type ReplayData struct {
+	Header *ReplayHeader
+	Frames []*ReplayFrame
+}
+
+func (replayData *ReplayData) String() string {
+	header := "no header"
+
+	if replayData.Header != nil {
+		header = replayData.Header.String()
+	}
+
+	return fmt.Sprintf(
+		"ReplayData{%d frames, %s}",
+		len(replayData.Frames), header,
+	)
+}
+
+func (replayData *ReplayData) SerializeFrames(stream *IOStream) {
+	replayStream := NewIOStream([]byte{}, binary.BigEndian)
+	replayStream.WriteU32(uint32(len(replayData.Frames)))
+
+	for _, frame := range replayData.Frames {
+		frame.Serialize(replayStream)
+	}
+
+	decompressed := replayStream.Get()
+	compressed := bytes.NewBuffer([]byte{})
+
+	zlibWriter := zlib.NewWriter(compressed)
+	zlibWriter.Write(decompressed)
+	zlibWriter.Close()
+
+	stream.WriteU32(uint32(len(compressed.Bytes())))
+	stream.Write(compressed.Bytes())
+}
+
+func (replayData *ReplayData) Serialize(stream *IOStream) {
+	replayData.Header.Serialize(stream)
+	replayData.SerializeFrames(stream)
+}
+
+type ReplayHeader struct {
+	ReplayVersion   uint8
+	BeatmapChecksum string
+	PlayerName      string
+	ScoreChecksum   string
+	Count300        uint32
+	Count100        uint32
+	Count50         uint32
+	CountGeki       uint32
+	CountGood       uint32
+	CountMiss       uint32
+	TotalScore      float64
+	MaxCombo        uint32
+	FullCombo       bool
+	Time            time.Time
+}
+
+func (header *ReplayHeader) String() string {
+	return fmt.Sprintf(
+		"ReplayHeader{ReplayVersion: %d, BeatmapChecksum: %s, PlayerName: %s, ScoreChecksum: %s, Count300: %d, Count100: %d, Count50: %d, CountGeki: %d, CountGood: %d, CountMiss: %d, TotalScore: %f, MaxCombo: %d, FullCombo: %t, Time: %s}",
+		header.ReplayVersion, header.BeatmapChecksum, header.PlayerName, header.ScoreChecksum, header.Count300, header.Count100, header.Count50, header.CountGeki, header.CountGood, header.CountMiss, header.TotalScore, header.MaxCombo, header.FullCombo, header.Time,
+	)
+}
+
+func (header *ReplayHeader) Serialize(stream *IOStream) {
+	stream.Write([]byte{0xf0, 0xa0, 0xc0, 0xe0})
+	stream.WriteU32(0)
+	stream.WriteU8(header.ReplayVersion)
+	stream.WriteString(header.BeatmapChecksum)
+	stream.WriteString(header.PlayerName)
+	stream.WriteString(header.ScoreChecksum)
+	stream.WriteU32(header.Count300)
+	stream.WriteU32(header.Count100)
+	stream.WriteU32(header.Count50)
+	stream.WriteU32(header.CountGeki)
+	stream.WriteU32(header.CountGood)
+	stream.WriteU32(header.CountMiss)
+	stream.WriteF64(header.TotalScore)
+	stream.WriteU32(header.MaxCombo)
+	stream.WriteBool(header.FullCombo)
+	stream.WriteDateTime(header.Time)
+
+	// TODO: unknown values, maybe mods data?
+	stream.WriteI32(0)
+	stream.WriteU8(0)
+	stream.WriteI32(0)
+}
 
 type ReplayFrame struct {
 	Time        uint32
@@ -29,8 +120,8 @@ func (frame *ReplayFrame) Serialize(stream *IOStream) {
 	stream.WriteU32(frame.ButtonState)
 }
 
-func readReplayFrame(stream *IOStream) ReplayFrame {
-	frame := ReplayFrame{}
+func ReadReplayFrame(stream *IOStream) *ReplayFrame {
+	frame := &ReplayFrame{}
 	frame.Time = stream.ReadU32()
 	frame.MouseX = stream.ReadF64()
 	frame.MouseY = stream.ReadF64()
@@ -38,46 +129,44 @@ func readReplayFrame(stream *IOStream) ReplayFrame {
 	return frame
 }
 
-type ReplayData struct {
-	Frames []ReplayFrame
-}
+func ReadReplayHeader(stream *IOStream) *ReplayHeader {
+	header := &ReplayHeader{}
+	magicBytes := stream.Read(4)
 
-func (replayData *ReplayData) String() string {
-	return fmt.Sprintf(
-		"ReplayData{%d frames}",
-		len(replayData.Frames),
-	)
-}
-
-func (replayData *ReplayData) Serialize() []byte {
-	stream := NewIOStream([]byte{}, binary.BigEndian)
-	stream.WriteU32(uint32(len(replayData.Frames)))
-
-	for _, frame := range replayData.Frames {
-		frame.Serialize(stream)
+	if !bytes.Equal(magicBytes, []byte{0xf0, 0xa0, 0xc0, 0xe0}) {
+		return nil
 	}
 
-	decompressed := stream.Get()
-	compressed := bytes.NewBuffer([]byte{})
+	_ = stream.ReadI32() // Always zero-bytes, we can ignore them
+	header.ReplayVersion = stream.ReadU8()
+	header.BeatmapChecksum = stream.ReadString()
+	header.PlayerName = stream.ReadString()
+	header.ScoreChecksum = stream.ReadString()
+	header.Count300 = stream.ReadU32()
+	header.Count100 = stream.ReadU32()
+	header.Count50 = stream.ReadU32()
+	header.CountGeki = stream.ReadU32()
+	header.CountGood = stream.ReadU32()
+	header.CountMiss = stream.ReadU32()
+	header.TotalScore = stream.ReadF64()
+	header.MaxCombo = stream.ReadU32()
+	header.FullCombo = stream.ReadBool()
+	header.Time = stream.ReadDateTime()
 
-	zlibWriter := zlib.NewWriter(compressed)
-	zlibWriter.Write(decompressed)
-	zlibWriter.Close()
-
-	stream = NewIOStream([]byte{}, binary.BigEndian)
-	stream.WriteU32(uint32(len(compressed.Bytes())))
-	stream.Write(compressed.Bytes())
-	return stream.Get()
+	// TODO: unknown values, maybe mods data?
+	_ = stream.ReadI32()
+	_ = stream.ReadU8()
+	_ = stream.ReadI32()
+	return header
 }
 
-func ReadCompressedReplay(replay []byte) (*ReplayData, error) {
+func ReadCompressedReplay(stream *IOStream) (*ReplayData, error) {
 	defer handlePanic()
 
-	if len(replay) < 4 {
+	if stream.Available() < 4 {
 		return nil, fmt.Errorf("replay is too short")
 	}
 
-	stream := NewIOStream(replay, binary.BigEndian)
 	replaySize := stream.ReadU32()
 	compressedReplayData := stream.Read(int(replaySize))
 
@@ -98,7 +187,7 @@ func ReadCompressedReplay(replay []byte) (*ReplayData, error) {
 
 	stream = NewIOStream(replayData, binary.BigEndian)
 	frameAmount := stream.ReadU32()
-	frames := make([]ReplayFrame, frameAmount)
+	frames := make([]*ReplayFrame, frameAmount)
 
 	// One frame is 24 bytes
 	expectedSize := 24 * frameAmount
@@ -112,8 +201,25 @@ func ReadCompressedReplay(replay []byte) (*ReplayData, error) {
 	}
 
 	for i := uint32(0); i < frameAmount; i++ {
-		frames[i] = readReplayFrame(stream)
+		frames[i] = ReadReplayFrame(stream)
 	}
 
 	return &ReplayData{Frames: frames}, nil
+}
+
+func ReadFullReplay(stream *IOStream) (*ReplayData, error) {
+	header := ReadReplayHeader(stream)
+
+	if header == nil {
+		return &ReplayData{}, fmt.Errorf("failed to read replay header")
+	}
+
+	replayData, err := ReadCompressedReplay(stream)
+
+	if err != nil {
+		return &ReplayData{}, err
+	}
+
+	replayData.Header = header
+	return replayData, nil
 }

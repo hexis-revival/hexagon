@@ -2,6 +2,7 @@ package hscore
 
 import (
 	"encoding/base64"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"math"
@@ -208,7 +209,8 @@ func NewScoreSubmissionRequest(request *http.Request) (*ScoreSubmissionRequest, 
 		return nil, err
 	}
 
-	replayData, _ := common.ReadCompressedReplay(replay)
+	replayStream := common.NewIOStream(replay, binary.BigEndian)
+	replayData, _ := common.ReadCompressedReplay(replayStream)
 	if replayData == nil {
 		// Either invalid replay or not provided
 		// we will handle this later
