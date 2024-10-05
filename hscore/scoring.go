@@ -82,6 +82,11 @@ func (scoreData *ScoreData) String() string {
 	)
 }
 
+func (scoreData *ScoreData) Accuracy() float64 {
+	totalHits := scoreData.Count300 + scoreData.Count100 + scoreData.Count50
+	return float64(scoreData.Count300*300+scoreData.Count100*100+scoreData.Count50*50) / float64(totalHits*300)
+}
+
 type Mods struct {
 	ArChange  int
 	OdChange  int
