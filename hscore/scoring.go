@@ -89,41 +89,41 @@ func (scoreData *ScoreData) Accuracy() float64 {
 	return float64(scoreData.Count300*300+scoreData.Count100*100+scoreData.Count50*50) / float64(totalHits*300)
 }
 
-func (scoreData *ScoreData) Grade() Grade {
+func (scoreData *ScoreData) Grade() common.Grade {
 	totalHits := scoreData.Count300 + scoreData.Count100 + scoreData.Count50 + scoreData.CountGood
 
 	if totalHits == 0 {
-		return GradeF
+		return common.GradeF
 	}
 
 	totalHitCount := float64(totalHits)
 	accuracyRatio := float64(scoreData.Count300) / totalHitCount
 
 	if !scoreData.Passed {
-		return GradeF
+		return common.GradeF
 	}
 
 	if math.IsNaN(accuracyRatio) || accuracyRatio == 1.0 {
 		if scoreData.Mods.Hidden {
-			return GradeXH
+			return common.GradeXH
 		} else {
-			return GradeSS
+			return common.GradeSS
 		}
 	}
 
 	if accuracyRatio <= 0.8 && scoreData.CountGood == 0 {
 		if accuracyRatio > 0.6 {
-			return GradeC
+			return common.GradeC
 		}
-		return GradeD
+		return common.GradeD
 	}
 
 	if accuracyRatio <= 0.9 {
-		return GradeB
+		return common.GradeB
 	}
 
 	// Default case for remaining conditions
-	return GradeA
+	return common.GradeA
 }
 
 type Mods struct {

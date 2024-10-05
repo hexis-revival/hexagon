@@ -1,4 +1,4 @@
-package hscore
+package common
 
 type Grade int
 
