@@ -31,7 +31,7 @@ func (frame *ReplayFrame) Serialize(stream *common.IOStream) {
 	stream.WriteU32(frame.ButtonState)
 }
 
-func ReadReplayFrame(stream *common.IOStream) ReplayFrame {
+func readReplayFrame(stream *common.IOStream) ReplayFrame {
 	frame := ReplayFrame{}
 	frame.Time = stream.ReadU32()
 	frame.MouseX = stream.ReadF64()
@@ -73,8 +73,10 @@ func (replayData *ReplayData) Serialize() []byte {
 }
 
 func ReadCompressedReplay(replay []byte) (*ReplayData, error) {
+	defer handlePanic()
+
 	if len(replay) < 4 {
-		return &ReplayData{}, nil
+		return nil, fmt.Errorf("replay is too short")
 	}
 
 	stream := common.NewIOStream(replay, binary.BigEndian)
@@ -92,13 +94,32 @@ func ReadCompressedReplay(replay []byte) (*ReplayData, error) {
 		return nil, err
 	}
 
+	if len(replayData) < 4 {
+		return nil, fmt.Errorf("replay data is too short")
+	}
+
 	stream = common.NewIOStream(replayData, binary.BigEndian)
 	frameAmount := stream.ReadU32()
 	frames := make([]ReplayFrame, frameAmount)
 
+	// One frame is 24 bytes
+	expectedSize := 24 * frameAmount
+
+	// Check if we have enough data for all frames
+	if stream.Available() < int(expectedSize) {
+		return nil, fmt.Errorf(
+			"not enough data for %d frames, got %d bytes",
+			frameAmount, stream.Available(),
+		)
+	}
+
 	for i := uint32(0); i < frameAmount; i++ {
-		frames[i] = ReadReplayFrame(stream)
+		frames[i] = readReplayFrame(stream)
 	}
 
 	return &ReplayData{Frames: frames}, nil
+}
+
+func handlePanic() {
+	_ = recover()
 }
