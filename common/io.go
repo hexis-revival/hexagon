@@ -3,6 +3,9 @@ package common
 import (
 	"encoding/binary"
 	"math"
+	"time"
+
+	"github.com/soniakeys/meeus/v3/julian"
 )
 
 type IOStream struct {
@@ -112,6 +115,10 @@ func (stream *IOStream) ReadF64() float64 {
 	return math.Float64frombits(bits)
 }
 
+func (stream *IOStream) ReadBool() bool {
+	return stream.ReadU8() == 1
+}
+
 func (stream *IOStream) ReadString() string {
 	length := stream.ReadU32()
 
@@ -128,6 +135,13 @@ func (stream *IOStream) ReadString() string {
 	}
 
 	return string(chars)
+}
+
+func (stream *IOStream) ReadDateTime() time.Time {
+	// Convert julian date to time.Time
+	jd := float64(stream.ReadI32())
+	time := julian.JDToTime(jd)
+	return time
 }
 
 func (stream *IOStream) Write(data []byte) {
@@ -182,10 +196,24 @@ func (stream *IOStream) WriteF64(value float64) {
 	stream.WriteU64(bits)
 }
 
+func (stream *IOStream) WriteBool(value bool) {
+	if value {
+		stream.WriteU8(1)
+	} else {
+		stream.WriteU8(0)
+	}
+}
+
 func (stream *IOStream) WriteString(value string) {
 	stream.WriteU32(uint32(len(value) * 2))
 
 	for _, c := range value {
 		stream.WriteU16(uint16(c))
 	}
+}
+
+func (stream *IOStream) WriteDateTime(value time.Time) {
+	// Convert time.Time to julian date
+	jd := julian.TimeToJD(value)
+	stream.WriteI32(int32(jd))
 }

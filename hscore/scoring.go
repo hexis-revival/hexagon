@@ -2,8 +2,10 @@ package hscore
 
 import (
 	"encoding/base64"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -17,7 +19,7 @@ type ScoreSubmissionResponse struct {
 }
 
 type ScoreSubmissionRequest struct {
-	Replay      *ReplayData
+	Replay      *common.ReplayData
 	ProcessList []string
 	ScoreData   *ScoreData
 	Password    string
@@ -80,6 +82,48 @@ func (scoreData *ScoreData) String() string {
 		scoreData.Unknown2,
 		scoreData.Mods.String(),
 	)
+}
+
+func (scoreData *ScoreData) Accuracy() float64 {
+	totalHits := scoreData.Count300 + scoreData.Count100 + scoreData.Count50
+	return float64(scoreData.Count300*300+scoreData.Count100*100+scoreData.Count50*50) / float64(totalHits*300)
+}
+
+func (scoreData *ScoreData) Grade() common.Grade {
+	totalHits := scoreData.Count300 + scoreData.Count100 + scoreData.Count50 + scoreData.CountGood
+
+	if totalHits == 0 {
+		return common.GradeF
+	}
+
+	totalHitCount := float64(totalHits)
+	accuracyRatio := float64(scoreData.Count300) / totalHitCount
+
+	if !scoreData.Passed {
+		return common.GradeF
+	}
+
+	if math.IsNaN(accuracyRatio) || accuracyRatio == 1.0 {
+		if scoreData.Mods.Hidden {
+			return common.GradeXH
+		} else {
+			return common.GradeSS
+		}
+	}
+
+	if accuracyRatio <= 0.8 && scoreData.CountGood == 0 {
+		if accuracyRatio > 0.6 {
+			return common.GradeC
+		}
+		return common.GradeD
+	}
+
+	if accuracyRatio <= 0.9 {
+		return common.GradeB
+	}
+
+	// Default case for remaining conditions
+	return common.GradeA
 }
 
 type Mods struct {
@@ -165,11 +209,12 @@ func NewScoreSubmissionRequest(request *http.Request) (*ScoreSubmissionRequest, 
 		return nil, err
 	}
 
-	replayData, _ := ReadCompressedReplay(replay)
+	replayStream := common.NewIOStream(replay, binary.BigEndian)
+	replayData, _ := common.ReadCompressedReplay(replayStream)
 	if replayData == nil {
 		// Either invalid replay or not provided
 		// we will handle this later
-		replayData = &ReplayData{}
+		replayData = &common.ReplayData{}
 	}
 
 	processListData := ParseProcessList(processListDecrypted)

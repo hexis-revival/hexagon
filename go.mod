@@ -3,8 +3,13 @@ module github.com/lekuruu/hexagon
 go 1.22.7
 
 require (
-	github.com/lekuruu/hexagon/common v0.0.0-20241004134151-9a352d6c7cd7
+	github.com/lekuruu/hexagon/common v0.0.0-20241005191625-f1f1499b1fd1
 	github.com/lekuruu/hexagon/hnet v0.0.0-00010101000000-000000000000
+)
+
+require (
+	github.com/soniakeys/meeus/v3 v3.0.1 // indirect
+	github.com/soniakeys/unit v1.0.0 // indirect
 )
 
 require (
