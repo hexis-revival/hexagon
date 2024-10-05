@@ -18,7 +18,7 @@ type ScoreSubmissionResponse struct {
 }
 
 type ScoreSubmissionRequest struct {
-	Replay      *ReplayData
+	Replay      *common.ReplayData
 	ProcessList []string
 	ScoreData   *ScoreData
 	Password    string
@@ -208,11 +208,11 @@ func NewScoreSubmissionRequest(request *http.Request) (*ScoreSubmissionRequest, 
 		return nil, err
 	}
 
-	replayData, _ := ReadCompressedReplay(replay)
+	replayData, _ := common.ReadCompressedReplay(replay)
 	if replayData == nil {
 		// Either invalid replay or not provided
 		// we will handle this later
-		replayData = &ReplayData{}
+		replayData = &common.ReplayData{}
 	}
 
 	processListData := ParseProcessList(processListDecrypted)

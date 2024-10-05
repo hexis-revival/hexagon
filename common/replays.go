@@ -1,4 +1,4 @@
-package hscore
+package common
 
 import (
 	"bytes"
@@ -6,8 +6,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
-
-	"github.com/lekuruu/hexagon/common"
 )
 
 type ReplayFrame struct {
@@ -24,14 +22,14 @@ func (frame *ReplayFrame) String() string {
 	)
 }
 
-func (frame *ReplayFrame) Serialize(stream *common.IOStream) {
+func (frame *ReplayFrame) Serialize(stream *IOStream) {
 	stream.WriteU32(frame.Time)
 	stream.WriteF64(frame.MouseX)
 	stream.WriteF64(frame.MouseY)
 	stream.WriteU32(frame.ButtonState)
 }
 
-func readReplayFrame(stream *common.IOStream) ReplayFrame {
+func readReplayFrame(stream *IOStream) ReplayFrame {
 	frame := ReplayFrame{}
 	frame.Time = stream.ReadU32()
 	frame.MouseX = stream.ReadF64()
@@ -52,7 +50,7 @@ func (replayData *ReplayData) String() string {
 }
 
 func (replayData *ReplayData) Serialize() []byte {
-	stream := common.NewIOStream([]byte{}, binary.BigEndian)
+	stream := NewIOStream([]byte{}, binary.BigEndian)
 	stream.WriteU32(uint32(len(replayData.Frames)))
 
 	for _, frame := range replayData.Frames {
@@ -66,7 +64,7 @@ func (replayData *ReplayData) Serialize() []byte {
 	zlibWriter.Write(decompressed)
 	zlibWriter.Close()
 
-	stream = common.NewIOStream([]byte{}, binary.BigEndian)
+	stream = NewIOStream([]byte{}, binary.BigEndian)
 	stream.WriteU32(uint32(len(compressed.Bytes())))
 	stream.Write(compressed.Bytes())
 	return stream.Get()
@@ -79,7 +77,7 @@ func ReadCompressedReplay(replay []byte) (*ReplayData, error) {
 		return nil, fmt.Errorf("replay is too short")
 	}
 
-	stream := common.NewIOStream(replay, binary.BigEndian)
+	stream := NewIOStream(replay, binary.BigEndian)
 	replaySize := stream.ReadU32()
 	compressedReplayData := stream.Read(int(replaySize))
 
@@ -98,7 +96,7 @@ func ReadCompressedReplay(replay []byte) (*ReplayData, error) {
 		return nil, fmt.Errorf("replay data is too short")
 	}
 
-	stream = common.NewIOStream(replayData, binary.BigEndian)
+	stream = NewIOStream(replayData, binary.BigEndian)
 	frameAmount := stream.ReadU32()
 	frames := make([]ReplayFrame, frameAmount)
 
@@ -118,8 +116,4 @@ func ReadCompressedReplay(replay []byte) (*ReplayData, error) {
 	}
 
 	return &ReplayData{Frames: frames}, nil
-}
-
-func handlePanic() {
-	_ = recover()
 }
