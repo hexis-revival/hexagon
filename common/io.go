@@ -112,6 +112,10 @@ func (stream *IOStream) ReadF64() float64 {
 	return math.Float64frombits(bits)
 }
 
+func (stream *IOStream) ReadBool() bool {
+	return stream.ReadU8() == 1
+}
+
 func (stream *IOStream) ReadString() string {
 	length := stream.ReadU32()
 
@@ -180,6 +184,14 @@ func (stream *IOStream) WriteF32(value float32) {
 func (stream *IOStream) WriteF64(value float64) {
 	bits := math.Float64bits(value)
 	stream.WriteU64(bits)
+}
+
+func (stream *IOStream) WriteBool(value bool) {
+	if value {
+		stream.WriteU8(1)
+	} else {
+		stream.WriteU8(0)
+	}
 }
 
 func (stream *IOStream) WriteString(value string) {
