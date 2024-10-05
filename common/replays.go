@@ -67,7 +67,7 @@ type ReplayHeader struct {
 	MaxCombo        uint32
 	FullCombo       bool
 	Time            time.Time
-	ModsData        []byte
+	ModsData        [9]byte
 }
 
 func (header *ReplayHeader) String() string {
@@ -94,7 +94,7 @@ func (header *ReplayHeader) Serialize(stream *IOStream) {
 	stream.WriteU32(header.MaxCombo)
 	stream.WriteBool(header.FullCombo)
 	stream.WriteDateTime(header.Time)
-	stream.Write(header.ModsData)
+	stream.Write(header.ModsData[:])
 }
 
 func (header *ReplayHeader) Accuracy() float64 {
@@ -188,7 +188,7 @@ func ReadReplayHeader(stream *IOStream) *ReplayHeader {
 	header.MaxCombo = stream.ReadU32()
 	header.FullCombo = stream.ReadBool()
 	header.Time = stream.ReadDateTime()
-	header.ModsData = stream.Read(9)
+	header.ModsData = [9]byte(stream.Read(9))
 	return header
 }
 
