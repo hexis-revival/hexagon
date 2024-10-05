@@ -3,6 +3,9 @@ package common
 import (
 	"encoding/binary"
 	"math"
+	"time"
+
+	"github.com/soniakeys/meeus/v3/julian"
 )
 
 type IOStream struct {
@@ -132,6 +135,13 @@ func (stream *IOStream) ReadString() string {
 	}
 
 	return string(chars)
+}
+
+func (stream *IOStream) ReadDateTime() time.Time {
+	// Convert julian date to time.Time
+	jd := float64(stream.ReadI32())
+	time := julian.JDToTime(jd)
+	return time
 }
 
 func (stream *IOStream) Write(data []byte) {
