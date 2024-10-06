@@ -65,3 +65,5 @@ fabric.properties
 
 # Grrr, vscode
 .vscode
+
+.data

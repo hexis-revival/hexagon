@@ -6,13 +6,13 @@ type PlayerCollection struct {
 }
 
 func (collection *PlayerCollection) Add(player *Player) {
-	collection.idMap[player.Id] = player
-	collection.nameMap[player.Name] = player
+	collection.idMap[player.Info.Id] = player
+	collection.nameMap[player.Info.Name] = player
 }
 
 func (collection *PlayerCollection) Remove(player *Player) {
-	delete(collection.idMap, player.Id)
-	delete(collection.nameMap, player.Name)
+	delete(collection.idMap, player.Info.Id)
+	delete(collection.nameMap, player.Info.Name)
 }
 
 func (collection *PlayerCollection) Count() int {

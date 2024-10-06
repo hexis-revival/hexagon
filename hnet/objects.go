@@ -127,3 +127,58 @@ func (response LoginResponse) String() string {
 		response.UserId,
 	)
 }
+
+type UserInfo struct {
+	Id   uint32
+	Name string
+	// TODO: Add remaining presence data
+}
+
+func (presence UserInfo) String() string {
+	return fmt.Sprintf(
+		"UserPresence{UserId: %d. Username: %s}",
+		presence.Id,
+		presence.Name,
+	)
+}
+
+func NewUserInfo() *UserInfo {
+	return &UserInfo{
+		Id:   0,
+		Name: "",
+	}
+}
+
+type UserStats struct {
+	UserId   uint32
+	Rank     uint32
+	Score    uint64
+	Unknown  uint32
+	Unknown2 uint32
+	Accuracy float64
+	Plays    uint32
+}
+
+func (stats UserStats) String() string {
+	return fmt.Sprintf(
+		"UserStats{UserId: %d, Rank: %d, Score: %d, Unknown: %d, Unknown2: %d, Accuracy: %f, Plays: %d}",
+		stats.UserId,
+		stats.Rank,
+		stats.Score,
+		stats.Unknown,
+		stats.Unknown2,
+		stats.Accuracy*100,
+		stats.Plays,
+	)
+}
+
+func NewUserStats() *UserStats {
+	return &UserStats{
+		Rank:     0,
+		Score:    0,
+		Unknown:  0,
+		Unknown2: 0,
+		Accuracy: 0.0,
+		Plays:    0,
+	}
+}

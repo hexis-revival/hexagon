@@ -17,26 +17,42 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	}
 
 	player.LogIncomingPacket(CLIENT_LOGIN, request)
-	player.Name = request.Username
 	player.Version = request.Version
 	player.Client = request.Client
 
+	// Set random player Id
+	player.Info.Id = uint32(rand.Intn(1000))
+	player.Info.Name = request.Username
+
 	player.Logger.Infof(
 		"Login attempt as '%s' with version %s",
-		player.Name,
+		player.Info.Name,
 		player.Version.String(),
 	)
 
-	// Set random player Id for now
-	player.Id = uint32(rand.Intn(1000))
+	// Add to player collection
 	player.Server.Players.Add(player)
 
-	// TODO: Username & Password validation
-	// TODO: Pull data from database
+	// Set placeholder stats
+	player.Stats.UserId = player.Info.Id
+	player.Stats.Rank = 1
+	player.Stats.Score = 300
+	player.Stats.Unknown = 1
+	player.Stats.Unknown2 = 2
+	player.Stats.Accuracy = 0.9914
+	player.Stats.Plays = 21
+
+	for _, other := range player.Server.Players.All() {
+		other.SendPacket(SERVER_USER_INFO, player.Info)
+		other.SendPacket(SERVER_USER_STATS, player.Stats)
+
+		player.SendPacket(SERVER_USER_INFO, other.Info)
+		player.SendPacket(SERVER_USER_STATS, other.Stats)
+	}
 
 	response := LoginResponse{
-		UserId:   player.Id,
-		Username: player.Name,
+		UserId:   player.Info.Id,
+		Username: player.Info.Name,
 		Password: request.Password,
 	}
 
@@ -56,10 +72,23 @@ func handleStatusChange(stream *common.IOStream, player *Player) error {
 }
 
 func handleRequestStats(stream *common.IOStream, player *Player) error {
-	var userId = stream.ReadU32()
+	var userIds = stream.ReadIntList()
 
-	player.Logger.Infof("Requested stats of user %d", userId)
-	// TODO: pull stats, and enqueue them
+	player.Logger.Infof("Requested stats of %d users", len(userIds))
+
+	for _, userId := range userIds {
+		stats := UserStats{
+			UserId:   userId,
+			Rank:     1,
+			Score:    300,
+			Unknown:  1,
+			Unknown2: 2,
+			Accuracy: 0.9914,
+			Plays:    21,
+		}
+
+		player.SendPacket(SERVER_USER_STATS, stats)
+	}
 
 	return nil
 }
