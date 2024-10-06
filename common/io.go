@@ -137,6 +137,22 @@ func (stream *IOStream) ReadString() string {
 	return string(chars)
 }
 
+func (stream *IOStream) ReadIntList() []uint32 {
+	length := stream.ReadU32()
+
+	if length == 0 {
+		return []uint32{}
+	}
+
+	list := make([]uint32, 0, length)
+
+	for range length {
+		list = append(list, stream.ReadU32())
+	}
+
+	return list
+}
+
 func (stream *IOStream) ReadDateTime() time.Time {
 	// Convert julian date to time.Time
 	jd := float64(stream.ReadI32())
