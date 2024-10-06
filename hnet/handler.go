@@ -39,9 +39,21 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 		Username: player.Name,
 	}
 
+	// fake data for now
+	stats := UserStats{
+		UserId:   player.Id,
+		Rank:     1,
+		Score:    300,
+		Unknown:  1,
+		Unknown2: 2,
+		Accuracy: 0.9914,
+		Plays:    21,
+	}
+
 	for _, other := range player.Server.Players.All() {
 		// tell others about us
 		other.SendPacket(SERVER_USER_PRESENCE, presence)
+		other.SendPacket(SERVER_USER_STATS, stats)
 
 		// tell us about others
 		otherPresence := UserPresence{
@@ -49,7 +61,18 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 			Username: other.Name,
 		}
 
+		otherStats := UserStats{
+			UserId:   other.Id,
+			Rank:     1,
+			Score:    300,
+			Unknown:  1,
+			Unknown2: 2,
+			Accuracy: 0.9914,
+			Plays:    21,
+		}
+
 		player.SendPacket(SERVER_USER_PRESENCE, otherPresence)
+		player.SendPacket(SERVER_USER_STATS, otherStats)
 	}
 
 	response := LoginResponse{
@@ -77,7 +100,20 @@ func handleRequestStats(stream *common.IOStream, player *Player) error {
 	var userIds = stream.ReadIntList()
 
 	player.Logger.Infof("Requested stats of %d users", len(userIds))
-	// TODO: pull stats, and enqueue them
+
+	for _, userId := range userIds {
+		stats := UserStats{
+			UserId:   userId,
+			Rank:     1,
+			Score:    300,
+			Unknown:  1,
+			Unknown2: 2,
+			Accuracy: 0.9914,
+			Plays:    21,
+		}
+
+		player.SendPacket(SERVER_USER_STATS, stats)
+	}
 
 	return nil
 }

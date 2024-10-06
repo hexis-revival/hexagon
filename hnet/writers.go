@@ -59,3 +59,13 @@ func (presence UserPresence) Serialize(stream *common.IOStream) {
 	stream.WriteU32(presence.UserId)
 	stream.WriteString(presence.Username)
 }
+
+func (stats UserStats) Serialize(stream *common.IOStream) {
+	stream.WriteU32(stats.UserId)
+	stream.WriteU32(stats.Rank)
+	stream.WriteU64(stats.Score)
+	stream.WriteU32(stats.Unknown)
+	stream.WriteU32(stats.Unknown2)
+	stream.WriteF64(stats.Accuracy)
+	stream.WriteU32(stats.Plays)
+}

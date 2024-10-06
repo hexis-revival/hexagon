@@ -143,3 +143,26 @@ func (presence UserPresence) String() string {
 		presence.Username,
 	)
 }
+
+type UserStats struct {
+	UserId   uint32
+	Rank     uint32
+	Score    uint64
+	Unknown  uint32
+	Unknown2 uint32
+	Accuracy float64 // represented as acc / 100 (99.14 -> 0.9914)
+	Plays    uint32
+}
+
+func (stats UserStats) String() string {
+	return fmt.Sprintf(
+		"UserStats{UserId: %d, Rank: %d, Score: %d, Unknown: %d, Unknown2: %d, Accuracy: %f, Plays: %d}",
+		stats.UserId,
+		stats.Rank,
+		stats.Score,
+		stats.Unknown,
+		stats.Unknown2,
+		stats.Accuracy*100, // easier to read
+		stats.Plays,
+	)
+}
