@@ -8,6 +8,7 @@ const (
 
 const (
 	SERVER_LOGIN_RESPONSE uint32 = 2
+	SERVER_USER_PRESENCE  uint32 = 6
 )
 
 const (

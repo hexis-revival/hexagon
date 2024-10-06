@@ -127,3 +127,19 @@ func (response LoginResponse) String() string {
 		response.UserId,
 	)
 }
+
+type UserPresence struct {
+	UserId   uint32
+	Username string
+	// TODO: there is more fields to this,
+	// but i am yet to figure them out.
+	// the client also lets you get away with just this
+}
+
+func (presence UserPresence) String() string {
+	return fmt.Sprintf(
+		"UserPresence{UserId: %d. Username: %s}",
+		presence.UserId,
+		presence.Username,
+	)
+}

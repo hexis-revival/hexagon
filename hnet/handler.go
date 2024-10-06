@@ -34,6 +34,24 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	// TODO: Username & Password validation
 	// TODO: Pull data from database
 
+	presence := UserPresence{
+		UserId:   player.Id,
+		Username: player.Name,
+	}
+
+	for _, other := range player.Server.Players.All() {
+		// tell others about us
+		other.SendPacket(SERVER_USER_PRESENCE, presence)
+
+		// tell us about others
+		otherPresence := UserPresence{
+			UserId:   other.Id,
+			Username: other.Name,
+		}
+
+		player.SendPacket(SERVER_USER_PRESENCE, otherPresence)
+	}
+
 	response := LoginResponse{
 		UserId:   player.Id,
 		Username: player.Name,
