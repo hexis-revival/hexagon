@@ -44,10 +44,7 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 
 	for _, other := range player.Server.Players.All() {
 		other.SendPacket(SERVER_USER_INFO, player.Info)
-		other.SendPacket(SERVER_USER_STATS, player.Stats)
-
 		player.SendPacket(SERVER_USER_INFO, other.Info)
-		player.SendPacket(SERVER_USER_STATS, other.Stats)
 	}
 
 	response := LoginResponse{
@@ -72,22 +69,22 @@ func handleStatusChange(stream *common.IOStream, player *Player) error {
 }
 
 func handleRequestStats(stream *common.IOStream, player *Player) error {
-	var userIds = stream.ReadIntList()
+	statsRequest := ReadStatsRequest(stream)
 
-	player.Logger.Infof("Requested stats of %d users", len(userIds))
+	if statsRequest == nil {
+		return fmt.Errorf("failed to read stats request")
+	}
 
-	for _, userId := range userIds {
-		stats := UserStats{
-			UserId:   userId,
-			Rank:     1,
-			Score:    300,
-			Unknown:  1,
-			Unknown2: 2,
-			Accuracy: 0.9914,
-			Plays:    21,
+	player.Logger.Debugf("-> %s", statsRequest.String())
+
+	for _, userId := range statsRequest.UserIds {
+		user := player.Server.Players.ByID(userId)
+
+		if user == nil {
+			continue
 		}
 
-		player.SendPacket(SERVER_USER_STATS, stats)
+		player.SendPacket(SERVER_USER_STATS, user.Stats)
 	}
 
 	return nil

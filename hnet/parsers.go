@@ -67,6 +67,14 @@ func ReadStatusChange(stream *common.IOStream) *Status {
 	return status
 }
 
+func ReadStatsRequest(stream *common.IOStream) *StatsRequest {
+	defer handlePanic()
+
+	return &StatsRequest{
+		UserIds: stream.ReadIntList(),
+	}
+}
+
 func handlePanic() {
 	_ = recover()
 }

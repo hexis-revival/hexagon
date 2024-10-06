@@ -182,3 +182,20 @@ func NewUserStats() *UserStats {
 		Plays:    0,
 	}
 }
+
+type StatsRequest struct {
+	UserIds []uint32
+}
+
+func (request StatsRequest) String() string {
+	return fmt.Sprintf(
+		"StatsRequest{UserIds: %v}",
+		request.UserIds,
+	)
+}
+
+func NewStatsRequest() *StatsRequest {
+	return &StatsRequest{
+		UserIds: make([]uint32, 0),
+	}
+}
