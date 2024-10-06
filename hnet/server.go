@@ -59,9 +59,11 @@ func (server *HNetServer) HandleConnection(conn net.Conn) {
 	)
 
 	player := &Player{
-		Conn:   conn,
-		Logger: logger,
-		Server: server,
+		Conn:     conn,
+		Logger:   logger,
+		Server:   server,
+		Presence: NewUserPresence(),
+		Stats:    NewUserStats(),
 	}
 
 	player.OnConnect()

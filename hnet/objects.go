@@ -129,17 +129,24 @@ func (response LoginResponse) String() string {
 }
 
 type UserPresence struct {
-	UserId   uint32
-	Username string
+	Id   uint32
+	Name string
 	// TODO: Add remaining presence data
 }
 
 func (presence UserPresence) String() string {
 	return fmt.Sprintf(
 		"UserPresence{UserId: %d. Username: %s}",
-		presence.UserId,
-		presence.Username,
+		presence.Id,
+		presence.Name,
 	)
+}
+
+func NewUserPresence() *UserPresence {
+	return &UserPresence{
+		Id:   0,
+		Name: "",
+	}
 }
 
 type UserStats struct {
@@ -163,4 +170,15 @@ func (stats UserStats) String() string {
 		stats.Accuracy*100,
 		stats.Plays,
 	)
+}
+
+func NewUserStats() *UserStats {
+	return &UserStats{
+		Rank:     0,
+		Score:    0,
+		Unknown:  0,
+		Unknown2: 0,
+		Accuracy: 0.0,
+		Plays:    0,
+	}
 }

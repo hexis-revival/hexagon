@@ -17,67 +17,43 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	}
 
 	player.LogIncomingPacket(CLIENT_LOGIN, request)
-	player.Name = request.Username
+
+	// Set random player Id
+	player.Presence.Id = uint32(rand.Intn(1000))
+	player.Presence.Name = request.Username
+
 	player.Version = request.Version
 	player.Client = request.Client
 
 	player.Logger.Infof(
 		"Login attempt as '%s' with version %s",
-		player.Name,
+		player.Presence.Name,
 		player.Version.String(),
 	)
 
-	// Set random player Id for now
-	player.Id = uint32(rand.Intn(1000))
+	// Add to player collection
 	player.Server.Players.Add(player)
 
-	// TODO: Username & Password validation
-	// TODO: Pull data from database
-
-	presence := UserPresence{
-		UserId:   player.Id,
-		Username: player.Name,
-	}
-
-	// fake data for now
-	stats := UserStats{
-		UserId:   player.Id,
-		Rank:     1,
-		Score:    300,
-		Unknown:  1,
-		Unknown2: 2,
-		Accuracy: 0.9914,
-		Plays:    21,
-	}
+	// Set placeholder stats
+	player.Stats.UserId = player.Presence.Id
+	player.Stats.Rank = 1
+	player.Stats.Score = 300
+	player.Stats.Unknown = 1
+	player.Stats.Unknown2 = 2
+	player.Stats.Accuracy = 0.9914
+	player.Stats.Plays = 21
 
 	for _, other := range player.Server.Players.All() {
-		// tell others about us
-		other.SendPacket(SERVER_USER_PRESENCE, presence)
-		other.SendPacket(SERVER_USER_STATS, stats)
+		other.SendPacket(SERVER_USER_PRESENCE, player.Presence)
+		other.SendPacket(SERVER_USER_STATS, player.Stats)
 
-		// tell us about others
-		otherPresence := UserPresence{
-			UserId:   other.Id,
-			Username: other.Name,
-		}
-
-		otherStats := UserStats{
-			UserId:   other.Id,
-			Rank:     1,
-			Score:    300,
-			Unknown:  1,
-			Unknown2: 2,
-			Accuracy: 0.9914,
-			Plays:    21,
-		}
-
-		player.SendPacket(SERVER_USER_PRESENCE, otherPresence)
-		player.SendPacket(SERVER_USER_STATS, otherStats)
+		player.SendPacket(SERVER_USER_PRESENCE, other.Presence)
+		player.SendPacket(SERVER_USER_STATS, other.Stats)
 	}
 
 	response := LoginResponse{
-		UserId:   player.Id,
-		Username: player.Name,
+		UserId:   player.Presence.Id,
+		Username: player.Presence.Name,
 		Password: request.Password,
 	}
 
