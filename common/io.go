@@ -228,6 +228,14 @@ func (stream *IOStream) WriteString(value string) {
 	}
 }
 
+func (stream *IOStream) WriteIntList(list []uint32) {
+	stream.WriteU32(uint32(len(list)))
+
+	for _, value := range list {
+		stream.WriteU32(value)
+	}
+}
+
 func (stream *IOStream) WriteDateTime(value time.Time) {
 	// Convert time.Time to julian date
 	jd := julian.TimeToJD(value)
