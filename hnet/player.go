@@ -9,14 +9,14 @@ import (
 )
 
 type Player struct {
-	Conn     net.Conn
-	Logger   *common.Logger
-	Server   *HNetServer
-	Version  *VersionInfo
-	Client   *ClientInfo
-	Presence *UserPresence
-	Stats    *UserStats
-	Status   *Status
+	Conn    net.Conn
+	Logger  *common.Logger
+	Server  *HNetServer
+	Version *VersionInfo
+	Client  *ClientInfo
+	Info    *UserInfo
+	Stats   *UserStats
+	Status  *Status
 }
 
 func (player *Player) Send(data []byte) error {

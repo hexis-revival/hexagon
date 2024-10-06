@@ -128,13 +128,13 @@ func (response LoginResponse) String() string {
 	)
 }
 
-type UserPresence struct {
+type UserInfo struct {
 	Id   uint32
 	Name string
 	// TODO: Add remaining presence data
 }
 
-func (presence UserPresence) String() string {
+func (presence UserInfo) String() string {
 	return fmt.Sprintf(
 		"UserPresence{UserId: %d. Username: %s}",
 		presence.Id,
@@ -142,8 +142,8 @@ func (presence UserPresence) String() string {
 	)
 }
 
-func NewUserPresence() *UserPresence {
-	return &UserPresence{
+func NewUserInfo() *UserInfo {
+	return &UserInfo{
 		Id:   0,
 		Name: "",
 	}

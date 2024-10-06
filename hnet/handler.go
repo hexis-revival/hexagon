@@ -17,17 +17,16 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	}
 
 	player.LogIncomingPacket(CLIENT_LOGIN, request)
-
-	// Set random player Id
-	player.Presence.Id = uint32(rand.Intn(1000))
-	player.Presence.Name = request.Username
-
 	player.Version = request.Version
 	player.Client = request.Client
 
+	// Set random player Id
+	player.Info.Id = uint32(rand.Intn(1000))
+	player.Info.Name = request.Username
+
 	player.Logger.Infof(
 		"Login attempt as '%s' with version %s",
-		player.Presence.Name,
+		player.Info.Name,
 		player.Version.String(),
 	)
 
@@ -35,7 +34,7 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	player.Server.Players.Add(player)
 
 	// Set placeholder stats
-	player.Stats.UserId = player.Presence.Id
+	player.Stats.UserId = player.Info.Id
 	player.Stats.Rank = 1
 	player.Stats.Score = 300
 	player.Stats.Unknown = 1
@@ -44,16 +43,16 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	player.Stats.Plays = 21
 
 	for _, other := range player.Server.Players.All() {
-		other.SendPacket(SERVER_USER_PRESENCE, player.Presence)
+		other.SendPacket(SERVER_USER_PRESENCE, player.Info)
 		other.SendPacket(SERVER_USER_STATS, player.Stats)
 
-		player.SendPacket(SERVER_USER_PRESENCE, other.Presence)
+		player.SendPacket(SERVER_USER_PRESENCE, other.Info)
 		player.SendPacket(SERVER_USER_STATS, other.Stats)
 	}
 
 	response := LoginResponse{
-		UserId:   player.Presence.Id,
-		Username: player.Presence.Name,
+		UserId:   player.Info.Id,
+		Username: player.Info.Name,
 		Password: request.Password,
 	}
 
