@@ -9,7 +9,7 @@ const (
 const (
 	SERVER_LOGIN_RESPONSE uint32 = 2
 	SERVER_USER_STATS     uint32 = 5
-	SERVER_USER_PRESENCE  uint32 = 6
+	SERVER_USER_INFO      uint32 = 6
 )
 
 const (

@@ -43,10 +43,10 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	player.Stats.Plays = 21
 
 	for _, other := range player.Server.Players.All() {
-		other.SendPacket(SERVER_USER_PRESENCE, player.Info)
+		other.SendPacket(SERVER_USER_INFO, player.Info)
 		other.SendPacket(SERVER_USER_STATS, player.Stats)
 
-		player.SendPacket(SERVER_USER_PRESENCE, other.Info)
+		player.SendPacket(SERVER_USER_INFO, other.Info)
 		player.SendPacket(SERVER_USER_STATS, other.Stats)
 	}
 
