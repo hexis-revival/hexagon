@@ -131,9 +131,7 @@ func (response LoginResponse) String() string {
 type UserPresence struct {
 	UserId   uint32
 	Username string
-	// TODO: there is more fields to this,
-	// but i am yet to figure them out.
-	// the client also lets you get away with just this
+	// TODO: Add remaining presence data
 }
 
 func (presence UserPresence) String() string {
@@ -150,7 +148,7 @@ type UserStats struct {
 	Score    uint64
 	Unknown  uint32
 	Unknown2 uint32
-	Accuracy float64 // represented as acc / 100 (99.14 -> 0.9914)
+	Accuracy float64
 	Plays    uint32
 }
 
@@ -162,7 +160,7 @@ func (stats UserStats) String() string {
 		stats.Score,
 		stats.Unknown,
 		stats.Unknown2,
-		stats.Accuracy*100, // easier to read
+		stats.Accuracy*100,
 		stats.Plays,
 	)
 }
