@@ -75,9 +75,7 @@ type Status struct {
 }
 
 func (status Status) HasBeatmapInfo() bool {
-	return status.Action == ACTION_PLAYING ||
-		status.Action == ACTION_EDITING ||
-		status.Action == ACTION_TESTING
+	return status.Action > ACTION_AWAY
 }
 
 func (status Status) String() string {
@@ -92,6 +90,14 @@ func (status Status) String() string {
 		strconv.Itoa(int(status.Action)),
 		beatmapString,
 	)
+}
+
+func NewStatus() *Status {
+	return &Status{
+		UserId:  0,
+		Action:  1,
+		Beatmap: nil,
+	}
 }
 
 type BeatmapInfo struct {
@@ -197,5 +203,42 @@ func (request StatsRequest) String() string {
 func NewStatsRequest() *StatsRequest {
 	return &StatsRequest{
 		UserIds: make([]uint32, 0),
+	}
+}
+
+type StatsResponse struct {
+	Stats  *UserStats
+	Status *Status
+}
+
+func (response StatsResponse) String() string {
+	return fmt.Sprintf(
+		"StatsResponse{Stats: %v, Status: %v}",
+		response.Stats,
+		response.Status,
+	)
+}
+
+func NewStatsResponse() *StatsResponse {
+	return &StatsResponse{
+		Stats:  NewUserStats(),
+		Status: NewStatus(),
+	}
+}
+
+type FriendsList struct {
+	FriendIds []uint32
+}
+
+func (friends FriendsList) String() string {
+	return fmt.Sprintf(
+		"FriendsList{Friends: %v}",
+		friends.FriendIds,
+	)
+}
+
+func NewFriendsList() *FriendsList {
+	return &FriendsList{
+		FriendIds: []uint32{},
 	}
 }
