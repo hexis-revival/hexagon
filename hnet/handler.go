@@ -63,8 +63,8 @@ func handleStatusChange(stream *common.IOStream, player *Player) error {
 		return fmt.Errorf("failed to read status change")
 	}
 
-	player.Stats.Status = status
 	player.LogIncomingPacket(CLIENT_CHANGE_STATUS, status)
+	player.Stats.Status = status
 	return nil
 }
 
@@ -75,7 +75,7 @@ func handleRequestStats(stream *common.IOStream, player *Player) error {
 		return fmt.Errorf("failed to read stats request")
 	}
 
-	player.Logger.Debugf("-> %s", statsRequest.String())
+	player.LogIncomingPacket(CLIENT_REQUEST_STATS, statsRequest)
 
 	for _, userId := range statsRequest.UserIds {
 		user := player.Server.Players.ByID(userId)
