@@ -16,7 +16,6 @@ type Player struct {
 	Client  *ClientInfo
 	Info    *UserInfo
 	Stats   *UserStats
-	Status  *Status
 }
 
 func (player *Player) Send(data []byte) error {

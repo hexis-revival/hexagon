@@ -63,15 +63,7 @@ func handleStatusChange(stream *common.IOStream, player *Player) error {
 		return fmt.Errorf("failed to read status change")
 	}
 
-	player.Status = status
-
-	statsResponse := StatsResponse{
-		Stats:  player.Stats,
-		Status: player.Status,
-	}
-
-	player.Server.Players.Broadcast(SERVER_USER_STATS, statsResponse)
-
+	player.Stats.Status = status
 	player.LogIncomingPacket(CLIENT_CHANGE_STATUS, status)
 	return nil
 }
@@ -92,12 +84,7 @@ func handleRequestStats(stream *common.IOStream, player *Player) error {
 			continue
 		}
 
-		statsResponse := StatsResponse{
-			Stats:  user.Stats,
-			Status: user.Status,
-		}
-
-		player.SendPacket(SERVER_USER_STATS, statsResponse)
+		player.SendPacket(SERVER_USER_STATS, user.Stats)
 	}
 
 	return nil

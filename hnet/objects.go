@@ -163,11 +163,12 @@ type UserStats struct {
 	Unknown2 uint32
 	Accuracy float64
 	Plays    uint32
+	Status   *Status
 }
 
 func (stats UserStats) String() string {
 	return fmt.Sprintf(
-		"UserStats{UserId: %d, Rank: %d, Score: %d, Unknown: %d, Unknown2: %d, Accuracy: %f, Plays: %d}",
+		"UserStats{UserId: %d, Rank: %d, Score: %d, Unknown: %d, Unknown2: %d, Accuracy: %f, Plays: %d, %s}",
 		stats.UserId,
 		stats.Rank,
 		stats.Score,
@@ -175,6 +176,7 @@ func (stats UserStats) String() string {
 		stats.Unknown2,
 		stats.Accuracy*100,
 		stats.Plays,
+		stats.Status.String(),
 	)
 }
 
@@ -186,6 +188,7 @@ func NewUserStats() *UserStats {
 		Unknown2: 0,
 		Accuracy: 0.0,
 		Plays:    0,
+		Status:   NewStatus(),
 	}
 }
 
@@ -203,26 +206,6 @@ func (request StatsRequest) String() string {
 func NewStatsRequest() *StatsRequest {
 	return &StatsRequest{
 		UserIds: make([]uint32, 0),
-	}
-}
-
-type StatsResponse struct {
-	Stats  *UserStats
-	Status *Status
-}
-
-func (response StatsResponse) String() string {
-	return fmt.Sprintf(
-		"StatsResponse{Stats: %v, Status: %v}",
-		response.Stats,
-		response.Status,
-	)
-}
-
-func NewStatsResponse() *StatsResponse {
-	return &StatsResponse{
-		Stats:  NewUserStats(),
-		Status: NewStatus(),
 	}
 }
 

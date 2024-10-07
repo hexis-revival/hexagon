@@ -72,15 +72,11 @@ func (stats UserStats) Serialize(stream *common.IOStream) {
 	stream.WriteU32(stats.Unknown2)
 	stream.WriteF64(stats.Accuracy)
 	stream.WriteU32(stats.Plays)
+	stats.Status.Serialize(stream)
 }
 
 func (request StatsRequest) Serialize(stream *common.IOStream) {
 	stream.WriteIntList(request.UserIds)
-}
-
-func (response StatsResponse) Serialize(stream *common.IOStream) {
-	response.Stats.Serialize(stream)
-	response.Status.Serialize(stream)
 }
 
 func (friends FriendsList) Serialize(stream *common.IOStream) {
