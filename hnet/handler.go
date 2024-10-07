@@ -63,7 +63,7 @@ func handleStatusChange(stream *common.IOStream, player *Player) error {
 		return fmt.Errorf("failed to read status change")
 	}
 
-	player.Status = status
+	player.Stats.Status = status
 	player.LogIncomingPacket(CLIENT_CHANGE_STATUS, status)
 	return nil
 }

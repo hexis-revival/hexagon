@@ -58,7 +58,7 @@ func (response LoginResponse) Serialize(stream *common.IOStream) {
 func (presence UserInfo) Serialize(stream *common.IOStream) {
 	stream.WriteU32(presence.Id)
 	stream.WriteString(presence.Name)
-	stream.WriteU32(69)
+	stream.WriteU16(1)
 	stream.WriteString("Test")
 	stream.WriteString("Test1")
 	stream.WriteString("Test2")
@@ -72,8 +72,13 @@ func (stats UserStats) Serialize(stream *common.IOStream) {
 	stream.WriteU32(stats.Unknown2)
 	stream.WriteF64(stats.Accuracy)
 	stream.WriteU32(stats.Plays)
+	stats.Status.Serialize(stream)
 }
 
 func (request StatsRequest) Serialize(stream *common.IOStream) {
 	stream.WriteIntList(request.UserIds)
+}
+
+func (friends FriendsList) Serialize(stream *common.IOStream) {
+	stream.WriteIntList(friends.FriendIds)
 }

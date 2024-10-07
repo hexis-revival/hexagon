@@ -75,9 +75,7 @@ type Status struct {
 }
 
 func (status Status) HasBeatmapInfo() bool {
-	return status.Action == ACTION_PLAYING ||
-		status.Action == ACTION_EDITING ||
-		status.Action == ACTION_TESTING
+	return status.Action > ACTION_AWAY
 }
 
 func (status Status) String() string {
@@ -92,6 +90,14 @@ func (status Status) String() string {
 		strconv.Itoa(int(status.Action)),
 		beatmapString,
 	)
+}
+
+func NewStatus() *Status {
+	return &Status{
+		UserId:  0,
+		Action:  1,
+		Beatmap: nil,
+	}
 }
 
 type BeatmapInfo struct {
@@ -157,11 +163,12 @@ type UserStats struct {
 	Unknown2 uint32
 	Accuracy float64
 	Plays    uint32
+	Status   *Status
 }
 
 func (stats UserStats) String() string {
 	return fmt.Sprintf(
-		"UserStats{UserId: %d, Rank: %d, Score: %d, Unknown: %d, Unknown2: %d, Accuracy: %f, Plays: %d}",
+		"UserStats{UserId: %d, Rank: %d, Score: %d, Unknown: %d, Unknown2: %d, Accuracy: %f, Plays: %d, %s}",
 		stats.UserId,
 		stats.Rank,
 		stats.Score,
@@ -169,6 +176,7 @@ func (stats UserStats) String() string {
 		stats.Unknown2,
 		stats.Accuracy*100,
 		stats.Plays,
+		stats.Status.String(),
 	)
 }
 
@@ -180,6 +188,7 @@ func NewUserStats() *UserStats {
 		Unknown2: 0,
 		Accuracy: 0.0,
 		Plays:    0,
+		Status:   NewStatus(),
 	}
 }
 
@@ -197,5 +206,22 @@ func (request StatsRequest) String() string {
 func NewStatsRequest() *StatsRequest {
 	return &StatsRequest{
 		UserIds: make([]uint32, 0),
+	}
+}
+
+type FriendsList struct {
+	FriendIds []uint32
+}
+
+func (friends FriendsList) String() string {
+	return fmt.Sprintf(
+		"FriendsList{Friends: %v}",
+		friends.FriendIds,
+	)
+}
+
+func NewFriendsList() *FriendsList {
+	return &FriendsList{
+		FriendIds: []uint32{},
 	}
 }
