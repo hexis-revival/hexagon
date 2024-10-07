@@ -45,6 +45,13 @@ func (collection *PlayerCollection) All() []Player {
 	return players
 }
 
+func (collection *PlayerCollection) Broadcast(packetId uint32, packet Serializable) {
+	for _, player := range collection.All() {
+		player.LogOutgoingPacket(packetId, packet)
+		player.SendPacket(packetId, packet)
+	}
+}
+
 func NewPlayerCollection() PlayerCollection {
 	return PlayerCollection{
 		idMap:   make(map[uint32]*Player),
