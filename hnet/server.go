@@ -16,14 +16,16 @@ type HNetServer struct {
 	Players  PlayerCollection
 	listener *raknet.Listener
 	logger   *common.Logger
+	state    *common.State
 	host     string
 	port     int
 }
 
-func NewServer(host string, port int, logger *common.Logger) *HNetServer {
+func NewServer(host string, port int, logger *common.Logger, state *common.State) *HNetServer {
 	return &HNetServer{
 		Players: NewPlayerCollection(),
 		logger:  logger,
+		state:   state,
 		host:    host,
 		port:    port,
 	}

@@ -60,16 +60,24 @@ func runService(wg *sync.WaitGroup, worker func()) {
 func main() {
 	config := loadConfig()
 
+	state, err := common.NewState(config.State)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	hnetServer := hnet.NewServer(
 		config.HNet.Host,
 		config.HNet.Port,
 		common.CreateLogger("hnet", common.DEBUG),
+		state,
 	)
 
 	hscoreServer := hscore.NewServer(
 		config.HScore.Host,
 		config.HScore.Port,
 		common.CreateLogger("hscore", common.DEBUG),
+		state,
 	)
 
 	var wg sync.WaitGroup
