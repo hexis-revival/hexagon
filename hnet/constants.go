@@ -4,6 +4,8 @@ const (
 	CLIENT_LOGIN         uint32 = 1
 	CLIENT_CHANGE_STATUS uint32 = 4
 	CLIENT_REQUEST_STATS uint32 = 11
+	CLIENT_FOLLOW_USER   uint32 = 22
+	CLIENT_UNFOLLOW_USER uint32 = 23
 )
 
 const (
