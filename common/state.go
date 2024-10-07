@@ -27,11 +27,6 @@ func NewState(config *StateConfiguration) (*State, error) {
 		return nil, err
 	}
 
-	err = DoDatabaseMigrations(db)
-	if err != nil {
-		return nil, err
-	}
-
 	storage := NewFileStorage(config.DataPath)
 
 	return &State{

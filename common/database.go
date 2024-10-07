@@ -44,7 +44,3 @@ func CreateDatabaseSession(config *DatabaseConfiguration) (*gorm.DB, error) {
 
 	return db, nil
 }
-
-func DoDatabaseMigrations(db *gorm.DB) error {
-	return db.AutoMigrate(&User{}, &Stats{})
-}
