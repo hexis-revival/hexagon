@@ -12,6 +12,7 @@ type ScoreServer struct {
 	Host   string
 	Port   int
 	Logger *common.Logger
+	State  *common.State
 	mux    *http.ServeMux
 }
 
@@ -32,11 +33,12 @@ func (server *ScoreServer) Serve() {
 	http.ListenAndServe(bind, loggedMux)
 }
 
-func NewServer(host string, port int, logger *common.Logger) *ScoreServer {
+func NewServer(host string, port int, logger *common.Logger, state *common.State) *ScoreServer {
 	return &ScoreServer{
 		Host:   host,
 		Port:   port,
 		Logger: logger,
+		State:  state,
 	}
 }
 

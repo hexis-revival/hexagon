@@ -1,0 +1,53 @@
+services:
+  db:
+    image: postgres
+    restart: unless-stopped
+    env_file:
+      - '.env'
+    environment:
+      - PGUSER=${POSTGRES_USER}
+    ports:
+      - '127.0.0.1:${POSTGRES_PORT}:5432'
+    volumes: 
+      - './.data/postgres:/var/lib/postgresql/data'
+    networks:
+      - hexis
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 4s
+      timeout: 5s
+      retries: 15
+
+  migrations:
+    image: migrate/migrate
+    restart: no
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - './migrations:/migrations'
+    networks:
+      - hexis
+    links:
+      - db:db
+    command: -path=/migrations/ -database postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_USER}?sslmode=disable up
+
+  cache:
+    image: redis:alpine
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:${REDIS_PORT}:6379'
+    command: redis-server --save 20 1
+    networks:
+      - hexis
+    volumes: 
+      - './.data/redis:/usr/local/etc/redis'
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  hexis:
+    driver: bridge

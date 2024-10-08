@@ -2,9 +2,9 @@ package hnet
 
 import (
 	"fmt"
-	"math/rand"
 
 	"github.com/lekuruu/hexagon/common"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var Handlers = map[uint32]func(*common.IOStream, *Player) error{}
@@ -13,6 +13,7 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	request := ReadLoginRequest(stream)
 
 	if request == nil {
+		player.RevokeLogin()
 		return fmt.Errorf("failed to read login request")
 	}
 
@@ -20,27 +21,38 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	player.Version = request.Version
 	player.Client = request.Client
 
-	// Set random player Id
-	player.Info.Id = uint32(rand.Intn(1000))
-	player.Info.Name = request.Username
+	userObject, err := common.FetchUserByNameCaseInsensitive(
+		request.Username,
+		player.Server.State,
+	)
+
+	if err != nil {
+		player.RevokeLogin()
+		return err
+	}
+
+	err = bcrypt.CompareHashAndPassword(
+		[]byte(userObject.Password),
+		[]byte(request.Password),
+	)
+
+	if err != nil {
+		player.RevokeLogin()
+		return fmt.Errorf("invalid password")
+	}
+
+	// Ensure that the stats object exists
+	userObject.EnsureStats(player.Server.State)
+
+	// Populate player info & stats
+	player.ApplyUserData(userObject)
+	player.Server.Players.Add(player)
 
 	player.Logger.Infof(
 		"Login attempt as '%s' with version %s",
 		player.Info.Name,
 		player.Version.String(),
 	)
-
-	// Add to player collection
-	player.Server.Players.Add(player)
-
-	// Set placeholder stats
-	player.Stats.UserId = player.Info.Id
-	player.Stats.Rank = 1
-	player.Stats.Score = 300
-	player.Stats.Unknown = 1
-	player.Stats.Unknown2 = 2
-	player.Stats.Accuracy = 0.9914
-	player.Stats.Plays = 21
 
 	for _, other := range player.Server.Players.All() {
 		other.SendPacket(SERVER_USER_INFO, player.Info)
@@ -53,7 +65,25 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 		Password: request.Password,
 	}
 
-	return player.SendPacket(SERVER_LOGIN_RESPONSE, response)
+	// Send login response
+	err = player.SendPacket(SERVER_LOGIN_RESPONSE, response)
+	if err != nil {
+		player.RevokeLogin()
+		return err
+	}
+
+	friendIds, err := player.GetFriendIds()
+	if err != nil {
+		return err
+	}
+
+	// Send friends list
+	err = player.SendPacket(SERVER_FRIENDS_LIST, FriendsList{FriendIds: friendIds})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func handleStatusChange(stream *common.IOStream, player *Player) error {

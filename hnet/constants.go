@@ -11,6 +11,7 @@ const (
 
 const (
 	SERVER_LOGIN_RESPONSE uint32 = 2
+	SERVER_LOGIN_REVOKED  uint32 = 3
 	SERVER_USER_STATS     uint32 = 5
 	SERVER_USER_INFO      uint32 = 6
 	SERVER_FRIENDS_LIST   uint32 = 8
