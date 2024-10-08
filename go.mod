@@ -25,12 +25,12 @@ require (
 	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	gorm.io/driver/postgres v1.5.9 // indirect
-	gorm.io/gorm v1.25.10 // indirect
+	gorm.io/gorm v1.25.12 // indirect
 )
 
 require (
 	github.com/hexis-revival/hexagon/hscore v0.0.0-20241004135010-1d8d562aeb0e
-	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0 // indirect
+	golang.org/x/exp v0.0.0-20241004190924-225e2abe05e6 // indirect
 )
 
 replace github.com/hexis-revival/hexagon/hnet => ./hnet
