@@ -1,6 +1,8 @@
 # Hexagon
 
-Hexagon is a work-in progress backend replacement server for the now defunct game [hexis](https://web.archive.org/web/20171120081249/http://hexis.dienay.net/). It is recommended to set up this project using the [hexagon-deploy](https://github.com/hexis-revival/hexagon-deploy) repository.
+Hexagon is a work-in progress backend replacement server for the now defunct game [hexis](https://web.archive.org/web/20171120081249/http://hexis.dienay.net/).
+
+It is recommended to set up this project using the [hexagon-deploy](https://github.com/hexis-revival/hexagon-deploy) repository, and use the `env_run.sh` command for development purposes.
 
 ## Credits
 
