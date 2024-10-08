@@ -42,7 +42,7 @@ func (player *Player) OnConnect() {
 }
 
 func (player *Player) OnDisconnect() {
-	player.Logger.Debug("-> Disconnected")
+	player.Logger.Infof("Disconnected -> <%s>", player.Conn.RemoteAddr())
 	player.Server.Players.Remove(player)
 	player.Conn.Close()
 }
