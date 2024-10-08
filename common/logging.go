@@ -41,6 +41,14 @@ func (c *Logger) GetLevel() int {
 	return c.level
 }
 
+func (c *Logger) SetName(name string) {
+	c.name = name
+}
+
+func (c *Logger) GetName() string {
+	return c.name
+}
+
 func concatMessage(msg ...any) string {
 	// Concatenate all strings in msg
 	log := ""
