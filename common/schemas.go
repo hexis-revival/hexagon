@@ -47,4 +47,7 @@ type Relationship struct {
 	UserId   int                `gorm:"primaryKey;not null"`
 	TargetId int                `gorm:"primaryKey;not null"`
 	Status   RelationshipStatus `gorm:"type:relationship_status;not null"`
+
+	User   User `gorm:"foreignKey:UserId"`
+	Target User `gorm:"foreignKey:TargetId"`
 }
