@@ -28,7 +28,7 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 
 	if err != nil {
 		player.RevokeLogin()
-		return err
+		return fmt.Errorf("user not found")
 	}
 
 	err = bcrypt.CompareHashAndPassword(
