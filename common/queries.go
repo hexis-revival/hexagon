@@ -47,6 +47,27 @@ func FetchUserByNameCaseInsensitive(name string, state *State) (*User, error) {
 	return user, nil
 }
 
+func CreateStats(stats *Stats, state *State) error {
+	result := state.Database.Create(stats)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func FetchStatsByUserId(userId int, state *State) (*Stats, error) {
+	stats := &Stats{}
+	result := state.Database.First(stats, "user_id = ?", userId)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return stats, nil
+}
+
 func FetchUserRelationships(userId int, status RelationshipStatus, state *State) ([]*Relationship, error) {
 	relationships := []*Relationship{}
 	result := state.Database.Where("user_id = ? AND status = ?", userId, status).Find(&relationships)
