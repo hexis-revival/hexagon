@@ -2,7 +2,6 @@ package hnet
 
 import (
 	"fmt"
-	"math/rand"
 
 	"github.com/lekuruu/hexagon/common"
 )
@@ -20,9 +19,20 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	player.Version = request.Version
 	player.Client = request.Client
 
-	// Set random player Id
-	player.Info.Id = uint32(rand.Intn(1000))
-	player.Info.Name = request.Username
+	userObject, err := common.FetchUserByNameCaseInsensitive(
+		request.Username,
+		player.Server.State,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	// Ensure that the stats object exists
+	userObject.EnsureStats(player.Server.State)
+
+	// Populate player info & stats
+	player.ApplyUserData(userObject)
 
 	player.Logger.Infof(
 		"Login attempt as '%s' with version %s",
@@ -32,15 +42,6 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 
 	// Add to player collection
 	player.Server.Players.Add(player)
-
-	// Set placeholder stats
-	player.Stats.UserId = player.Info.Id
-	player.Stats.Rank = 1
-	player.Stats.Score = 300
-	player.Stats.Unknown = 1
-	player.Stats.Unknown2 = 2
-	player.Stats.Accuracy = 0.9914
-	player.Stats.Plays = 21
 
 	for _, other := range player.Server.Players.All() {
 		other.SendPacket(SERVER_USER_INFO, player.Info)
