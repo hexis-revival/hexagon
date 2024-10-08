@@ -75,6 +75,26 @@ func (player *Player) RevokeLogin() error {
 	return player.SendPacketData(SERVER_LOGIN_REVOKED, []byte{})
 }
 
+func (player *Player) GetFriendIds() ([]uint32, error) {
+	relationships, err := common.FetchUserRelationships(
+		int(player.Info.Id),
+		common.Friend,
+		player.Server.State,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	friends := make([]uint32, 0, len(relationships))
+
+	for _, rel := range relationships {
+		friends = append(friends, uint32(rel.TargetId))
+	}
+
+	return friends, nil
+}
+
 func (player *Player) ApplyUserData(user *common.User) error {
 	player.Info.Name = user.Name
 	player.Info.Id = uint32(user.Id)
