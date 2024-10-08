@@ -51,3 +51,13 @@ type Relationship struct {
 	User   User `gorm:"foreignKey:UserId"`
 	Target User `gorm:"foreignKey:TargetId"`
 }
+
+func (user *User) EnsureStats(state *State) error {
+	if user.Stats.UserId != 0 {
+		return nil
+	}
+
+	// Create new stats object
+	user.Stats = Stats{UserId: user.Id}
+	return CreateStats(&user.Stats, state)
+}
