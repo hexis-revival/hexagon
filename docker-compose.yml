@@ -18,6 +18,20 @@ services:
       timeout: 5s
       retries: 15
 
+  migrations:
+    image: migrate/migrate
+    restart: no
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - './migrations:/migrations'
+    networks:
+      - hexis
+    links:
+      - db:db
+    command: -path=/migrations/ -database postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_USER}?sslmode=disable up
+
   cache:
     image: redis:alpine
     restart: unless-stopped
