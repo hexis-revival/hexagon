@@ -70,3 +70,15 @@ func (player *Player) SendPacket(packetId uint32, packet Serializable) error {
 	packet.Serialize(stream)
 	return player.SendPacketData(packetId, stream.Get())
 }
+
+func (player *Player) ApplyUserData(user *common.User) error {
+	player.Info.Name = user.Name
+	player.Info.Id = uint32(user.Id)
+	player.Stats.UserId = uint32(user.Id)
+	player.Stats.Rank = uint32(user.Stats.Rank)
+	player.Stats.RankedScore = uint64(user.Stats.RankedScore)
+	player.Stats.TotalScore = uint64(user.Stats.TotalScore)
+	player.Stats.Plays = uint32(user.Stats.Playcount)
+	player.Stats.Accuracy = user.Stats.Accuracy
+	return nil
+}
