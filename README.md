@@ -1,8 +1,13 @@
+
+<p align="center">
+  <img width="200" alt="logo" src="https://raw.githubusercontent.com/hexis-revival/hexagon-deploy/refs/heads/main/.github/images/logo-hexagon.png">
+</p>
+
 # Hexagon
 
-Hexagon is a work-in progress backend replacement server for the now defunct game [hexis](https://web.archive.org/web/20171120081249/http://hexis.dienay.net/).
+Hexagon is an ongoing private/replacement server project for the now-defunct game [Hexis](https://web.archive.org/web/20171120081249/http://hexis.dienay.net/). Hexis was a free-to-play rhythm game developed by Daniel (Dienay), drawing inspiration from both *[osu!](https://osu.ppy.sh)* and the Nintendo DS game *[Elite Beat Agents](https://en.wikipedia.org/wiki/Elite_Beat_Agents)*. The project was discontinued indefinitely in 2017, and very little information about it remains today.
 
-It is recommended to set up this project using the [hexagon-deploy](https://github.com/hexis-revival/hexagon-deploy) repository, and use the `env_run.sh` command for development purposes.
+It is recommended to set up this project using the [hexagon-deploy](https://github.com/hexis-revival/hexagon-deploy) repository, and use the `env_run.sh` command for development purposes afterwards. Please note that this project is still in early development and far from complete, as reverse engineering is a very time-consuming process.
 
 ## Credits
 
