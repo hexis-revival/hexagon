@@ -42,6 +42,11 @@ func loadConfig() Config {
 	flag.IntVar(&config.State.Database.MaxOpen, "db-max-open", 100, "Database max open connections")
 	flag.DurationVar(&config.State.Database.MaxLifetime, "db-max-lifetime", 0, "Database max connection lifetime")
 
+	flag.StringVar(&config.State.Redis.Host, "redis-host", "localhost", "Redis host")
+	flag.IntVar(&config.State.Redis.Port, "redis-port", 6379, "Redis port")
+	flag.StringVar(&config.State.Redis.Password, "redis-password", "", "Redis password")
+	flag.IntVar(&config.State.Redis.Database, "redis-database", 0, "Redis database")
+
 	flag.StringVar(&config.State.DataPath, "data-path", ".data", "Path to store data")
 	flag.Parse()
 
