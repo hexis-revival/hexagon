@@ -46,8 +46,6 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 
 	// Populate player info & stats
 	player.ApplyUserData(userObject)
-
-	// Add to player collection
 	player.Server.Players.Add(player)
 
 	player.Logger.Infof(
