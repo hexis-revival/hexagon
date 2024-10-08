@@ -67,9 +67,8 @@ func (presence UserInfo) Serialize(stream *common.IOStream) {
 func (stats UserStats) Serialize(stream *common.IOStream) {
 	stream.WriteU32(stats.UserId)
 	stream.WriteU32(stats.Rank)
-	stream.WriteU64(stats.Score)
-	stream.WriteU32(stats.Unknown)
-	stream.WriteU32(stats.Unknown2)
+	stream.WriteU64(stats.RankedScore)
+	stream.WriteU64(stats.TotalScore)
 	stream.WriteF64(stats.Accuracy)
 	stream.WriteU32(stats.Plays)
 	stats.Status.Serialize(stream)
