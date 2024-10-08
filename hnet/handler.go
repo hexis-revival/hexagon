@@ -65,7 +65,25 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 		Password: request.Password,
 	}
 
-	return player.SendPacket(SERVER_LOGIN_RESPONSE, response)
+	// Send login response
+	err = player.SendPacket(SERVER_LOGIN_RESPONSE, response)
+	if err != nil {
+		player.RevokeLogin()
+		return err
+	}
+
+	friendIds, err := player.GetFriendIds()
+	if err != nil {
+		return err
+	}
+
+	// Send friends list
+	err = player.SendPacket(SERVER_FRIENDS_LIST, FriendsList{FriendIds: friendIds})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func handleStatusChange(stream *common.IOStream, player *Player) error {
