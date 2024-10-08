@@ -1,15 +1,8 @@
 # Hexagon
 
-Hexagon is a work-in progress backend replacement server for the now defunct game [hexis](https://web.archive.org/web/20171120081249/http://hexis.dienay.net/).
-
-## Connection Details
-
-Website - `hexis.dienay.net`  
-RakNet - `hnet.dienay.net`  
-Score Server - `hscore.dienay.net`  
-Chat Server - `irc.dienay.net`  
-Crash Report Server - `hcrash.dienay.net`
+Hexagon is a work-in progress backend replacement server for the now defunct game [hexis](https://web.archive.org/web/20171120081249/http://hexis.dienay.net/). It is recommended to set up this project using the [hexagon-deploy](https://github.com/hexis-revival/hexagon-deploy) repository.
 
 ## Credits
 
-go-raknet - https://github.com/sandertv/go-raknet
+- The [go-raknet](https://github.com/sandertv/go-raknet) library, which the hexis game server relies on top of
+- [tree](https://github.com/ascenttree) for helping out on a lot of the reverse engineering work
