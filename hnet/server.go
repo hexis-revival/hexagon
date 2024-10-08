@@ -75,12 +75,12 @@ func (server *HNetServer) HandleConnection(conn net.Conn) {
 		buffer, err := player.Receive(1024 * 1024)
 
 		if err != nil {
-			server.Logger.Debugf("Failed to read data: '%s'", err)
+			player.Logger.Debugf("Failed to read data: '%s'", err)
 			return
 		}
 
 		if len(buffer) < HNET_PACKET_SIZE {
-			server.Logger.Errorf("Invalid packet size: %d", len(buffer))
+			player.Logger.Errorf("Invalid packet size: %d", len(buffer))
 			return
 		}
 
@@ -89,7 +89,7 @@ func (server *HNetServer) HandleConnection(conn net.Conn) {
 		packetSize := common.ReadU32BE(buffer[5:9])
 
 		if magicByte != 0x87 {
-			server.Logger.Errorf("Invalid magic byte: %d", magicByte)
+			player.Logger.Errorf("Invalid magic byte: %d", magicByte)
 			return
 		}
 
@@ -97,7 +97,7 @@ func (server *HNetServer) HandleConnection(conn net.Conn) {
 		handler, ok := Handlers[packetId]
 
 		if !ok {
-			server.Logger.Warningf("Unknown packetId: %d -> '%s'", packetId, string(packetData))
+			player.Logger.Warningf("Unknown packetId: %d -> '%s'", packetId, string(packetData))
 			continue
 		}
 
@@ -105,7 +105,7 @@ func (server *HNetServer) HandleConnection(conn net.Conn) {
 		err = handler(stream, player)
 
 		if err != nil {
-			server.Logger.Errorf("Error handling packet: %s", err)
+			player.Logger.Errorf("Error handling packet '%d': %s", packetId, err)
 			continue
 		}
 	}
