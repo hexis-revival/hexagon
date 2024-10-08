@@ -1,3 +1,4 @@
+#!/bin/bash
 if [ -f ./env_run.sh ]; then
   cd ..
 fi
