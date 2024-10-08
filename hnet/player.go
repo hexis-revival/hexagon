@@ -71,6 +71,10 @@ func (player *Player) SendPacket(packetId uint32, packet Serializable) error {
 	return player.SendPacketData(packetId, stream.Get())
 }
 
+func (player *Player) RevokeLogin() error {
+	return player.SendPacketData(SERVER_LOGIN_REVOKED, []byte{})
+}
+
 func (player *Player) ApplyUserData(user *common.User) error {
 	player.Info.Name = user.Name
 	player.Info.Id = uint32(user.Id)

@@ -12,6 +12,7 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	request := ReadLoginRequest(stream)
 
 	if request == nil {
+		player.RevokeLogin()
 		return fmt.Errorf("failed to read login request")
 	}
 
@@ -25,6 +26,7 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	)
 
 	if err != nil {
+		player.RevokeLogin()
 		return err
 	}
 
@@ -34,14 +36,14 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	// Populate player info & stats
 	player.ApplyUserData(userObject)
 
+	// Add to player collection
+	player.Server.Players.Add(player)
+
 	player.Logger.Infof(
 		"Login attempt as '%s' with version %s",
 		player.Info.Name,
 		player.Version.String(),
 	)
-
-	// Add to player collection
-	player.Server.Players.Add(player)
 
 	for _, other := range player.Server.Players.All() {
 		other.SendPacket(SERVER_USER_INFO, player.Info)
