@@ -39,8 +39,8 @@ type Stats struct {
 type RelationshipStatus string
 
 const (
-	Friend  RelationshipStatus = "friend"
-	Blocked RelationshipStatus = "blocked"
+	StatusFriend  RelationshipStatus = "friend"
+	StatusBlocked RelationshipStatus = "blocked"
 )
 
 type Relationship struct {

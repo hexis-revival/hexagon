@@ -78,7 +78,7 @@ func (player *Player) RevokeLogin() error {
 func (player *Player) GetFriendIds() ([]uint32, error) {
 	relationships, err := common.FetchUserRelationships(
 		int(player.Info.Id),
-		common.Friend,
+		common.StatusFriend,
 		player.Server.State,
 	)
 
