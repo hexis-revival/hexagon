@@ -137,14 +137,14 @@ func (response LoginResponse) String() string {
 type UserInfo struct {
 	Id   uint32
 	Name string
-	// TODO: Add remaining presence data
+	// TODO: Add remaining packet data
 }
 
-func (presence UserInfo) String() string {
+func (info UserInfo) String() string {
 	return fmt.Sprintf(
-		"UserPresence{UserId: %d. Username: %s}",
-		presence.Id,
-		presence.Name,
+		"UserInfo{UserId: %d. Username: %s}",
+		info.Id,
+		info.Name,
 	)
 }
 

@@ -55,9 +55,9 @@ func (response LoginResponse) Serialize(stream *common.IOStream) {
 	stream.WriteU32(response.UserId)
 }
 
-func (presence UserInfo) Serialize(stream *common.IOStream) {
-	stream.WriteU32(presence.Id)
-	stream.WriteString(presence.Name)
+func (info UserInfo) Serialize(stream *common.IOStream) {
+	stream.WriteU32(info.Id)
+	stream.WriteString(info.Name)
 }
 
 func (stats UserStats) Serialize(stream *common.IOStream) {
