@@ -11,7 +11,7 @@ CREATE TABLE users (
 );
 
 CREATE TABLE stats (
-    user_id int NOT NULL REFERENCES users (id),
+    user_id int NOT NULL PRIMARY KEY REFERENCES users (id),
     rank bigint NOT NULL DEFAULT 0,
     total_score bigint NOT NULL DEFAULT 0,
     ranked_score bigint NOT NULL DEFAULT 0,
