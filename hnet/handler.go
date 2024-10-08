@@ -56,6 +56,11 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 		player.Version.String(),
 	)
 
+	player.Logger.SetName(fmt.Sprintf(
+		"Player \"%s\"",
+		player.Info.Name,
+	))
+
 	for _, other := range player.Server.Players.All() {
 		other.SendPacket(SERVER_USER_INFO, player.Info)
 		player.SendPacket(SERVER_USER_INFO, other.Info)
