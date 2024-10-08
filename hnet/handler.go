@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/lekuruu/hexagon/common"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var Handlers = map[uint32]func(*common.IOStream, *Player) error{}
@@ -28,6 +29,16 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	if err != nil {
 		player.RevokeLogin()
 		return err
+	}
+
+	err = bcrypt.CompareHashAndPassword(
+		[]byte(userObject.Password),
+		[]byte(request.Password),
+	)
+
+	if err != nil {
+		player.RevokeLogin()
+		return fmt.Errorf("invalid password")
 	}
 
 	// Ensure that the stats object exists
