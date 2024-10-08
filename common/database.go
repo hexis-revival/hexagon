@@ -6,6 +6,7 @@ import (
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	gormLogger "gorm.io/gorm/logger"
 )
 
 type DatabaseConfiguration struct {
@@ -27,7 +28,10 @@ func (config *DatabaseConfiguration) GetDSN() string {
 }
 
 func CreateDatabaseSession(config *DatabaseConfiguration) (*gorm.DB, error) {
-	db, err := gorm.Open(postgres.Open(config.GetDSN()), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(config.GetDSN()), &gorm.Config{
+		Logger: gormLogger.Default.LogMode(gormLogger.Silent),
+	})
+
 	if err != nil {
 		return nil, err
 	}
