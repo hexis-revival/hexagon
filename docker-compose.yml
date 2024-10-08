@@ -18,6 +18,22 @@ services:
       timeout: 5s
       retries: 15
 
+  cache:
+    image: redis:alpine
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:${REDIS_PORT}:6379'
+    command: redis-server --save 20 1
+    networks:
+      - hexis
+    volumes: 
+      - './.data/redis:/usr/local/etc/redis'
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 networks:
   hexis:
     driver: bridge
