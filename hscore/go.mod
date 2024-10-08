@@ -1,10 +1,10 @@
-module github.com/lekuruu/hexagon/hscore
+module github.com/hexis-revival/hexagon/hscore
 
 go 1.22.7
 
-replace github.com/lekuruu/hexagon/common => ../common
+replace github.com/hexis-revival/hexagon/common => ../common
 
-require github.com/lekuruu/hexagon/common v0.0.0-20241005191625-f1f1499b1fd1
+require github.com/hexis-revival/hexagon/common v0.0.0-20241005191625-f1f1499b1fd1
 
 require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect

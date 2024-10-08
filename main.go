@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/lekuruu/hexagon/common"
-	"github.com/lekuruu/hexagon/hnet"
-	"github.com/lekuruu/hexagon/hscore"
+	"github.com/hexis-revival/hexagon/common"
+	"github.com/hexis-revival/hexagon/hnet"
+	"github.com/hexis-revival/hexagon/hscore"
 )
 
 type Config struct {

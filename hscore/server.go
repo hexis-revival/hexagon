@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/lekuruu/hexagon/common"
+	"github.com/hexis-revival/hexagon/common"
 )
 
 type ScoreServer struct {

@@ -3,7 +3,7 @@ package hnet
 import (
 	"fmt"
 
-	"github.com/lekuruu/hexagon/common"
+	"github.com/hexis-revival/hexagon/common"
 	"golang.org/x/crypto/bcrypt"
 )
 

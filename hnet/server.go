@@ -6,8 +6,8 @@ import (
 	"net"
 	"runtime/debug"
 
-	"github.com/lekuruu/go-raknet"
-	"github.com/lekuruu/hexagon/common"
+	"github.com/hexis-revival/go-raknet"
+	"github.com/hexis-revival/hexagon/common"
 )
 
 const HNET_PACKET_SIZE = 9

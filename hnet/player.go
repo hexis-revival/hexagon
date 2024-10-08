@@ -5,7 +5,7 @@ import (
 	"encoding/hex"
 	"net"
 
-	"github.com/lekuruu/hexagon/common"
+	"github.com/hexis-revival/hexagon/common"
 )
 
 type Player struct {

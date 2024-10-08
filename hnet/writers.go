@@ -3,7 +3,7 @@ package hnet
 import (
 	"strings"
 
-	"github.com/lekuruu/hexagon/common"
+	"github.com/hexis-revival/hexagon/common"
 )
 
 func (request LoginRequest) Serialize(stream *common.IOStream) {

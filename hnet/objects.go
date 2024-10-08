@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/lekuruu/hexagon/common"
+	"github.com/hexis-revival/hexagon/common"
 )
 
 type Serializable interface {

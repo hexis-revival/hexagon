@@ -1,4 +1,4 @@
-module github.com/lekuruu/hexagon/common
+module github.com/hexis-revival/hexagon/common
 
 go 1.22.7
 
