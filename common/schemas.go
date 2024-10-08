@@ -3,7 +3,7 @@ package common
 import "time"
 
 type User struct {
-	Id             uint      `gorm:"primaryKey;autoIncrement;not null"`
+	Id             int       `gorm:"primaryKey;autoIncrement;not null"`
 	Name           string    `gorm:"size:32;not null"`
 	Email          string    `gorm:"size:255;not null"`
 	Password       string    `gorm:"size:60;not null"`
@@ -17,7 +17,7 @@ type User struct {
 }
 
 type Stats struct {
-	UserId      uint    `gorm:"primaryKey;not null"`
+	UserId      int     `gorm:"primaryKey;not null"`
 	Rank        int     `gorm:"not null;default:0"`
 	TotalScore  int64   `gorm:"not null;default:0"`
 	RankedScore int64   `gorm:"not null;default:0"`
@@ -34,4 +34,17 @@ type Stats struct {
 	BCount      int     `gorm:"not null;default:0"`
 	CCount      int     `gorm:"not null;default:0"`
 	DCount      int     `gorm:"not null;default:0"`
+}
+
+type RelationshipStatus string
+
+const (
+	Friend  RelationshipStatus = "friend"
+	Blocked RelationshipStatus = "blocked"
+)
+
+type Relationship struct {
+	UserId   int                `gorm:"primaryKey;not null"`
+	TargetId int                `gorm:"primaryKey;not null"`
+	Status   RelationshipStatus `gorm:"type:relationship_status;not null"`
 }
