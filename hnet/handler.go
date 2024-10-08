@@ -28,7 +28,8 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 
 	if err != nil {
 		player.RevokeLogin()
-		return fmt.Errorf("user not found")
+		player.Logger.Warning("Login attempt failed: User not found")
+		return nil
 	}
 
 	err = bcrypt.CompareHashAndPassword(
@@ -38,7 +39,8 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 
 	if err != nil {
 		player.RevokeLogin()
-		return fmt.Errorf("invalid password")
+		player.Logger.Warning("Login attempt failed: Incorrect password")
+		return nil
 	}
 
 	// Ensure that the stats object exists
