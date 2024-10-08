@@ -50,7 +50,7 @@ func (info ClientInfo) String() string {
 }
 
 func (info ClientInfo) IsWine() bool {
-	return strings.HasPrefix(info.Hash3, "unk")
+	return strings.HasPrefix(info.Hash3, "unknown")
 }
 
 type VersionInfo struct {
