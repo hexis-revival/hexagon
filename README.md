@@ -1,6 +1,14 @@
 
 <p align="center">
   <img width="200" alt="logo" src="https://raw.githubusercontent.com/hexis-revival/hexagon-deploy/refs/heads/main/.github/images/logo-hexagon.png">
+  <img height="200" alt="logo" src="https://raw.githubusercontent.com/hexis-revival/hexagon-deploy/refs/heads/main/.github/images/hexagon-logo.png">
+</p>
+
+<p align="center">
+  <img width="120" alt="logo" src="https://raw.githubusercontent.com/hexis-revival/hexagon-deploy/refs/heads/main/.github/images/button-play.png" style="margin-right: 25px;">
+  <img width="120" alt="logo" src="https://raw.githubusercontent.com/hexis-revival/hexagon-deploy/refs/heads/main/.github/images/button-edit.png" style="margin-right: 25px;">
+  <img width="120" alt="logo" src="https://raw.githubusercontent.com/hexis-revival/hexagon-deploy/refs/heads/main/.github/images/button-options.png" style="margin-right: 25px;">
+  <img width="120" alt="logo" src="https://raw.githubusercontent.com/hexis-revival/hexagon-deploy/refs/heads/main/.github/images/button-exit.png">
 </p>
 
 # Hexagon
