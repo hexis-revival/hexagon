@@ -27,7 +27,7 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	)
 
 	if err != nil {
-		player.RevokeLogin()
+		player.CloseConnection()
 		player.Logger.Warning("Login attempt failed: User not found")
 		return nil
 	}
@@ -38,21 +38,27 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	)
 
 	if err != nil {
-		player.RevokeLogin()
+		player.CloseConnection()
 		player.Logger.Warning("Login attempt failed: Incorrect password")
 		return nil
 	}
 
 	if !userObject.Activated {
-		player.RevokeLogin()
+		player.CloseConnection()
 		player.Logger.Warning("Login attempt failed: Account not activated")
 		return nil
 	}
 
 	if userObject.Restricted {
-		player.RevokeLogin()
+		player.CloseConnection()
 		player.Logger.Warning("Login attempt failed: Account restricted")
 		return nil
+	}
+
+	otherUser := player.Server.Players.ByID(uint32(userObject.Id))
+
+	if otherUser != nil {
+		otherUser.CloseConnection()
 	}
 
 	// Ensure that the stats object exists
@@ -87,7 +93,7 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	// Send login response
 	err = player.SendPacket(SERVER_LOGIN_RESPONSE, response)
 	if err != nil {
-		player.RevokeLogin()
+		player.CloseConnection()
 		return err
 	}
 
