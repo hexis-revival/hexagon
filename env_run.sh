@@ -46,4 +46,6 @@ go run . --hnet-host ${HNET_HOST} \
          --db-port ${POSTGRES_PORT} \
          --db-username ${POSTGRES_USER} \
          --db-password ${POSTGRES_PASSWORD} \
-         --db-database ${POSTGRES_DB}
+         --db-database ${POSTGRES_DB} \
+         --redis-host ${REDIS_HOST} \
+         --redis-port ${REDIS_PORT}
