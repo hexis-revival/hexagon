@@ -79,12 +79,12 @@ func (storage *FileStorage) GetAvatar(userId int) ([]byte, error) {
 	return avatar, nil
 }
 
-func (storage *FileStorage) DefaultAvatar() ([]byte, error) {
-	return storage.Read("unknown", "avatars")
-}
-
 func (storage *FileStorage) SaveAvatar(userId int, data []byte) error {
 	return storage.Save(string(userId), "avatars", data)
+}
+
+func (storage *FileStorage) DefaultAvatar() ([]byte, error) {
+	return storage.Read("unknown", "avatars")
 }
 
 func (storage *FileStorage) EnsureDefaultAvatar() error {
