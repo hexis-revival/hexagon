@@ -97,7 +97,7 @@ func (server *HNetServer) HandleConnection(conn net.Conn) {
 		handler, ok := Handlers[packetId]
 
 		if !ok {
-			player.Logger.Warningf("Unknown packetId: %d -> '%s'", packetId, string(packetData))
+			player.Logger.Warningf("Unknown packetId: %d -> '%s'", packetId, common.FormatBytes(packetData))
 			continue
 		}
 

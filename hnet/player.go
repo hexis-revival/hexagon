@@ -2,7 +2,6 @@ package hnet
 
 import (
 	"encoding/binary"
-	"encoding/hex"
 	"net"
 
 	"github.com/hexis-revival/hexagon/common"
@@ -18,7 +17,7 @@ type Player struct {
 }
 
 func (player *Player) Send(data []byte) error {
-	player.Logger.Verbosef("<- %s", hex.EncodeToString(data))
+	player.Logger.Verbosef("<- %s", common.FormatBytes(data))
 	_, err := player.Conn.Write(data)
 	return err
 }
@@ -32,7 +31,7 @@ func (player *Player) Receive(size int) ([]byte, error) {
 	}
 
 	buffer = buffer[:n]
-	player.Logger.Verbosef("-> %s", hex.EncodeToString(buffer))
+	player.Logger.Verbosef("-> %s", common.FormatBytes(buffer))
 	return buffer, nil
 }
 
