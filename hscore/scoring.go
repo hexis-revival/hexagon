@@ -164,49 +164,37 @@ func NewScoreSubmissionRequest(request *http.Request) (*ScoreSubmissionRequest, 
 	scoreDataBase64 := GetMultipartFormValue(request, "s")
 	clientDataBase64 := GetMultipartFormValue(request, "i")
 
+	collection := common.NewErrorCollection()
+
 	iv, err := base64.StdEncoding.DecodeString(ivBase64)
-	if err != nil {
-		return nil, err
-	}
+	collection.Add(err)
 
 	processList, err := base64.StdEncoding.DecodeString(processListBase64)
-	if err != nil {
-		return nil, err
-	}
+	collection.Add(err)
 
 	scoreData, err := base64.StdEncoding.DecodeString(scoreDataBase64)
-	if err != nil {
-		return nil, err
-	}
+	collection.Add(err)
 
 	clientData, err := base64.StdEncoding.DecodeString(clientDataBase64)
-	if err != nil {
-		return nil, err
-	}
+	collection.Add(err)
 
 	processListDecrypted, err := common.DecryptScoreData(iv, processList)
-	if err != nil {
-		return nil, err
-	}
+	collection.Add(err)
 
 	scoreDataDecrypted, err := common.DecryptScoreData(iv, scoreData)
-	if err != nil {
-		return nil, err
-	}
+	collection.Add(err)
 
 	clientDataDecryptedBase64, err := common.DecryptScoreData(iv, clientData)
-	if err != nil {
-		return nil, err
-	}
+	collection.Add(err)
 
 	clientDataDecrypted, err := base64.StdEncoding.DecodeString(string(clientDataDecryptedBase64))
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode base64: %w", err)
-	}
+	collection.Add(err)
 
 	scoreDataStruct, err := ParseScoreData(scoreDataDecrypted)
-	if err != nil {
-		return nil, err
+	collection.Add(err)
+
+	if collection.HasErrors() {
+		return nil, collection.FirstError()
 	}
 
 	replayStream := common.NewIOStream(replay, binary.BigEndian)
@@ -242,64 +230,46 @@ func ParseScoreData(scoreDataBytes []byte) (*ScoreData, error) {
 	unknown1 := scoreData[2]
 	unknown2 := scoreData[19]
 
+	collection := common.NewErrorCollection()
+
 	time, err := strconv.Atoi(scoreData[6])
-	if err != nil {
-		return nil, err
-	}
+	collection.Add(err)
 
 	maxCombo, err := strconv.Atoi(scoreData[7])
-	if err != nil {
-		return nil, err
-	}
+	collection.Add(err)
 
 	totalScore, err := strconv.Atoi(scoreData[8])
-	if err != nil {
-		return nil, err
-	}
+	collection.Add(err)
 
 	count300, err := strconv.Atoi(scoreData[9])
-	if err != nil {
-		return nil, err
-	}
+	collection.Add(err)
 
 	count100, err := strconv.Atoi(scoreData[10])
-	if err != nil {
-		return nil, err
-	}
+	collection.Add(err)
 
 	count50, err := strconv.Atoi(scoreData[11])
-	if err != nil {
-		return nil, err
-	}
+	collection.Add(err)
 
 	countGeki, err := strconv.Atoi(scoreData[12])
-	if err != nil {
-		return nil, err
-	}
+	collection.Add(err)
 
 	countKatu, err := strconv.Atoi(scoreData[13])
-	if err != nil {
-		return nil, err
-	}
+	collection.Add(err)
 
 	countGood, err := strconv.Atoi(scoreData[14])
-	if err != nil {
-		return nil, err
-	}
+	collection.Add(err)
 
 	countMiss, err := strconv.Atoi(scoreData[15])
-	if err != nil {
-		return nil, err
-	}
+	collection.Add(err)
 
 	clientVersion, err := strconv.Atoi(scoreData[18])
-	if err != nil {
-		return nil, err
-	}
+	collection.Add(err)
 
 	mods, err := ParseModsData(scoreData[17])
-	if err != nil {
-		return nil, err
+	collection.Add(err)
+
+	if collection.HasErrors() {
+		return nil, collection.FirstError()
 	}
 
 	return &ScoreData{
@@ -327,30 +297,25 @@ func ParseScoreData(scoreDataBytes []byte) (*ScoreData, error) {
 
 func ParseModsData(modsString string) (*Mods, error) {
 	modData := strings.Split(modsString, ":")
+	collection := common.NewErrorCollection()
 
 	arChange, err := strconv.Atoi(modData[0])
-	if err != nil {
-		return nil, err
-	}
+	collection.Add(err)
 
 	odChange, err := strconv.Atoi(modData[1])
-	if err != nil {
-		return nil, err
-	}
+	collection.Add(err)
 
 	csChange, err := strconv.Atoi(modData[2])
-	if err != nil {
-		return nil, err
-	}
+	collection.Add(err)
 
 	hpChange, err := strconv.Atoi(modData[3])
-	if err != nil {
-		return nil, err
-	}
+	collection.Add(err)
 
 	playSpeedMultiplier, err := strconv.Atoi(modData[4])
-	if err != nil {
-		return nil, err
+	collection.Add(err)
+
+	if collection.HasErrors() {
+		return nil, collection.FirstError()
 	}
 
 	playSpeed := 1 + (0.5 * float32(playSpeedMultiplier) / 10)
