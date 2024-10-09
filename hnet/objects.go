@@ -1,8 +1,11 @@
 package hnet
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/hexis-revival/hexagon/common"
 )
@@ -50,6 +53,38 @@ func (info ClientInfo) String() string {
 
 func (info ClientInfo) IsWine() bool {
 	return info.DiskSignature == "unknown"
+}
+
+func (info ClientInfo) IsValid() bool {
+	if len(info.Adapters) == 0 {
+		return false
+	}
+
+	adaptersString := strings.Join(info.Adapters, ",")
+	adaptersHash := md5.Sum([]byte(adaptersString))
+	adaptersHashHex := hex.EncodeToString(adaptersHash[:])
+
+	if adaptersHashHex != info.AdaptersHash {
+		return false
+	}
+
+	if len(info.ExecutableHash) != 32 {
+		return false
+	}
+
+	if len(info.AdaptersHash) != 32 {
+		return false
+	}
+
+	if len(info.UninstallId) != 32 {
+		return false
+	}
+
+	if len(info.DiskSignature) != 32 && !info.IsWine() {
+		return false
+	}
+
+	return true
 }
 
 type VersionInfo struct {

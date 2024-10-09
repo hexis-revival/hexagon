@@ -21,6 +21,12 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	player.Version = request.Version
 	player.Client = request.Client
 
+	if !player.Client.IsValid() {
+		player.CloseConnection()
+		player.Logger.Warning("Login attempt failed: Invalid client info")
+		return nil
+	}
+
 	userObject, err := common.FetchUserByNameCaseInsensitive(
 		request.Username,
 		player.Server.State,
