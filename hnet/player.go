@@ -44,6 +44,7 @@ func (player *Player) OnConnect() {
 func (player *Player) OnDisconnect() {
 	player.Logger.Infof("Disconnected -> <%s>", player.Conn.RemoteAddr())
 	player.Server.Players.Remove(player)
+	player.Server.Players.Broadcast(SERVER_USER_QUIT, &QuitResponse{player.Info.Id})
 	player.Conn.Close()
 }
 

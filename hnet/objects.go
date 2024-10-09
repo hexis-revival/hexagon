@@ -222,3 +222,14 @@ func NewFriendsList() *FriendsList {
 		FriendIds: []uint32{},
 	}
 }
+
+type QuitResponse struct {
+	UserId uint32
+}
+
+func (response QuitResponse) String() string {
+	return fmt.Sprintf(
+		"QuitResponse{UserId: %d}",
+		response.UserId,
+	)
+}
