@@ -28,6 +28,7 @@ func (server *ScoreServer) Serve() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/score/submit", server.contextMiddleware(ScoreSubmissionHandler)).Methods("POST")
+	r.HandleFunc("/a/{id}", server.contextMiddleware(AvatarHandler)).Methods("GET")
 
 	loggedMux := server.loggingMiddleware(r)
 	http.ListenAndServe(bind, loggedMux)
