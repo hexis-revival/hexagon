@@ -77,3 +77,8 @@ func (request StatsRequest) Serialize(stream *common.IOStream) {
 func (friends FriendsList) Serialize(stream *common.IOStream) {
 	stream.WriteIntList(friends.FriendIds)
 }
+
+func (response QuitResponse) Serialize(stream *common.IOStream) {
+	stream.WriteU8(0) // TODO: Unused?
+	stream.WriteU32(response.UserId)
+}
