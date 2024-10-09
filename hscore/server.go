@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/hexis-revival/hexagon/common"
 )
 
@@ -13,7 +14,6 @@ type ScoreServer struct {
 	Port   int
 	Logger *common.Logger
 	State  *common.State
-	mux    *http.ServeMux
 }
 
 type Context struct {
@@ -26,10 +26,10 @@ func (server *ScoreServer) Serve() {
 	bind := fmt.Sprintf("%s:%d", server.Host, server.Port)
 	server.Logger.Infof("Listening on %s", bind)
 
-	server.mux = http.NewServeMux()
-	server.mux.HandleFunc("/score/submit", server.contextMiddleware(ScoreSubmissionHandler))
+	r := mux.NewRouter()
+	r.HandleFunc("/score/submit", server.contextMiddleware(ScoreSubmissionHandler)).Methods("POST")
 
-	loggedMux := server.loggingMiddleware(server.mux)
+	loggedMux := server.loggingMiddleware(r)
 	http.ListenAndServe(bind, loggedMux)
 }
 

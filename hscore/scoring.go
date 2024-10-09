@@ -342,11 +342,6 @@ func ParseProcessList(processListBytes []byte) []string {
 }
 
 func ScoreSubmissionHandler(ctx *Context) {
-	if ctx.Request.Method != "POST" {
-		ctx.Response.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
-
 	// Parse score submission request
 	req, err := NewScoreSubmissionRequest(ctx.Request)
 
