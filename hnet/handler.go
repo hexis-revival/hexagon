@@ -55,6 +55,13 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 		return nil
 	}
 
+	otherUser := player.Server.Players.ByID(uint32(userObject.Id))
+
+	if otherUser != nil {
+		otherUser.RevokeLogin()
+		otherUser.CloseConnection()
+	}
+
 	// Ensure that the stats object exists
 	userObject.EnsureStats(player.Server.State)
 
