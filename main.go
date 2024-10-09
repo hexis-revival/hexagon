@@ -35,7 +35,7 @@ func loadConfig() Config {
 	flag.IntVar(&config.State.Database.Port, "db-port", 5432, "Database port")
 	flag.StringVar(&config.State.Database.Username, "db-username", "postgres", "Database username")
 	flag.StringVar(&config.State.Database.Password, "db-password", "examplePassword", "Database password")
-	flag.StringVar(&config.State.Database.Database, "db-database", "hexagon", "Database name")
+	flag.StringVar(&config.State.Database.Database, "db-database", "postgres", "Database name")
 
 	flag.IntVar(&config.State.Database.MaxIdle, "db-max-idle", 10, "Database max idle connections")
 	flag.IntVar(&config.State.Database.MaxOpen, "db-max-open", 100, "Database max open connections")
