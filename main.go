@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"sync"
 
 	"github.com/hexis-revival/hexagon/common"
@@ -63,11 +62,12 @@ func runService(wg *sync.WaitGroup, worker func()) {
 }
 
 func main() {
+	logger := common.CreateLogger("main", common.DEBUG)
 	config := loadConfig()
 
 	state, err := common.NewState(config.State)
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err)
 		return
 	}
 
