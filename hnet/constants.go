@@ -14,6 +14,7 @@ const (
 	SERVER_LOGIN_REVOKED        uint32 = 3
 	SERVER_USER_STATS           uint32 = 5
 	SERVER_USER_INFO            uint32 = 6
+	SERVER_USER_QUIT            uint32 = 7
 	SERVER_FRIENDS_LIST         uint32 = 8
 	SERVER_LEADERBOARD_RESPONSE uint32 = 25
 )
