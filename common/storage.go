@@ -2,6 +2,8 @@ package common
 
 import (
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 )
 
@@ -9,6 +11,7 @@ type Storage interface {
 	Save(key string, bucket string, data []byte) error
 	Read(key string, bucket string) ([]byte, error)
 	Remove(key string, bucket string) error
+	Download(url string, key string, bucket string) error
 }
 
 type FileStorage struct {
@@ -39,4 +42,19 @@ func (storage *FileStorage) Save(key string, folder string, data []byte) error {
 func (storage *FileStorage) Remove(key string, folder string) error {
 	path := fmt.Sprintf("%s/%s/%s", storage.dataPath, folder, key)
 	return os.Remove(path)
+}
+
+func (storage *FileStorage) Download(url string, key string, folder string) error {
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	return storage.Save(key, folder, data)
 }
