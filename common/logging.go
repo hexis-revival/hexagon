@@ -110,7 +110,7 @@ func (c *Logger) Infof(format string, msg ...any) {
 		return
 	}
 
-	c.logger.Printf(c.formatLogMessage("INFO", fmt.Sprintf(format, msg...)))
+	c.logger.Println(c.formatLogMessage("INFO", fmt.Sprintf(format, msg...)))
 }
 
 func (c *Logger) Error(msg ...any) {
@@ -125,7 +125,7 @@ func (c *Logger) Errorf(format string, msg ...any) {
 		return
 	}
 
-	c.logger.Printf(c.formatLogMessage("ERROR", fmt.Sprintf(format, msg...)))
+	c.logger.Println(c.formatLogMessage("ERROR", fmt.Sprintf(format, msg...)))
 }
 
 func (c *Logger) Warning(msg ...any) {
@@ -140,7 +140,7 @@ func (c *Logger) Warningf(format string, msg ...any) {
 		return
 	}
 
-	c.logger.Printf(c.formatLogMessage("WARNING", fmt.Sprintf(format, msg...)))
+	c.logger.Println(c.formatLogMessage("WARNING", fmt.Sprintf(format, msg...)))
 }
 
 func (c *Logger) Debug(msg ...any) {
@@ -155,7 +155,7 @@ func (c *Logger) Debugf(format string, msg ...any) {
 		return
 	}
 
-	c.logger.Printf(c.formatLogMessage("DEBUG", fmt.Sprintf(format, msg...)))
+	c.logger.Println(c.formatLogMessage("DEBUG", fmt.Sprintf(format, msg...)))
 }
 
 func (c *Logger) Verbose(msg ...any) {
@@ -170,5 +170,5 @@ func (c *Logger) Verbosef(format string, msg ...any) {
 		return
 	}
 
-	c.logger.Printf(c.formatLogMessage("VERBOSE", fmt.Sprintf(format, msg...)))
+	c.logger.Println(c.formatLogMessage("VERBOSE", fmt.Sprintf(format, msg...)))
 }
