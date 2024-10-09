@@ -7,11 +7,22 @@ import (
 	"time"
 )
 
-const ERROR int = 40
-const WARNING int = 30
-const INFO int = 20
-const DEBUG int = 10
-const VERBOSE int = 0
+const (
+	ERROR   int = 40
+	WARNING int = 30
+	INFO    int = 20
+	DEBUG   int = 10
+	VERBOSE int = 0
+)
+
+const (
+	ColorReset  = "\033[0m"
+	ColorRed    = "\033[31m"
+	ColorYellow = "\033[33m"
+	ColorBlue   = "\033[34m"
+	ColorWhite  = "\033[37m"
+	ColorGrey   = "\033[90m"
+)
 
 type Logger struct {
 	logger *log.Logger
@@ -28,11 +39,6 @@ func CreateLogger(name string, level int) *Logger {
 	}
 }
 
-func (c *Logger) formatLogMessage(level, msg string) string {
-	timestamp := time.Now().Format("2006-01-02 15:04:05")
-	return fmt.Sprintf("[%s] - <%s> %s: %s", timestamp, c.name, level, msg)
-}
-
 func (c *Logger) SetLevel(level int) {
 	c.level = level
 }
@@ -47,6 +53,37 @@ func (c *Logger) SetName(name string) {
 
 func (c *Logger) GetName() string {
 	return c.name
+}
+
+func (c *Logger) formatLogMessage(level string, msg string) string {
+	color := getColor(level)
+	timestamp := time.Now().Format("2006-01-02 15:04:05")
+	return fmt.Sprintf(
+		"[%s] - <%s> %s%s: %s%s",
+		timestamp,
+		c.name,
+		color,
+		level,
+		msg,
+		ColorReset,
+	)
+}
+
+func getColor(level string) string {
+	switch level {
+	case "INFO":
+		return ColorBlue
+	case "ERROR":
+		return ColorRed
+	case "WARNING":
+		return ColorYellow
+	case "DEBUG":
+		return ColorWhite
+	case "VERBOSE":
+		return ColorGrey
+	default:
+		return ColorReset
+	}
 }
 
 func concatMessage(msg ...any) string {
