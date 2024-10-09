@@ -2,6 +2,10 @@ FROM golang:1.22.7 AS build
 
 WORKDIR /app
 
+# Update certificates
+RUN apt install -y ca-certificates
+RUN update-ca-certificates
+
 # Copy module files
 COPY ./go.mod .
 COPY ./go.sum .
@@ -24,6 +28,9 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o ./hexagon
 # Create a minimal image
 FROM scratch AS run
 COPY --from=build /app/hexagon /hexagon
+
+# Copy certificates
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 
 # Run the compiled binary
 ENTRYPOINT ["/hexagon"]
