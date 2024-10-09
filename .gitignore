@@ -11,6 +11,10 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
+# Windows build scripts
+*.cmd
+*.ps1
+
 # User-specific stuff
 idea/
 
@@ -65,4 +69,6 @@ fabric.properties
 
 # Grrr, vscode
 .vscode
+
+# Data folder
 .data
