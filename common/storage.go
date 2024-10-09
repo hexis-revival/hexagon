@@ -8,10 +8,16 @@ import (
 )
 
 type Storage interface {
+	// Base
 	Save(key string, bucket string, data []byte) error
 	Read(key string, bucket string) ([]byte, error)
 	Remove(key string, bucket string) error
 	Download(url string, key string, bucket string) error
+
+	// Avatars
+	GetAvatar(userId int) ([]byte, error)
+	SaveAvatar(userId int, data []byte) error
+	DefaultAvatar() ([]byte, error)
 }
 
 type FileStorage struct {
@@ -57,4 +63,20 @@ func (storage *FileStorage) Download(url string, key string, folder string) erro
 	}
 
 	return storage.Save(key, folder, data)
+}
+
+func (storage *FileStorage) GetAvatar(userId int) ([]byte, error) {
+	avatar, err := storage.Read(string(userId), "avatars")
+	if err != nil {
+		return storage.DefaultAvatar()
+	}
+	return avatar, nil
+}
+
+func (storage *FileStorage) DefaultAvatar() ([]byte, error) {
+	return storage.Read("unknown", "avatars")
+}
+
+func (storage *FileStorage) SaveAvatar(userId int, data []byte) error {
+	return storage.Save(string(userId), "avatars", data)
 }
