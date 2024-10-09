@@ -18,6 +18,7 @@ type Storage interface {
 	GetAvatar(userId int) ([]byte, error)
 	SaveAvatar(userId int, data []byte) error
 	DefaultAvatar() ([]byte, error)
+	EnsureDefaultAvatar() error
 }
 
 type FileStorage struct {
@@ -79,4 +80,17 @@ func (storage *FileStorage) DefaultAvatar() ([]byte, error) {
 
 func (storage *FileStorage) SaveAvatar(userId int, data []byte) error {
 	return storage.Save(string(userId), "avatars", data)
+}
+
+func (storage *FileStorage) EnsureDefaultAvatar() error {
+	_, err := storage.DefaultAvatar()
+	if err == nil {
+		return nil
+	}
+
+	// Download the default avatar
+	return storage.Download(
+		"https://raw.githubusercontent.com/hexis-revival/hexagon/refs/heads/main/.github/images/unknown.png",
+		"unknown", "avatars",
+	)
 }

@@ -41,6 +41,10 @@ func NewState(config *StateConfiguration) (*State, error) {
 	}
 
 	storage := NewFileStorage(config.DataPath)
+	err = storage.EnsureDefaultAvatar()
+	if err != nil {
+		return nil, err
+	}
 
 	return &State{
 		Database:     db,
