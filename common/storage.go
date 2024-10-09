@@ -72,7 +72,7 @@ func (storage *FileStorage) Download(url string, key string, folder string) erro
 }
 
 func (storage *FileStorage) GetAvatar(userId int) ([]byte, error) {
-	avatar, err := storage.Read(string(userId), "avatars")
+	avatar, err := storage.Read(fmt.Sprintf("%d", userId), "avatars")
 	if err != nil {
 		return storage.DefaultAvatar()
 	}
