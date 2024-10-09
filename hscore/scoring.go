@@ -126,10 +126,10 @@ func (scoreData *ScoreData) Grade() common.Grade {
 }
 
 type Mods struct {
-	ArChange  int
-	OdChange  int
-	CsChange  int
-	HpChange  int
+	ArOffset  int
+	OdOffset  int
+	CsOffset  int
+	HpOffset  int
 	PlaySpeed float32
 	Hidden    bool
 	NoFail    bool
@@ -139,10 +139,10 @@ type Mods struct {
 func (mods *Mods) String() string {
 	return fmt.Sprintf(
 		"Mods{ArChange: %d, OdChange: %d, CsChange: %d, HpChange: %d, PlaySpeed: %v, Hidden: %t, NoFail: %t, Auto: %t}",
-		mods.ArChange,
-		mods.OdChange,
-		mods.CsChange,
-		mods.HpChange,
+		mods.ArOffset,
+		mods.OdOffset,
+		mods.CsOffset,
+		mods.HpOffset,
 		mods.PlaySpeed,
 		mods.Hidden,
 		mods.NoFail,
@@ -298,16 +298,16 @@ func ParseModsData(modsString string) (*Mods, error) {
 	modData := strings.Split(modsString, ":")
 	collection := common.NewErrorCollection()
 
-	arChange, err := strconv.Atoi(modData[0])
+	arOffset, err := strconv.Atoi(modData[0])
 	collection.Add(err)
 
-	odChange, err := strconv.Atoi(modData[1])
+	odOffset, err := strconv.Atoi(modData[1])
 	collection.Add(err)
 
-	csChange, err := strconv.Atoi(modData[2])
+	csOffset, err := strconv.Atoi(modData[2])
 	collection.Add(err)
 
-	hpChange, err := strconv.Atoi(modData[3])
+	hpOffset, err := strconv.Atoi(modData[3])
 	collection.Add(err)
 
 	playSpeedMultiplier, err := strconv.Atoi(modData[4])
@@ -323,10 +323,10 @@ func ParseModsData(modsString string) (*Mods, error) {
 	auto := modData[7] == "1"
 
 	return &Mods{
-		ArChange:  arChange,
-		OdChange:  odChange,
-		CsChange:  csChange,
-		HpChange:  hpChange,
+		ArOffset:  arOffset,
+		OdOffset:  odOffset,
+		CsOffset:  csOffset,
+		HpOffset:  hpOffset,
 		PlaySpeed: playSpeed,
 		Hidden:    hidden,
 		NoFail:    noFail,
