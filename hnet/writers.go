@@ -23,9 +23,9 @@ func (info ClientInfo) Serialize(stream *common.IOStream) {
 	parts := []string{
 		info.ExecutableHash,
 		strings.Join(info.Adapters, ","),
-		info.Hash1,
-		info.Hash2,
-		info.Hash3,
+		info.AdaptersHash,
+		info.UninstallId,
+		info.DiskSignature,
 	}
 	stream.WriteString(strings.Join(parts, ";"))
 }

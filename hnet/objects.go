@@ -3,7 +3,6 @@ package hnet
 import (
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/hexis-revival/hexagon/common"
 )
@@ -33,24 +32,24 @@ func (request LoginRequest) String() string {
 type ClientInfo struct {
 	ExecutableHash string
 	Adapters       []string
-	Hash1          string // TODO
-	Hash2          string // TODO
-	Hash3          string // TODO
+	AdaptersHash   string
+	UninstallId    string
+	DiskSignature  string
 }
 
 func (info ClientInfo) String() string {
 	return fmt.Sprintf(
-		"Client{ExecutableHash: %s, Adapters: %v, Hash1: %s, Hash2: %s, Hash3: %s}",
+		"Client{ExecutableHash: %s, Adapters: %v, AdaptersHash: %s, UninstallId: %s, DiskSignature: %s}",
 		info.ExecutableHash,
 		info.Adapters,
-		info.Hash1,
-		info.Hash2,
-		info.Hash3,
+		info.AdaptersHash,
+		info.UninstallId,
+		info.DiskSignature,
 	)
 }
 
 func (info ClientInfo) IsWine() bool {
-	return strings.HasPrefix(info.Hash3, "unknown")
+	return info.DiskSignature == "unknown"
 }
 
 type VersionInfo struct {

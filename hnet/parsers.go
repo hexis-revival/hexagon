@@ -37,9 +37,9 @@ func ParseClientInfo(clientInfoString string) *ClientInfo {
 	return &ClientInfo{
 		Adapters:       adapters,
 		ExecutableHash: parts[0],
-		Hash1:          parts[2],
-		Hash2:          parts[3],
-		Hash3:          parts[4],
+		AdaptersHash:   parts[2],
+		UninstallId:    parts[3],
+		DiskSignature:  parts[4],
 	}
 }
 
