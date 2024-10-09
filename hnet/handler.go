@@ -43,6 +43,18 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 		return nil
 	}
 
+	if !userObject.Activated {
+		player.RevokeLogin()
+		player.Logger.Warning("Login attempt failed: Account not activated")
+		return nil
+	}
+
+	if userObject.Restricted {
+		player.RevokeLogin()
+		player.Logger.Warning("Login attempt failed: Account restricted")
+		return nil
+	}
+
 	// Ensure that the stats object exists
 	userObject.EnsureStats(player.Server.State)
 
