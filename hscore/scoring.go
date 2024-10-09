@@ -122,7 +122,6 @@ func (scoreData *ScoreData) Grade() common.Grade {
 		return common.GradeB
 	}
 
-	// Default case for remaining conditions
 	return common.GradeA
 }
 
