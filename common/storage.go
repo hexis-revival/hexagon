@@ -1,6 +1,7 @@
 package common
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -93,8 +94,14 @@ func (storage *FileStorage) EnsureDefaultAvatar() error {
 	}
 
 	// Download the default avatar
-	return storage.Download(
+	err = storage.Download(
 		"https://raw.githubusercontent.com/hexis-revival/hexagon/refs/heads/main/.github/images/unknown.png",
 		"unknown", "avatars",
 	)
+
+	if err != nil {
+		return errors.New("failed to download default avatar")
+	}
+
+	return nil
 }
