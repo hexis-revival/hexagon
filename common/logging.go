@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"time"
+	"unicode"
 )
 
 const (
@@ -95,6 +96,20 @@ func concatMessage(msg ...any) string {
 	}
 
 	return log
+}
+
+func FormatBytes(data []byte) string {
+	result := ""
+	for _, b := range data {
+		if unicode.IsPrint(rune(b)) {
+			// Append ASCII character to result
+			result += fmt.Sprintf("%c", b)
+		} else {
+			// Append \xhh for non-printable characters
+			result += fmt.Sprintf("\\x%02x", b)
+		}
+	}
+	return result
 }
 
 func (c *Logger) Info(msg ...any) {
