@@ -47,6 +47,10 @@ func (player *Player) OnDisconnect() {
 	player.Conn.Close()
 }
 
+func (player *Player) CloseConnection() {
+	player.OnDisconnect()
+}
+
 func (player *Player) LogIncomingPacket(packetId uint32, packet Serializable) {
 	player.Logger.Debugf("-> %d: %s", packetId, packet.String())
 }
