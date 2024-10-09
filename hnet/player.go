@@ -48,6 +48,7 @@ func (player *Player) OnDisconnect() {
 }
 
 func (player *Player) CloseConnection() {
+	player.RevokeLogin()
 	player.OnDisconnect()
 }
 
