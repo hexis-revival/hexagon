@@ -29,7 +29,7 @@ func (storage *FileStorage) Read(key string, folder string) ([]byte, error) {
 
 func (storage *FileStorage) Save(key string, folder string, data []byte) error {
 	path := fmt.Sprintf("%s/%s", storage.dataPath, folder)
-	err := os.MkdirAll(path, os.ModePerm)
+	err := os.MkdirAll(path, 0755)
 
 	if err != nil {
 		return err
