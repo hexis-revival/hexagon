@@ -1,11 +1,12 @@
 package common
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
+
+	"github.com/pkg/errors"
 )
 
 type Storage interface {
@@ -100,7 +101,7 @@ func (storage *FileStorage) EnsureDefaultAvatar() error {
 	)
 
 	if err != nil {
-		return errors.New("failed to download default avatar")
+		return errors.Wrap(err, "failed to download default avatar")
 	}
 
 	return nil
