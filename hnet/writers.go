@@ -9,7 +9,6 @@ import (
 func (request LoginRequest) Serialize(stream *common.IOStream) {
 	stream.WriteString(request.Username)
 	stream.WriteString(request.Password)
-	request.Version.Serialize(stream)
 	request.Client.Serialize(stream)
 }
 
@@ -20,6 +19,7 @@ func (version VersionInfo) Serialize(stream *common.IOStream) {
 }
 
 func (info ClientInfo) Serialize(stream *common.IOStream) {
+	info.Version.Serialize(stream)
 	parts := []string{
 		info.ExecutableHash,
 		strings.Join(info.Adapters, ","),

@@ -22,11 +22,13 @@ func ReadLoginRequest(stream *common.IOStream) *LoginRequest {
 		Patch: patchVersion,
 	}
 
+	client := ParseClientInfo(clientInfo)
+	client.Version = version
+
 	return &LoginRequest{
 		Username: username,
 		Password: password,
-		Version:  version,
-		Client:   ParseClientInfo(clientInfo),
+		Client:   client,
 	}
 }
 

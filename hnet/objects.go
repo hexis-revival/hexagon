@@ -18,21 +18,20 @@ type Serializable interface {
 type LoginRequest struct {
 	Username string
 	Password string
-	Version  *VersionInfo
 	Client   *ClientInfo
 }
 
 func (request LoginRequest) String() string {
 	return fmt.Sprintf(
-		"LoginRequest{Username: %s, Password: %s, Version: %s, %s}",
+		"LoginRequest{Username: %s, Password: %s, %s}",
 		request.Username,
 		request.Password,
-		request.Version.String(),
 		request.Client.String(),
 	)
 }
 
 type ClientInfo struct {
+	Version        *VersionInfo
 	ExecutableHash string
 	Adapters       []string
 	AdaptersHash   string
@@ -42,7 +41,8 @@ type ClientInfo struct {
 
 func (info ClientInfo) String() string {
 	return fmt.Sprintf(
-		"Client{ExecutableHash: %s, Adapters: %v, AdaptersHash: %s, UninstallId: %s, DiskSignature: %s}",
+		"Client{Version: %s, ExecutableHash: %s, Adapters: %v, AdaptersHash: %s, UninstallId: %s, DiskSignature: %s}",
+		info.Version.String(),
 		info.ExecutableHash,
 		info.Adapters,
 		info.AdaptersHash,

@@ -18,7 +18,6 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	}
 
 	player.LogIncomingPacket(CLIENT_LOGIN, request)
-	player.Version = request.Version
 	player.Client = request.Client
 
 	if !player.Client.IsValid() {
@@ -77,7 +76,7 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	player.Logger.Infof(
 		"Login attempt as '%s' with version %s",
 		player.Info.Name,
-		player.Version.String(),
+		player.Client.Version.String(),
 	)
 
 	player.Logger.SetName(fmt.Sprintf(
