@@ -58,6 +58,10 @@ func (storage *FileStorage) Download(url string, key string, folder string) erro
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("Download failed: %s", resp.Status)
+	}
+
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
