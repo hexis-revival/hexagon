@@ -100,3 +100,14 @@ func FetchUserRelationships(userId int, status RelationshipStatus, state *State)
 
 	return relationships, nil
 }
+
+func FetchUserRelationship(userId int, targetId int, state *State) (*Relationship, error) {
+	relationship := &Relationship{}
+	result := state.Database.First(relationship, "user_id = ? AND target_id = ?", userId, targetId)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return relationship, nil
+}
