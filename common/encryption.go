@@ -12,6 +12,10 @@ func DecryptScoreData(iv []byte, encryptedData []byte) ([]byte, error) {
 		return []byte{}, nil
 	}
 
+	if len(iv) != 16 {
+		return nil, errors.New("IV must be 16 bytes")
+	}
+
 	encryptionKey := "9viq4mujm86947ujxs7i5z82sa6rrzhz"
 	data, err := AESDecrypt(encryptionKey, iv, encryptedData)
 
