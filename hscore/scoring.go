@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
+	"fmt"
 	"math"
 	"net/http"
 	"strconv"
@@ -179,6 +180,10 @@ func NewScoreSubmissionRequest(request *http.Request) (*ScoreSubmissionRequest, 
 
 func ParseScoreData(scoreDataBytes []byte) (*ScoreData, error) {
 	scoreData := strings.Split(string(scoreDataBytes), ";")
+
+	if len(scoreData) != 20 {
+		return nil, fmt.Errorf("invalid score data: %d fields", len(scoreData))
+	}
 
 	beatmapChecksum := scoreData[0]
 	scoreChecksum := scoreData[3]
