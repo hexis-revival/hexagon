@@ -36,13 +36,6 @@ type Stats struct {
 	DCount      int     `gorm:"not null;default:0"`
 }
 
-type RelationshipStatus string
-
-const (
-	StatusFriend  RelationshipStatus = "friend"
-	StatusBlocked RelationshipStatus = "blocked"
-)
-
 type Relationship struct {
 	UserId   int                `gorm:"primaryKey;not null"`
 	TargetId int                `gorm:"primaryKey;not null"`
