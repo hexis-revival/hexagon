@@ -108,7 +108,8 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	}
 
 	// Send friends list
-	err = player.SendPacket(SERVER_FRIENDS_LIST, FriendsList{FriendIds: friendIds})
+	friendsList := FriendsList{FriendIds: friendIds}
+	err = player.SendPacket(SERVER_FRIENDS_LIST, friendsList)
 	if err != nil {
 		return err
 	}
