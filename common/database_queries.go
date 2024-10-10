@@ -70,6 +70,16 @@ func FetchStatsByUserId(userId int, state *State) (*Stats, error) {
 	return stats, nil
 }
 
+func CreateUserRelationship(relationship *Relationship, state *State) error {
+	result := state.Database.Create(relationship)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
 func FetchUserRelationships(userId int, status RelationshipStatus, state *State) ([]*Relationship, error) {
 	relationships := []*Relationship{}
 	result := state.Database.Where("user_id = ? AND status = ?", userId, status).Find(&relationships)
