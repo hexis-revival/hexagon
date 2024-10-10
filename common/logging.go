@@ -139,6 +139,11 @@ func FormatStruct(s interface{}) string {
 		field := t.Field(i)
 		value := v.Field(i)
 
+		// Skip unexported fields
+		if !field.IsExported() {
+			continue
+		}
+
 		// Append field name and formatted value
 		sb.WriteString(fmt.Sprintf("%s: %s", field.Name, FormatValue(value)))
 
