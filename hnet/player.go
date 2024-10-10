@@ -22,7 +22,7 @@ func (player *Player) Send(data []byte) error {
 	return err
 }
 
-func (player *Player) Receive(size int) ([]byte, error) {
+func (player *Player) Receive() ([]byte, error) {
 	buffer := make([]byte, 1024*1024)
 	n, err := player.Conn.Read(buffer)
 
