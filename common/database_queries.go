@@ -80,6 +80,16 @@ func CreateUserRelationship(relationship *Relationship, state *State) error {
 	return nil
 }
 
+func RemoveUserRelationship(relationship *Relationship, state *State) error {
+	result := state.Database.Delete(relationship)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
 func FetchUserRelationships(userId int, status RelationshipStatus, state *State) ([]*Relationship, error) {
 	relationships := []*Relationship{}
 	result := state.Database.Where("user_id = ? AND status = ?", userId, status).Find(&relationships)
