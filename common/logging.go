@@ -58,6 +58,82 @@ func (c *Logger) GetName() string {
 	return c.name
 }
 
+func (c *Logger) Info(msg ...any) {
+	if c.level > INFO {
+		return
+	}
+
+	c.logger.Println(c.formatLogMessage("INFO", concatMessage(msg...)))
+}
+
+func (c *Logger) Infof(format string, msg ...any) {
+	if c.level > INFO {
+		return
+	}
+
+	c.logger.Println(c.formatLogMessage("INFO", fmt.Sprintf(format, msg...)))
+}
+
+func (c *Logger) Error(msg ...any) {
+	if c.level > ERROR {
+		return
+	}
+	c.logger.Println(c.formatLogMessage("ERROR", concatMessage(msg...)))
+}
+
+func (c *Logger) Errorf(format string, msg ...any) {
+	if c.level > ERROR {
+		return
+	}
+
+	c.logger.Println(c.formatLogMessage("ERROR", fmt.Sprintf(format, msg...)))
+}
+
+func (c *Logger) Warning(msg ...any) {
+	if c.level > WARNING {
+		return
+	}
+	c.logger.Println(c.formatLogMessage("WARNING", concatMessage(msg...)))
+}
+
+func (c *Logger) Warningf(format string, msg ...any) {
+	if c.level > WARNING {
+		return
+	}
+
+	c.logger.Println(c.formatLogMessage("WARNING", fmt.Sprintf(format, msg...)))
+}
+
+func (c *Logger) Debug(msg ...any) {
+	if c.level > DEBUG {
+		return
+	}
+	c.logger.Println(c.formatLogMessage("DEBUG", concatMessage(msg...)))
+}
+
+func (c *Logger) Debugf(format string, msg ...any) {
+	if c.level > DEBUG {
+		return
+	}
+
+	c.logger.Println(c.formatLogMessage("DEBUG", fmt.Sprintf(format, msg...)))
+}
+
+func (c *Logger) Verbose(msg ...any) {
+	if c.level > VERBOSE {
+		return
+	}
+	c.logger.Println(c.formatLogMessage("VERBOSE", concatMessage(msg...)))
+}
+
+func (c *Logger) Verbosef(format string, msg ...any) {
+	if c.level > VERBOSE {
+		return
+	}
+
+	c.logger.Println(c.formatLogMessage("VERBOSE", fmt.Sprintf(format, msg...)))
+}
+
 func (c *Logger) formatLogMessage(level string, msg string) string {
 	color := getColor(level)
 	timestamp := time.Now().Format("2006-01-02 15:04:05")
@@ -183,80 +259,4 @@ func FormatValue(v reflect.Value) string {
 	default:
 		return fmt.Sprintf("%v", v.Interface())
 	}
-}
-
-func (c *Logger) Info(msg ...any) {
-	if c.level > INFO {
-		return
-	}
-
-	c.logger.Println(c.formatLogMessage("INFO", concatMessage(msg...)))
-}
-
-func (c *Logger) Infof(format string, msg ...any) {
-	if c.level > INFO {
-		return
-	}
-
-	c.logger.Println(c.formatLogMessage("INFO", fmt.Sprintf(format, msg...)))
-}
-
-func (c *Logger) Error(msg ...any) {
-	if c.level > ERROR {
-		return
-	}
-	c.logger.Println(c.formatLogMessage("ERROR", concatMessage(msg...)))
-}
-
-func (c *Logger) Errorf(format string, msg ...any) {
-	if c.level > ERROR {
-		return
-	}
-
-	c.logger.Println(c.formatLogMessage("ERROR", fmt.Sprintf(format, msg...)))
-}
-
-func (c *Logger) Warning(msg ...any) {
-	if c.level > WARNING {
-		return
-	}
-	c.logger.Println(c.formatLogMessage("WARNING", concatMessage(msg...)))
-}
-
-func (c *Logger) Warningf(format string, msg ...any) {
-	if c.level > WARNING {
-		return
-	}
-
-	c.logger.Println(c.formatLogMessage("WARNING", fmt.Sprintf(format, msg...)))
-}
-
-func (c *Logger) Debug(msg ...any) {
-	if c.level > DEBUG {
-		return
-	}
-	c.logger.Println(c.formatLogMessage("DEBUG", concatMessage(msg...)))
-}
-
-func (c *Logger) Debugf(format string, msg ...any) {
-	if c.level > DEBUG {
-		return
-	}
-
-	c.logger.Println(c.formatLogMessage("DEBUG", fmt.Sprintf(format, msg...)))
-}
-
-func (c *Logger) Verbose(msg ...any) {
-	if c.level > VERBOSE {
-		return
-	}
-	c.logger.Println(c.formatLogMessage("VERBOSE", concatMessage(msg...)))
-}
-
-func (c *Logger) Verbosef(format string, msg ...any) {
-	if c.level > VERBOSE {
-		return
-	}
-
-	c.logger.Println(c.formatLogMessage("VERBOSE", fmt.Sprintf(format, msg...)))
 }
