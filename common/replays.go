@@ -16,7 +16,16 @@ type ReplayData struct {
 }
 
 func (replayData *ReplayData) String() string {
-	return FormatStruct(replayData)
+	header := "no header"
+
+	if replayData.Header != nil {
+		header = replayData.Header.String()
+	}
+
+	return fmt.Sprintf(
+		"ReplayData{%d frames, %s}",
+		len(replayData.Frames), header,
+	)
 }
 
 func (replayData *ReplayData) SerializeFrames(stream *IOStream) {
