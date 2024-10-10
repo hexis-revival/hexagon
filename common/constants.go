@@ -13,3 +13,10 @@ const (
 	GradeSS
 	GradeXH
 )
+
+type RelationshipStatus string
+
+const (
+	StatusFriend  RelationshipStatus = "friend"
+	StatusBlocked RelationshipStatus = "blocked"
+)
