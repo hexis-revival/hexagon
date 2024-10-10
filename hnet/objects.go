@@ -209,3 +209,12 @@ type QuitResponse struct {
 func (response QuitResponse) String() string {
 	return common.FormatStruct(response)
 }
+
+type RelationshipRequest struct {
+	Status common.RelationshipStatus
+	UserId uint32
+}
+
+func (request RelationshipRequest) String() string {
+	return common.FormatStruct(request)
+}

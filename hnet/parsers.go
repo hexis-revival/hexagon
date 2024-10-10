@@ -77,6 +77,23 @@ func ReadStatsRequest(stream *common.IOStream) *StatsRequest {
 	}
 }
 
+func ReadRelationshipRequest(stream *common.IOStream) *RelationshipRequest {
+	defer handlePanic()
+
+	status := common.StatusBlocked
+	isFriend := stream.ReadBool()
+	userId := stream.ReadU32()
+
+	if isFriend {
+		status = common.StatusFriend
+	}
+
+	return &RelationshipRequest{
+		Status: status,
+		UserId: userId,
+	}
+}
+
 func handlePanic() {
 	_ = recover()
 }
