@@ -121,9 +121,15 @@ func FormatStruct(s interface{}) string {
 	v := reflect.ValueOf(s)
 	t := v.Type()
 
+	// Check if the value is a pointer and dereference it
+	if t.Kind() == reflect.Ptr {
+		v = v.Elem()
+		t = v.Type()
+	}
+
 	// Ensure we're dealing with a struct
 	if t.Kind() != reflect.Struct {
-		return "FormatStruct expects a struct"
+		return fmt.Sprintf("%v", s)
 	}
 
 	var sb strings.Builder
