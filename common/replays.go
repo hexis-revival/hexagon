@@ -16,16 +16,7 @@ type ReplayData struct {
 }
 
 func (replayData *ReplayData) String() string {
-	header := "no header"
-
-	if replayData.Header != nil {
-		header = replayData.Header.String()
-	}
-
-	return fmt.Sprintf(
-		"ReplayData{%d frames, %s}",
-		len(replayData.Frames), header,
-	)
+	return FormatStruct(replayData)
 }
 
 func (replayData *ReplayData) SerializeFrames(stream *IOStream) {
@@ -72,10 +63,7 @@ type ReplayHeader struct {
 }
 
 func (header *ReplayHeader) String() string {
-	return fmt.Sprintf(
-		"ReplayHeader{Mode %d, ReplayVersion: %d, BeatmapChecksum: %s, PlayerName: %s, ScoreChecksum: %s, Count300: %d, Count100: %d, Count50: %d, CountGeki: %d, CountGood: %d, CountMiss: %d, TotalScore: %f, MaxCombo: %d, FullCombo: %t, Time: %s}",
-		header.Mode, header.ReplayVersion, header.BeatmapChecksum, header.PlayerName, header.ScoreChecksum, header.Count300, header.Count100, header.Count50, header.CountGeki, header.CountGood, header.CountMiss, header.TotalScore, header.MaxCombo, header.FullCombo, header.Time,
-	)
+	return FormatStruct(header)
 }
 
 func (header *ReplayHeader) Serialize(stream *IOStream) {
@@ -143,10 +131,7 @@ type ReplayFrame struct {
 }
 
 func (frame *ReplayFrame) String() string {
-	return fmt.Sprintf(
-		"ReplayFrame{Time: %d, MouseX: %f, MouseY: %f, ButtonState: %d}",
-		frame.Time, frame.MouseX, frame.MouseY, frame.ButtonState,
-	)
+	return FormatStruct(frame)
 }
 
 func (frame *ReplayFrame) Serialize(stream *IOStream) {
