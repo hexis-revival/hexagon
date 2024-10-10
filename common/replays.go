@@ -53,6 +53,7 @@ func (replayData *ReplayData) Serialize(stream *IOStream) {
 }
 
 type ReplayHeader struct {
+	Mode            uint32
 	ReplayVersion   uint8
 	BeatmapChecksum string
 	PlayerName      string
@@ -72,14 +73,14 @@ type ReplayHeader struct {
 
 func (header *ReplayHeader) String() string {
 	return fmt.Sprintf(
-		"ReplayHeader{ReplayVersion: %d, BeatmapChecksum: %s, PlayerName: %s, ScoreChecksum: %s, Count300: %d, Count100: %d, Count50: %d, CountGeki: %d, CountGood: %d, CountMiss: %d, TotalScore: %f, MaxCombo: %d, FullCombo: %t, Time: %s}",
-		header.ReplayVersion, header.BeatmapChecksum, header.PlayerName, header.ScoreChecksum, header.Count300, header.Count100, header.Count50, header.CountGeki, header.CountGood, header.CountMiss, header.TotalScore, header.MaxCombo, header.FullCombo, header.Time,
+		"ReplayHeader{Mode %d, ReplayVersion: %d, BeatmapChecksum: %s, PlayerName: %s, ScoreChecksum: %s, Count300: %d, Count100: %d, Count50: %d, CountGeki: %d, CountGood: %d, CountMiss: %d, TotalScore: %f, MaxCombo: %d, FullCombo: %t, Time: %s}",
+		header.Mode, header.ReplayVersion, header.BeatmapChecksum, header.PlayerName, header.ScoreChecksum, header.Count300, header.Count100, header.Count50, header.CountGeki, header.CountGood, header.CountMiss, header.TotalScore, header.MaxCombo, header.FullCombo, header.Time,
 	)
 }
 
 func (header *ReplayHeader) Serialize(stream *IOStream) {
 	stream.Write([]byte{0xf0, 0xa0, 0xc0, 0xe0})
-	stream.WriteU32(0)
+	stream.WriteU32(header.Mode)
 	stream.WriteU8(header.ReplayVersion)
 	stream.WriteString(header.BeatmapChecksum)
 	stream.WriteString(header.PlayerName)
@@ -172,10 +173,7 @@ func ReadReplayHeader(stream *IOStream) *ReplayHeader {
 		return nil
 	}
 
-	// Always set to zero
-	// Most likely an unused field for a mode/ruleset
-	_ = stream.ReadI32()
-
+	header.Mode = stream.ReadU32()
 	header.ReplayVersion = stream.ReadU8()
 	header.BeatmapChecksum = stream.ReadString()
 	header.PlayerName = stream.ReadString()
