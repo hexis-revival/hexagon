@@ -131,7 +131,6 @@ func (header *ReplayHeader) Grade() Grade {
 		return GradeB
 	}
 
-	// Default case for remaining conditions
 	return GradeA
 }
 
@@ -173,7 +172,10 @@ func ReadReplayHeader(stream *IOStream) *ReplayHeader {
 		return nil
 	}
 
-	_ = stream.ReadI32() // Always zero-bytes, we can ignore them
+	// Always set to zero
+	// Most likely an unused field for a mode/ruleset
+	_ = stream.ReadI32()
+
 	header.ReplayVersion = stream.ReadU8()
 	header.BeatmapChecksum = stream.ReadString()
 	header.PlayerName = stream.ReadString()

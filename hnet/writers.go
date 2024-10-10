@@ -12,6 +12,12 @@ func (request LoginRequest) Serialize(stream *common.IOStream) {
 	request.Client.Serialize(stream)
 }
 
+func (response LoginResponse) Serialize(stream *common.IOStream) {
+	stream.WriteString(response.Username)
+	stream.WriteString(response.Password)
+	stream.WriteU32(response.UserId)
+}
+
 func (version VersionInfo) Serialize(stream *common.IOStream) {
 	stream.WriteU32(version.Major)
 	stream.WriteU32(version.Minor)
@@ -28,31 +34,6 @@ func (info ClientInfo) Serialize(stream *common.IOStream) {
 		info.DiskSignature,
 	}
 	stream.WriteString(strings.Join(parts, ";"))
-}
-
-func (status Status) Serialize(stream *common.IOStream) {
-	stream.WriteU32(status.UserId)
-	stream.WriteU32(status.Action)
-
-	if !status.HasBeatmapInfo() {
-		return
-	}
-
-	status.Beatmap.Serialize(stream)
-}
-
-func (info BeatmapInfo) Serialize(stream *common.IOStream) {
-	stream.WriteString(info.Checksum)
-	stream.WriteI32(info.Id)
-	stream.WriteString(info.Artist)
-	stream.WriteString(info.Title)
-	stream.WriteString(info.Version)
-}
-
-func (response LoginResponse) Serialize(stream *common.IOStream) {
-	stream.WriteString(response.Username)
-	stream.WriteString(response.Password)
-	stream.WriteU32(response.UserId)
 }
 
 func (info UserInfo) Serialize(stream *common.IOStream) {
@@ -72,6 +53,25 @@ func (stats UserStats) Serialize(stream *common.IOStream) {
 
 func (request StatsRequest) Serialize(stream *common.IOStream) {
 	stream.WriteIntList(request.UserIds)
+}
+
+func (status Status) Serialize(stream *common.IOStream) {
+	stream.WriteU32(status.UserId)
+	stream.WriteU32(status.Action)
+
+	if !status.HasBeatmapInfo() {
+		return
+	}
+
+	status.Beatmap.Serialize(stream)
+}
+
+func (info BeatmapInfo) Serialize(stream *common.IOStream) {
+	stream.WriteString(info.Checksum)
+	stream.WriteI32(info.Id)
+	stream.WriteString(info.Artist)
+	stream.WriteString(info.Title)
+	stream.WriteString(info.Version)
 }
 
 func (friends FriendsList) Serialize(stream *common.IOStream) {
