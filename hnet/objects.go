@@ -4,7 +4,6 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/hexis-revival/hexagon/common"
@@ -22,12 +21,7 @@ type LoginRequest struct {
 }
 
 func (request LoginRequest) String() string {
-	return fmt.Sprintf(
-		"LoginRequest{Username: %s, Password: %s, %s}",
-		request.Username,
-		request.Password,
-		request.Client.String(),
-	)
+	return common.FormatStruct(request)
 }
 
 type ClientInfo struct {
@@ -40,15 +34,7 @@ type ClientInfo struct {
 }
 
 func (info ClientInfo) String() string {
-	return fmt.Sprintf(
-		"Client{Version: %s, ExecutableHash: %s, Adapters: %v, AdaptersHash: %s, UninstallId: %s, DiskSignature: %s}",
-		info.Version.String(),
-		info.ExecutableHash,
-		info.Adapters,
-		info.AdaptersHash,
-		info.UninstallId,
-		info.DiskSignature,
-	)
+	return common.FormatStruct(info)
 }
 
 func (info ClientInfo) IsWine() bool {
@@ -113,17 +99,7 @@ func (status Status) HasBeatmapInfo() bool {
 }
 
 func (status Status) String() string {
-	var beatmapString string = "nil"
-	if status.Beatmap != nil {
-		beatmapString = status.Beatmap.String()
-	}
-
-	return fmt.Sprintf(
-		"Status{UserId: %s, Action: %s, Beatmap: %s}",
-		strconv.Itoa(int(status.UserId)),
-		strconv.Itoa(int(status.Action)),
-		beatmapString,
-	)
+	return common.FormatStruct(status)
 }
 
 func NewStatus() *Status {
@@ -143,14 +119,7 @@ type BeatmapInfo struct {
 }
 
 func (beatmap BeatmapInfo) String() string {
-	return fmt.Sprintf(
-		"BeatmapInfo{Checksum: %s, Id: %d, Artist: %s, Title: %s, Version: %s}",
-		beatmap.Checksum,
-		beatmap.Id,
-		beatmap.Artist,
-		beatmap.Title,
-		beatmap.Version,
-	)
+	return common.FormatStruct(beatmap)
 }
 
 type LoginResponse struct {
@@ -160,12 +129,7 @@ type LoginResponse struct {
 }
 
 func (response LoginResponse) String() string {
-	return fmt.Sprintf(
-		"LoginResponse{Username: %s, Password: %s, UserId: %d}",
-		response.Username,
-		response.Password,
-		response.UserId,
-	)
+	return common.FormatStruct(response)
 }
 
 type UserInfo struct {
@@ -175,11 +139,7 @@ type UserInfo struct {
 }
 
 func (info UserInfo) String() string {
-	return fmt.Sprintf(
-		"UserInfo{UserId: %d. Username: %s}",
-		info.Id,
-		info.Name,
-	)
+	return common.FormatStruct(info)
 }
 
 func NewUserInfo() *UserInfo {
@@ -200,16 +160,7 @@ type UserStats struct {
 }
 
 func (stats UserStats) String() string {
-	return fmt.Sprintf(
-		"UserStats{UserId: %d, Rank: %d, RankedScore: %d, TotalScore: %d, Accuracy: %f, Plays: %d, %s}",
-		stats.UserId,
-		stats.Rank,
-		stats.RankedScore,
-		stats.TotalScore,
-		stats.Accuracy*100,
-		stats.Plays,
-		stats.Status.String(),
-	)
+	return common.FormatStruct(stats)
 }
 
 func NewUserStats() *UserStats {
@@ -228,10 +179,7 @@ type StatsRequest struct {
 }
 
 func (request StatsRequest) String() string {
-	return fmt.Sprintf(
-		"StatsRequest{UserIds: %v}",
-		request.UserIds,
-	)
+	return common.FormatStruct(request)
 }
 
 func NewStatsRequest() *StatsRequest {
@@ -245,10 +193,7 @@ type FriendsList struct {
 }
 
 func (friends FriendsList) String() string {
-	return fmt.Sprintf(
-		"FriendsList{Friends: %v}",
-		friends.FriendIds,
-	)
+	return common.FormatStruct(friends)
 }
 
 func NewFriendsList() *FriendsList {
@@ -262,8 +207,5 @@ type QuitResponse struct {
 }
 
 func (response QuitResponse) String() string {
-	return fmt.Sprintf(
-		"QuitResponse{UserId: %d}",
-		response.UserId,
-	)
+	return common.FormatStruct(response)
 }

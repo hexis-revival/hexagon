@@ -1,7 +1,5 @@
 package common
 
-import "fmt"
-
 type ErrorCollection struct {
 	errors []error
 }
@@ -29,7 +27,7 @@ func (ec *ErrorCollection) HasErrors() bool {
 }
 
 func (ec *ErrorCollection) String() string {
-	return fmt.Sprintf("ErrorCollection{%d errors}", len(ec.errors))
+	return FormatStruct(ec)
 }
 
 func NewErrorCollection() *ErrorCollection {

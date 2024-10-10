@@ -4,7 +4,6 @@ import (
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
-	"fmt"
 	"math"
 	"net/http"
 	"strconv"
@@ -27,14 +26,7 @@ type ScoreSubmissionRequest struct {
 }
 
 func (req *ScoreSubmissionRequest) String() string {
-	return fmt.Sprintf(
-		"ScoreSubmissionRequest{%s, ProcessList: %d processes, %s, Password: '%s', ClientData: %s}",
-		req.Replay.String(),
-		len(req.ProcessList),
-		req.ScoreData.String(),
-		req.Password,
-		req.ClientData,
-	)
+	return common.FormatStruct(req)
 }
 
 type ScoreData struct {
@@ -60,28 +52,7 @@ type ScoreData struct {
 }
 
 func (scoreData *ScoreData) String() string {
-	return fmt.Sprintf(
-		"ScoreData{BeatmapChecksum: %s, ScoreChecksum: %s, Username: %s, Passed: %t, Perfect: %t, Time: %d, MaxCombo: %d, TotalScore: %d, Count300: %d, Count100: %d, Count50: %d, CountGeki: %d, CountKatu: %d, CountGood: %d, CountMiss: %d, ClientVersion: %d, Unknown1: %s, Unknown2: %s, %s}",
-		scoreData.BeatmapChecksum,
-		scoreData.ScoreChecksum,
-		scoreData.Username,
-		scoreData.Passed,
-		scoreData.Perfect,
-		scoreData.Time,
-		scoreData.MaxCombo,
-		scoreData.TotalScore,
-		scoreData.Count300,
-		scoreData.Count100,
-		scoreData.Count50,
-		scoreData.CountGeki,
-		scoreData.CountKatu,
-		scoreData.CountGood,
-		scoreData.CountMiss,
-		scoreData.ClientVersion,
-		scoreData.Unknown1,
-		scoreData.Unknown2,
-		scoreData.Mods.String(),
-	)
+	return common.FormatStruct(scoreData)
 }
 
 func (scoreData *ScoreData) Accuracy() float64 {
@@ -137,17 +108,7 @@ type Mods struct {
 }
 
 func (mods *Mods) String() string {
-	return fmt.Sprintf(
-		"Mods{ArChange: %d, OdChange: %d, CsChange: %d, HpChange: %d, PlaySpeed: %v, Hidden: %t, NoFail: %t, Auto: %t}",
-		mods.ArOffset,
-		mods.OdOffset,
-		mods.CsOffset,
-		mods.HpOffset,
-		mods.PlaySpeed,
-		mods.Hidden,
-		mods.NoFail,
-		mods.Auto,
-	)
+	return common.FormatStruct(mods)
 }
 
 func NewScoreSubmissionRequest(request *http.Request) (*ScoreSubmissionRequest, error) {
