@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/pkg/errors"
 )
@@ -81,7 +82,7 @@ func (storage *FileStorage) GetAvatar(userId int) ([]byte, error) {
 }
 
 func (storage *FileStorage) SaveAvatar(userId int, data []byte) error {
-	return storage.Save(string(userId), "avatars", data)
+	return storage.Save(strconv.Itoa(userId), "avatars", data)
 }
 
 func (storage *FileStorage) DefaultAvatar() ([]byte, error) {
