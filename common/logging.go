@@ -156,7 +156,7 @@ func FormatValue(v reflect.Value) string {
 	defer recover()
 	switch v.Kind() {
 	case reflect.String:
-		return fmt.Sprintf("'%s'", v.String())
+		return fmt.Sprintf("\"%s\"", v.String())
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		return fmt.Sprintf("%d", v.Uint())
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
