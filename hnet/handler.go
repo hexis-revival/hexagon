@@ -151,8 +151,58 @@ func handleRequestStats(stream *common.IOStream, player *Player) error {
 	return nil
 }
 
+func handleUserRelationshipAdd(stream *common.IOStream, player *Player) error {
+	request := ReadRelationshipRequest(stream)
+
+	if request == nil {
+		return fmt.Errorf("failed to read relationship request")
+	}
+
+	target := player.Server.Players.ByID(request.UserId)
+
+	if target == nil {
+		return fmt.Errorf("user %d not found", request.UserId)
+	}
+
+	player.LogIncomingPacket(CLIENT_RELATIONSHIP_ADD, request)
+	err := player.AddRelationship(request.UserId, request.Status)
+
+	if err != nil {
+		return err
+	}
+
+	player.Logger.Infof("Set relationship status to '%s' for %s", request.Status, target.Info.Name)
+	return nil
+}
+
+func handleUserRelationshipRemove(stream *common.IOStream, player *Player) error {
+	request := ReadRelationshipRequest(stream)
+
+	if request == nil {
+		return fmt.Errorf("failed to read relationship request")
+	}
+
+	target := player.Server.Players.ByID(request.UserId)
+
+	if target == nil {
+		return fmt.Errorf("user %d not found", request.UserId)
+	}
+
+	player.LogIncomingPacket(CLIENT_RELATIONSHIP_REMOVE, request)
+	err := player.RemoveRelationship(request.UserId, request.Status)
+
+	if err != nil {
+		return err
+	}
+
+	player.Logger.Infof("Removed relationship status '%s' for %s", request.Status, target.Info.Name)
+	return nil
+}
+
 func init() {
 	Handlers[CLIENT_LOGIN] = handleLogin
 	Handlers[CLIENT_CHANGE_STATUS] = handleStatusChange
 	Handlers[CLIENT_REQUEST_STATS] = handleRequestStats
+	Handlers[CLIENT_RELATIONSHIP_ADD] = handleUserRelationshipAdd
+	Handlers[CLIENT_RELATIONSHIP_REMOVE] = handleUserRelationshipRemove
 }
