@@ -29,7 +29,7 @@ func (ec *ErrorCollection) HasErrors() bool {
 }
 
 func (ec *ErrorCollection) String() string {
-	return fmt.Sprintf("ErrorCollection{%d errors}", len(ec.errors))
+	return fmt.Sprintf("ErrorCollection{errors: %v}", len(ec.errors))
 }
 
 func NewErrorCollection() *ErrorCollection {
