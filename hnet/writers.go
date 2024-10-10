@@ -82,3 +82,8 @@ func (response QuitResponse) Serialize(stream *common.IOStream) {
 	stream.WriteU8(0) // TODO: Unused?
 	stream.WriteU32(response.UserId)
 }
+
+func (request RelationshipRequest) Serialize(stream *common.IOStream) {
+	stream.WriteBool(request.Status == common.StatusFriend)
+	stream.WriteU32(request.UserId)
+}
