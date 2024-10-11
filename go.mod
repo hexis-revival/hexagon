@@ -3,7 +3,7 @@ module github.com/hexis-revival/hexagon
 go 1.22.7
 
 require (
-	github.com/hexis-revival/hexagon/common v0.0.0-20241005191625-f1f1499b1fd1
+	github.com/hexis-revival/hexagon/common v0.0.0-20241011155802-d3c4786a3319
 	github.com/hexis-revival/hexagon/hnet v0.0.0-00010101000000-000000000000
 )
 
