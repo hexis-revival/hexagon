@@ -1,6 +1,7 @@
 package hnet
 
 import (
+	"encoding/hex"
 	"fmt"
 
 	"github.com/hexis-revival/hexagon/common"
@@ -36,6 +37,62 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 
 	isCorrect := common.CheckPassword(
 		request.Password,
+		userObject.Password,
+	)
+
+	if !isCorrect {
+		player.OnLoginFailed("Incorrect password")
+		return nil
+	}
+
+	if !userObject.Activated {
+		player.OnLoginFailed("Account not activated")
+		return nil
+	}
+
+	if userObject.Restricted {
+		player.OnLoginFailed("Account restricted")
+		return nil
+	}
+
+	return player.OnLoginSuccess(request, userObject)
+}
+
+func handleReconnect(stream *common.IOStream, player *Player) error {
+	request := ReadLoginRequestReconnect(stream)
+
+	if request == nil {
+		player.RevokeLogin()
+		return fmt.Errorf("failed to read login request")
+	}
+
+	player.LogIncomingPacket(CLIENT_LOGIN, request)
+	player.Client = request.Client
+
+	if !player.Client.IsValid() {
+		player.OnLoginFailed("Invalid client info")
+		return nil
+	}
+
+	userObject, err := common.FetchUserByNameCaseInsensitive(
+		request.Username,
+		player.Server.State,
+	)
+
+	if err != nil {
+		player.OnLoginFailed("User not found")
+		return nil
+	}
+
+	passwordHash, err := hex.DecodeString(request.Password)
+
+	if err != nil {
+		player.OnLoginFailed("Invalid password")
+		return nil
+	}
+
+	isCorrect := common.CheckPasswordHashed(
+		passwordHash,
 		userObject.Password,
 	)
 
@@ -141,6 +198,7 @@ func handleUserRelationshipRemove(stream *common.IOStream, player *Player) error
 
 func init() {
 	Handlers[CLIENT_LOGIN] = handleLogin
+	Handlers[CLIENT_LOGIN_RECONNECT] = handleReconnect
 	Handlers[CLIENT_CHANGE_STATUS] = handleStatusChange
 	Handlers[CLIENT_REQUEST_STATS] = handleRequestStats
 	Handlers[CLIENT_RELATIONSHIP_ADD] = handleUserRelationshipAdd
