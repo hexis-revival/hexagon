@@ -190,7 +190,7 @@ func ReadCompressedReplay(stream *IOStream) (*ReplayData, error) {
 	defer handlePanic()
 
 	if stream.Available() < 4 {
-		return nil, fmt.Errorf("replay is too short")
+		return &ReplayData{}, fmt.Errorf("replay is too short")
 	}
 
 	replaySize := stream.ReadU32()
@@ -199,16 +199,16 @@ func ReadCompressedReplay(stream *IOStream) (*ReplayData, error) {
 	reader := bytes.NewReader(compressedReplayData)
 	zlibReader, err := zlib.NewReader(reader)
 	if err != nil {
-		return nil, err
+		return &ReplayData{}, err
 	}
 
 	replayData, err := io.ReadAll(zlibReader)
 	if err != nil {
-		return nil, err
+		return &ReplayData{}, err
 	}
 
 	if len(replayData) < 4 {
-		return nil, fmt.Errorf("replay data is too short")
+		return &ReplayData{}, fmt.Errorf("replay data is too short")
 	}
 
 	stream = NewIOStream(replayData, binary.BigEndian)
@@ -220,7 +220,7 @@ func ReadCompressedReplay(stream *IOStream) (*ReplayData, error) {
 
 	// Check if we have enough data for all frames
 	if stream.Available() < int(expectedSize) {
-		return nil, fmt.Errorf(
+		return &ReplayData{}, fmt.Errorf(
 			"not enough data for %d frames, got %d bytes",
 			frameAmount, stream.Available(),
 		)

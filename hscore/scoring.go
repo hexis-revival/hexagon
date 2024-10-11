@@ -78,15 +78,8 @@ func NewScoreSubmissionRequest(request *http.Request) (*ScoreSubmissionRequest, 
 
 	replayStream := common.NewIOStream(replay, binary.BigEndian)
 	replayData, _ := common.ReadCompressedReplay(replayStream)
-	if replayData == nil {
-		// Either invalid replay or not provided
-		// we will handle this later
-		replayData = &common.ReplayData{}
-	}
-
 	processListData := ParseProcessList(processListDecrypted)
 
-	// TODO: Parse process list, score data & client data
 	return &ScoreSubmissionRequest{
 		Replay:      replayData,
 		Password:    password,
