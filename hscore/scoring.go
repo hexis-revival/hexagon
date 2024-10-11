@@ -56,9 +56,12 @@ func (scoreData *ScoreData) String() string {
 	return common.FormatStruct(scoreData)
 }
 
+func (scoreData *ScoreData) TotalHits() int {
+	return scoreData.Count300 + scoreData.Count100 + scoreData.Count50
+}
+
 func (scoreData *ScoreData) Accuracy() float64 {
-	totalHits := scoreData.Count300 + scoreData.Count100 + scoreData.Count50
-	return float64(scoreData.Count300*300+scoreData.Count100*100+scoreData.Count50*50) / float64(totalHits*300)
+	return float64(scoreData.Count300*300+scoreData.Count100*100+scoreData.Count50*50) / float64(scoreData.TotalHits()*300)
 }
 
 func (scoreData *ScoreData) Grade() common.Grade {
