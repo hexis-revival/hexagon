@@ -2,6 +2,7 @@ package hnet
 
 import (
 	"encoding/binary"
+	"encoding/hex"
 	"fmt"
 	"net"
 
@@ -107,10 +108,13 @@ func (player *Player) OnLoginSuccess(request *LoginRequest, userObject *common.U
 		player.SendPacket(SERVER_USER_INFO, other.Info)
 	}
 
+	responsePassword := common.GetSHA512Hash(request.Password)
+	responsePasswordHex := hex.EncodeToString(responsePassword)
+
 	response := LoginResponse{
 		UserId:   player.Info.Id,
 		Username: player.Info.Name,
-		Password: request.Password,
+		Password: responsePasswordHex,
 	}
 
 	// Send login response
