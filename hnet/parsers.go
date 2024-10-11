@@ -15,6 +15,7 @@ func ReadLoginRequest(stream *common.IOStream) *LoginRequest {
 	minorVersion := stream.ReadU32()
 	patchVersion := stream.ReadU32()
 	clientInfo := stream.ReadString()
+	_ = stream.ReadU8() // TODO
 
 	version := &VersionInfo{
 		Major: majorVersion,
