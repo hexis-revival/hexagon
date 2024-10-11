@@ -2,6 +2,7 @@ package common
 
 import (
 	"crypto/sha512"
+	"encoding/hex"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -60,6 +61,16 @@ func CheckPasswordHashed(inputHashed []byte, bcryptString string) bool {
 	isCorrect := err == nil
 	passwordCache[string(inputHashed)] = isCorrect
 	return isCorrect
+}
+
+func CheckPasswordHashedHex(inputHex string, bcryptString string) bool {
+	inputHashed, err := hex.DecodeString(inputHex)
+
+	if err != nil {
+		return false
+	}
+
+	return CheckPasswordHashed(inputHashed, bcryptString)
 }
 
 func GetSHA512Hash(input string) []byte {
