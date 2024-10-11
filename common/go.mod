@@ -2,10 +2,7 @@ module github.com/hexis-revival/hexagon/common
 
 go 1.22.7
 
-require (
-	github.com/soniakeys/meeus/v3 v3.0.1
-	golang.org/x/exp v0.0.0-20241004190924-225e2abe05e6
-)
+require golang.org/x/exp v0.0.0-20241004190924-225e2abe05e6
 
 require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
@@ -28,6 +25,5 @@ require (
 require (
 	github.com/pkg/errors v0.9.1
 	github.com/redis/go-redis/v9 v9.6.1
-	github.com/soniakeys/unit v1.0.0 // indirect
 	gorm.io/driver/postgres v1.5.9
 )

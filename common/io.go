@@ -4,8 +4,6 @@ import (
 	"encoding/binary"
 	"math"
 	"time"
-
-	"github.com/soniakeys/meeus/v3/julian"
 )
 
 type IOStream struct {
@@ -156,7 +154,7 @@ func (stream *IOStream) ReadIntList() []uint32 {
 func (stream *IOStream) ReadDateTime() time.Time {
 	// Convert julian date to time.Time
 	jd := float64(stream.ReadI32())
-	time := julian.JDToTime(jd)
+	time := JulianToTime(jd)
 	return time
 }
 
@@ -238,6 +236,6 @@ func (stream *IOStream) WriteIntList(list []uint32) {
 
 func (stream *IOStream) WriteDateTime(value time.Time) {
 	// Convert time.Time to julian date
-	jd := julian.TimeToJD(value)
+	jd := TimeToJulian(value)
 	stream.WriteI32(int32(jd))
 }
