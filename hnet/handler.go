@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/hexis-revival/hexagon/common"
-	"golang.org/x/crypto/bcrypt"
 )
 
 var Handlers = map[uint32]func(*common.IOStream, *Player) error{}
@@ -35,12 +34,12 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 		return nil
 	}
 
-	err = bcrypt.CompareHashAndPassword(
-		[]byte(userObject.Password),
-		[]byte(request.Password),
+	isCorrect := common.CheckPassword(
+		request.Password,
+		userObject.Password,
 	)
 
-	if err != nil {
+	if !isCorrect {
 		player.OnLoginFailed("Incorrect password")
 		return nil
 	}
