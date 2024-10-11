@@ -15,6 +15,42 @@ func ReadLoginRequest(stream *common.IOStream) *LoginRequest {
 	minorVersion := stream.ReadU32()
 	patchVersion := stream.ReadU32()
 	clientInfo := stream.ReadString()
+	_ = stream.ReadU8() // TODO
+
+	version := &VersionInfo{
+		Major: majorVersion,
+		Minor: minorVersion,
+		Patch: patchVersion,
+	}
+
+	client := ParseClientInfo(clientInfo)
+	client.Version = version
+
+	return &LoginRequest{
+		Username: username,
+		Password: password,
+		Client:   client,
+	}
+}
+
+func ReadLoginRequestReconnect(stream *common.IOStream) *LoginRequest {
+	defer handlePanic()
+
+	username := stream.ReadString()
+	password := stream.ReadString()
+
+	// Reconnect packet contains extra 4 bytes of null bytes
+	_ = stream.ReadU32()
+
+	majorVersion := stream.ReadU32()
+	minorVersion := stream.ReadU32()
+	patchVersion := stream.ReadU32()
+	clientInfo := stream.ReadString()
+	_ = stream.ReadU8() // TODO
+
+	// At the end there are an extra 4 bytes
+	// {0xFF, 0xFF, 0xFF, 0xFF}
+	_ = stream.ReadU32()
 
 	version := &VersionInfo{
 		Major: majorVersion,

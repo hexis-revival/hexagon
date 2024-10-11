@@ -1,10 +1,10 @@
 package hnet
 
 import (
+	"encoding/hex"
 	"fmt"
 
 	"github.com/hexis-revival/hexagon/common"
-	"golang.org/x/crypto/bcrypt"
 )
 
 var Handlers = map[uint32]func(*common.IOStream, *Player) error{}
@@ -21,8 +21,7 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	player.Client = request.Client
 
 	if !player.Client.IsValid() {
-		player.CloseConnection()
-		player.Logger.Warning("Login attempt failed: Invalid client info")
+		player.OnLoginFailed("Invalid client info")
 		return nil
 	}
 
@@ -32,89 +31,83 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	)
 
 	if err != nil {
-		player.CloseConnection()
-		player.Logger.Warning("Login attempt failed: User not found")
+		player.OnLoginFailed("User not found")
 		return nil
 	}
 
-	err = bcrypt.CompareHashAndPassword(
-		[]byte(userObject.Password),
-		[]byte(request.Password),
+	isCorrect := common.CheckPassword(
+		request.Password,
+		userObject.Password,
 	)
 
-	if err != nil {
-		player.CloseConnection()
-		player.Logger.Warning("Login attempt failed: Incorrect password")
+	if !isCorrect {
+		player.OnLoginFailed("Incorrect password")
 		return nil
 	}
 
 	if !userObject.Activated {
-		player.CloseConnection()
-		player.Logger.Warning("Login attempt failed: Account not activated")
+		player.OnLoginFailed("Account not activated")
 		return nil
 	}
 
 	if userObject.Restricted {
-		player.CloseConnection()
-		player.Logger.Warning("Login attempt failed: Account restricted")
+		player.OnLoginFailed("Account restricted")
 		return nil
 	}
 
-	otherUser := player.Server.Players.ByID(uint32(userObject.Id))
+	responsePasswordRaw := common.GetSHA512Hash(request.Password)
+	responsePassword := hex.EncodeToString(responsePasswordRaw)
 
-	if otherUser != nil {
-		otherUser.CloseConnection()
+	return player.OnLoginSuccess(responsePassword, userObject)
+}
+
+func handleReconnect(stream *common.IOStream, player *Player) error {
+	request := ReadLoginRequestReconnect(stream)
+
+	if request == nil {
+		player.RevokeLogin()
+		return fmt.Errorf("failed to read login request")
 	}
 
-	// Ensure that the stats object exists
-	userObject.EnsureStats(player.Server.State)
+	player.LogIncomingPacket(CLIENT_LOGIN_RECONNECT, request)
+	player.Client = request.Client
 
-	// Populate player info & stats
-	player.ApplyUserData(userObject)
-	player.Server.Players.Add(player)
+	if !player.Client.IsValid() {
+		player.OnLoginFailed("Invalid client info")
+		return nil
+	}
 
-	player.Logger.Infof(
-		"Login attempt as '%s' with version %s",
-		player.Info.Name,
-		player.Client.Version.String(),
+	userObject, err := common.FetchUserByNameCaseInsensitive(
+		request.Username,
+		player.Server.State,
 	)
 
-	player.Logger.SetName(fmt.Sprintf(
-		"Player \"%s\"",
-		player.Info.Name,
-	))
-
-	for _, other := range player.Server.Players.All() {
-		other.SendPacket(SERVER_USER_INFO, player.Info)
-		player.SendPacket(SERVER_USER_INFO, other.Info)
-	}
-
-	response := LoginResponse{
-		UserId:   player.Info.Id,
-		Username: player.Info.Name,
-		Password: request.Password,
-	}
-
-	// Send login response
-	err = player.SendPacket(SERVER_LOGIN_RESPONSE, response)
 	if err != nil {
-		player.CloseConnection()
-		return err
+		player.OnLoginFailed("User not found")
+		return nil
 	}
 
-	friendIds, err := player.GetFriendIds()
-	if err != nil {
-		return err
+	isCorrect := common.CheckPasswordHashedHex(
+		request.Password,
+		userObject.Password,
+	)
+
+	if !isCorrect {
+		player.OnLoginFailed("Incorrect password")
+		return nil
 	}
 
-	// Send friends list
-	friendsList := FriendsList{FriendIds: friendIds}
-	err = player.SendPacket(SERVER_FRIENDS_LIST, friendsList)
-	if err != nil {
-		return err
+	if !userObject.Activated {
+		player.OnLoginFailed("Account not activated")
+		return nil
 	}
 
-	return nil
+	if userObject.Restricted {
+		player.OnLoginFailed("Account restricted")
+		return nil
+	}
+
+	return player.OnLoginSuccess(request.Password, userObject)
 }
 
 func handleStatusChange(stream *common.IOStream, player *Player) error {
@@ -201,6 +194,7 @@ func handleUserRelationshipRemove(stream *common.IOStream, player *Player) error
 
 func init() {
 	Handlers[CLIENT_LOGIN] = handleLogin
+	Handlers[CLIENT_LOGIN_RECONNECT] = handleReconnect
 	Handlers[CLIENT_CHANGE_STATUS] = handleStatusChange
 	Handlers[CLIENT_REQUEST_STATS] = handleRequestStats
 	Handlers[CLIENT_RELATIONSHIP_ADD] = handleUserRelationshipAdd

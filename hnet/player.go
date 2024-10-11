@@ -2,6 +2,7 @@ package hnet
 
 import (
 	"encoding/binary"
+	"fmt"
 	"net"
 
 	"github.com/hexis-revival/hexagon/common"
@@ -73,6 +74,70 @@ func (player *Player) SendPacket(packetId uint32, packet Serializable) error {
 	stream := common.NewIOStream([]byte{}, binary.BigEndian)
 	packet.Serialize(stream)
 	return player.SendPacketData(packetId, stream.Get())
+}
+
+func (player *Player) OnLoginSuccess(responsePassword string, userObject *common.User) error {
+	otherUser := player.Server.Players.ByID(uint32(userObject.Id))
+
+	if otherUser != nil {
+		// Another user with this account is online
+		otherUser.CloseConnection()
+	}
+
+	// Ensure that the stats object exists
+	userObject.EnsureStats(player.Server.State)
+
+	// Populate player info & stats
+	player.ApplyUserData(userObject)
+	player.Server.Players.Add(player)
+
+	player.Logger.Infof(
+		"Login attempt as '%s' with version %s",
+		player.Info.Name,
+		player.Client.Version.String(),
+	)
+
+	player.Logger.SetName(fmt.Sprintf(
+		"Player \"%s\"",
+		player.Info.Name,
+	))
+
+	for _, other := range player.Server.Players.All() {
+		other.SendPacket(SERVER_USER_INFO, player.Info)
+		player.SendPacket(SERVER_USER_INFO, other.Info)
+	}
+
+	response := LoginResponse{
+		UserId:   player.Info.Id,
+		Username: player.Info.Name,
+		Password: responsePassword,
+	}
+
+	// Send login response
+	err := player.SendPacket(SERVER_LOGIN_RESPONSE, response)
+	if err != nil {
+		player.CloseConnection()
+		return err
+	}
+
+	friendIds, err := player.GetFriendIds()
+	if err != nil {
+		return err
+	}
+
+	// Send friends list
+	friendsList := FriendsList{FriendIds: friendIds}
+	err = player.SendPacket(SERVER_FRIENDS_LIST, friendsList)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (player *Player) OnLoginFailed(reason string) {
+	player.Logger.Warningf("Login attempt failed: %s", reason)
+	player.CloseConnection()
 }
 
 func (player *Player) RevokeLogin() error {
