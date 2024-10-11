@@ -22,6 +22,6 @@ jobs:
 
     - name: Test
       run: go test -v ./... &&
-           go test -v ./hnet &&
-           go test -v ./common &&
-           go test -v ./hscore
+           cd ./common  && go test -v ./... &&
+           cd ../hnet   && go test -v ./... &&
+           cd ../hscore && go test -v ./...
