@@ -193,10 +193,10 @@ func handleUserRelationshipRemove(stream *common.IOStream, player *Player) error
 }
 
 func init() {
-	Handlers[CLIENT_LOGIN] = handleLogin
-	Handlers[CLIENT_LOGIN_RECONNECT] = handleReconnect
-	Handlers[CLIENT_CHANGE_STATUS] = handleStatusChange
-	Handlers[CLIENT_REQUEST_STATS] = handleRequestStats
-	Handlers[CLIENT_RELATIONSHIP_ADD] = handleUserRelationshipAdd
-	Handlers[CLIENT_RELATIONSHIP_REMOVE] = handleUserRelationshipRemove
+	Handlers[CLIENT_LOGIN] = ensureUnauthenticated(handleLogin)
+	Handlers[CLIENT_LOGIN_RECONNECT] = ensureUnauthenticated(handleReconnect)
+	Handlers[CLIENT_CHANGE_STATUS] = ensureAuthentication(handleStatusChange)
+	Handlers[CLIENT_REQUEST_STATS] = ensureAuthentication(handleRequestStats)
+	Handlers[CLIENT_RELATIONSHIP_ADD] = ensureAuthentication(handleUserRelationshipAdd)
+	Handlers[CLIENT_RELATIONSHIP_REMOVE] = ensureAuthentication(handleUserRelationshipRemove)
 }

@@ -76,6 +76,10 @@ func (player *Player) SendPacket(packetId uint32, packet Serializable) error {
 	return player.SendPacketData(packetId, stream.Get())
 }
 
+func (player *Player) IsAuthenticated() bool {
+	return player.Info.Id != 0 || player.Info.Name != ""
+}
+
 func (player *Player) OnLoginSuccess(responsePassword string, userObject *common.User) error {
 	otherUser := player.Server.Players.ByID(uint32(userObject.Id))
 
