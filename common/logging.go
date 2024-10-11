@@ -11,6 +11,7 @@ import (
 )
 
 const (
+	QUIET   int = 50
 	ERROR   int = 40
 	WARNING int = 30
 	INFO    int = 20
