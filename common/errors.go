@@ -3,7 +3,8 @@ package common
 import "fmt"
 
 type ErrorCollection struct {
-	errors []error
+	errors   []error
+	position int
 }
 
 func (ec *ErrorCollection) Add(err error) {
@@ -19,6 +20,18 @@ func (ec *ErrorCollection) Pop(index int) error {
 	}
 	err := ec.errors[index]
 	ec.errors = append(ec.errors[:index], ec.errors[index+1:]...)
+	return err
+}
+
+func (ec *ErrorCollection) Next() error {
+	if !ec.HasErrors() {
+		return nil
+	}
+	if ec.position >= len(ec.errors) {
+		return nil
+	}
+	err := ec.errors[ec.position]
+	ec.position++
 	return err
 }
 
