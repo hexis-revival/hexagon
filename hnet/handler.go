@@ -55,7 +55,10 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 		return nil
 	}
 
-	return player.OnLoginSuccess(request, userObject)
+	responsePasswordRaw := common.GetSHA512Hash(request.Password)
+	responsePassword := hex.EncodeToString(responsePasswordRaw)
+
+	return player.OnLoginSuccess(responsePassword, userObject)
 }
 
 func handleReconnect(stream *common.IOStream, player *Player) error {
@@ -66,7 +69,7 @@ func handleReconnect(stream *common.IOStream, player *Player) error {
 		return fmt.Errorf("failed to read login request")
 	}
 
-	player.LogIncomingPacket(CLIENT_LOGIN, request)
+	player.LogIncomingPacket(CLIENT_LOGIN_RECONNECT, request)
 	player.Client = request.Client
 
 	if !player.Client.IsValid() {
@@ -84,15 +87,8 @@ func handleReconnect(stream *common.IOStream, player *Player) error {
 		return nil
 	}
 
-	passwordHash, err := hex.DecodeString(request.Password)
-
-	if err != nil {
-		player.OnLoginFailed("Invalid password")
-		return nil
-	}
-
-	isCorrect := common.CheckPasswordHashed(
-		passwordHash,
+	isCorrect := common.CheckPasswordHashedHex(
+		request.Password,
 		userObject.Password,
 	)
 
@@ -111,7 +107,7 @@ func handleReconnect(stream *common.IOStream, player *Player) error {
 		return nil
 	}
 
-	return player.OnLoginSuccess(request, userObject)
+	return player.OnLoginSuccess(request.Password, userObject)
 }
 
 func handleStatusChange(stream *common.IOStream, player *Player) error {

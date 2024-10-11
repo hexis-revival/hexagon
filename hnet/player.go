@@ -2,7 +2,6 @@ package hnet
 
 import (
 	"encoding/binary"
-	"encoding/hex"
 	"fmt"
 	"net"
 
@@ -77,7 +76,7 @@ func (player *Player) SendPacket(packetId uint32, packet Serializable) error {
 	return player.SendPacketData(packetId, stream.Get())
 }
 
-func (player *Player) OnLoginSuccess(request *LoginRequest, userObject *common.User) error {
+func (player *Player) OnLoginSuccess(responsePassword string, userObject *common.User) error {
 	otherUser := player.Server.Players.ByID(uint32(userObject.Id))
 
 	if otherUser != nil {
@@ -108,13 +107,10 @@ func (player *Player) OnLoginSuccess(request *LoginRequest, userObject *common.U
 		player.SendPacket(SERVER_USER_INFO, other.Info)
 	}
 
-	responsePassword := common.GetSHA512Hash(request.Password)
-	responsePasswordHex := hex.EncodeToString(responsePassword)
-
 	response := LoginResponse{
 		UserId:   player.Info.Id,
 		Username: player.Info.Name,
-		Password: responsePasswordHex,
+		Password: responsePassword,
 	}
 
 	// Send login response
