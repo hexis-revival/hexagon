@@ -155,7 +155,7 @@ func NewScoreSubmissionRequest(request *http.Request) (*ScoreSubmissionRequest, 
 	collection.Add(err)
 
 	if collection.HasErrors() {
-		return nil, collection.FirstError()
+		return nil, collection.Pop(0)
 	}
 
 	replayStream := common.NewIOStream(replay, binary.BigEndian)
@@ -234,7 +234,7 @@ func ParseScoreData(scoreDataBytes []byte) (*ScoreData, error) {
 	collection.Add(err)
 
 	if collection.HasErrors() {
-		return nil, collection.FirstError()
+		return nil, collection.Pop(0)
 	}
 
 	return &ScoreData{
@@ -280,7 +280,7 @@ func ParseModsData(modsString string) (*Mods, error) {
 	collection.Add(err)
 
 	if collection.HasErrors() {
-		return nil, collection.FirstError()
+		return nil, collection.Pop(0)
 	}
 
 	playSpeed := 1 + (0.5 * float32(playSpeedMultiplier) / 10)
