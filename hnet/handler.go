@@ -21,8 +21,7 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	player.Client = request.Client
 
 	if !player.Client.IsValid() {
-		player.CloseConnection()
-		player.Logger.Warning("Login attempt failed: Invalid client info")
+		player.OnLoginFailed("Invalid client info")
 		return nil
 	}
 
@@ -32,8 +31,7 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	)
 
 	if err != nil {
-		player.CloseConnection()
-		player.Logger.Warning("Login attempt failed: User not found")
+		player.OnLoginFailed("User not found")
 		return nil
 	}
 
@@ -43,78 +41,21 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	)
 
 	if err != nil {
-		player.CloseConnection()
-		player.Logger.Warning("Login attempt failed: Incorrect password")
+		player.OnLoginFailed("Incorrect password")
 		return nil
 	}
 
 	if !userObject.Activated {
-		player.CloseConnection()
-		player.Logger.Warning("Login attempt failed: Account not activated")
+		player.OnLoginFailed("Account not activated")
 		return nil
 	}
 
 	if userObject.Restricted {
-		player.CloseConnection()
-		player.Logger.Warning("Login attempt failed: Account restricted")
+		player.OnLoginFailed("Account restricted")
 		return nil
 	}
 
-	otherUser := player.Server.Players.ByID(uint32(userObject.Id))
-
-	if otherUser != nil {
-		otherUser.CloseConnection()
-	}
-
-	// Ensure that the stats object exists
-	userObject.EnsureStats(player.Server.State)
-
-	// Populate player info & stats
-	player.ApplyUserData(userObject)
-	player.Server.Players.Add(player)
-
-	player.Logger.Infof(
-		"Login attempt as '%s' with version %s",
-		player.Info.Name,
-		player.Client.Version.String(),
-	)
-
-	player.Logger.SetName(fmt.Sprintf(
-		"Player \"%s\"",
-		player.Info.Name,
-	))
-
-	for _, other := range player.Server.Players.All() {
-		other.SendPacket(SERVER_USER_INFO, player.Info)
-		player.SendPacket(SERVER_USER_INFO, other.Info)
-	}
-
-	response := LoginResponse{
-		UserId:   player.Info.Id,
-		Username: player.Info.Name,
-		Password: request.Password,
-	}
-
-	// Send login response
-	err = player.SendPacket(SERVER_LOGIN_RESPONSE, response)
-	if err != nil {
-		player.CloseConnection()
-		return err
-	}
-
-	friendIds, err := player.GetFriendIds()
-	if err != nil {
-		return err
-	}
-
-	// Send friends list
-	friendsList := FriendsList{FriendIds: friendIds}
-	err = player.SendPacket(SERVER_FRIENDS_LIST, friendsList)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return player.OnLoginSuccess(request, userObject)
 }
 
 func handleStatusChange(stream *common.IOStream, player *Player) error {
