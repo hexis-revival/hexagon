@@ -23,6 +23,18 @@ func (req *ScoreSubmissionRequest) String() string {
 	return common.FormatStruct(req)
 }
 
+type BeatmapSubmissionRequest struct {
+	Username      string
+	Password      string
+	SetId         int
+	BeatmapIds    int
+	ClientVersion int
+}
+
+func (req *BeatmapSubmissionRequest) String() string {
+	return common.FormatStruct(req)
+}
+
 type ScoreData struct {
 	BeatmapChecksum string
 	ScoreChecksum   string
