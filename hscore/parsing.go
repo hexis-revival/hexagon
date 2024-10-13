@@ -22,8 +22,12 @@ func ParseScoreData(scoreDataBytes []byte) (*ScoreData, error) {
 	passed := scoreData[4] == "1"
 	perfect := scoreData[5] == "1"
 
-	unknown1 := scoreData[2]
-	unknown2 := scoreData[19]
+	clientVersion := scoreData[2]
+	clientVersionCheck := scoreData[19]
+
+	if clientVersion != clientVersionCheck {
+		return nil, fmt.Errorf("client version mismatch: %s != %s", clientVersion, clientVersionCheck)
+	}
 
 	collection := common.NewErrorCollection()
 
@@ -57,7 +61,10 @@ func ParseScoreData(scoreDataBytes []byte) (*ScoreData, error) {
 	countMiss, err := strconv.Atoi(scoreData[15])
 	collection.Add(err)
 
-	clientVersion, err := strconv.Atoi(scoreData[18])
+	clientBuildDate, err := strconv.Atoi(scoreData[18])
+	collection.Add(err)
+
+	clientVersionInt, err := strconv.Atoi(clientVersion)
 	collection.Add(err)
 
 	mods, err := ParseModsData(scoreData[17])
@@ -83,9 +90,8 @@ func ParseScoreData(scoreDataBytes []byte) (*ScoreData, error) {
 		CountKatu:       countKatu,
 		CountGood:       countGood,
 		CountMiss:       countMiss,
-		ClientVersion:   clientVersion,
-		Unknown1:        unknown1,
-		Unknown2:        unknown2,
+		ClientBuildDate: clientBuildDate,
+		ClientVersion:   clientVersionInt,
 		Mods:            mods,
 	}, nil
 }

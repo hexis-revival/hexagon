@@ -39,9 +39,8 @@ type ScoreData struct {
 	CountKatu       int
 	CountGood       int
 	CountMiss       int
+	ClientBuildDate int
 	ClientVersion   int
-	Unknown1        string // TODO
-	Unknown2        string // TODO
 	Mods            *Mods
 }
 
