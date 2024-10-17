@@ -51,7 +51,10 @@ func BeatmapUploadHandler(ctx *Context) {
 
 	ctx.Server.Logger.Debugf("Beatmap upload request: %s", request)
 	ctx.Response.WriteHeader(http.StatusOK)
+
 	// TODO: Implement beatmap upload logic
+	response := &BeatmapUploadResponse{Success: true}
+	ctx.Response.Write([]byte(response.Write()))
 }
 
 func NewBeatmapSubmissionRequest(request *http.Request) (*BeatmapSubmissionRequest, error) {
