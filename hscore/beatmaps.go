@@ -40,6 +40,8 @@ func BeatmapGenIdHandler(ctx *Context) {
 	ctx.Response.Write([]byte(response.Write()))
 }
 
+func BeatmapUploadHandler(ctx *Context) {}
+
 func NewBeatmapSubmissionRequest(request *http.Request) (*BeatmapSubmissionRequest, error) {
 	err := request.ParseMultipartForm(10 << 20) // ~10 MB
 	if err != nil {
