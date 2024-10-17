@@ -78,6 +78,24 @@ func (req *BeatmapUploadRequest) String() string {
 	return common.FormatStruct(req)
 }
 
+type BeatmapUploadResponse struct {
+	Success bool
+}
+
+func (resp *BeatmapUploadResponse) String() string {
+	return common.FormatStruct(resp)
+}
+
+func (resp *BeatmapUploadResponse) Write() string {
+	uploadFailed := 0
+
+	if !resp.Success {
+		uploadFailed = 1
+	}
+
+	return strconv.Itoa(uploadFailed)
+}
+
 type ScoreData struct {
 	BeatmapChecksum string
 	ScoreChecksum   string
