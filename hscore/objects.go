@@ -1,17 +1,13 @@
 package hscore
 
 import (
+	"archive/zip"
 	"math"
 	"strconv"
 	"strings"
 
 	"github.com/hexis-revival/hexagon/common"
 )
-
-type ScoreSubmissionResponse struct {
-	Success bool   `json:"success"`
-	Error   string `json:"error,omitempty"`
-}
 
 type ScoreSubmissionRequest struct {
 	Replay      *common.ReplayData
@@ -23,6 +19,15 @@ type ScoreSubmissionRequest struct {
 
 func (req *ScoreSubmissionRequest) String() string {
 	return common.FormatStruct(req)
+}
+
+type ScoreSubmissionResponse struct {
+	Success bool   `json:"success"`
+	Error   string `json:"error,omitempty"`
+}
+
+func (resp *ScoreSubmissionResponse) String() string {
+	return common.FormatStruct(resp)
 }
 
 type BeatmapSubmissionRequest struct {
@@ -59,6 +64,18 @@ func (resp *BeatmapSubmissionResponse) Write() string {
 		strconv.Itoa(resp.SetId),
 		strings.Join(beatmapIdsStrings, ":"),
 	}, ",")
+}
+
+type BeatmapUploadRequest struct {
+	Username      string
+	Password      string
+	SetId         int
+	ClientVersion int
+	Package       *zip.Reader
+}
+
+func (req *BeatmapUploadRequest) String() string {
+	return common.FormatStruct(req)
 }
 
 type ScoreData struct {
