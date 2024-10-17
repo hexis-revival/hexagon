@@ -1,7 +1,6 @@
 package hscore
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -13,11 +12,13 @@ func BeatmapGenIdHandler(ctx *Context) {
 	request, err := NewBeatmapSubmissionRequest(ctx.Request)
 
 	if err != nil {
-		fmt.Println(err)
+		ctx.Server.Logger.Warningf("Beatmap submission request error: %s", err)
+		ctx.Response.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	ctx.Server.Logger.Debugf("Beatmap submission request: %s", request)
+	ctx.Response.WriteHeader(http.StatusOK)
 	// TODO: Implement logic
 }
 
