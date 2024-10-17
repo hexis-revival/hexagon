@@ -1,6 +1,10 @@
 package hscore
 
-import "net/http"
+import (
+	"archive/zip"
+	"bytes"
+	"net/http"
+)
 
 func GetMultipartFormValue(request *http.Request, key string) string {
 	values, ok := request.MultipartForm.Value[key]
@@ -29,4 +33,13 @@ func GetMultipartFormFile(request *http.Request, key string) []byte {
 	}
 
 	return fileData
+}
+
+func GetMultipartZipFile(request *http.Request, key string) (*zip.Reader, error) {
+	data := GetMultipartFormFile(request, key)
+	if data == nil {
+		return nil, nil
+	}
+
+	return zip.NewReader(bytes.NewReader(data), int64(len(data)))
 }
