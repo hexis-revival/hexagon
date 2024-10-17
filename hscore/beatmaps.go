@@ -40,7 +40,19 @@ func BeatmapGenIdHandler(ctx *Context) {
 	ctx.Response.Write([]byte(response.Write()))
 }
 
-func BeatmapUploadHandler(ctx *Context) {}
+func BeatmapUploadHandler(ctx *Context) {
+	request, err := NewBeatmapUploadRequest(ctx.Request)
+
+	if err != nil {
+		ctx.Server.Logger.Warningf("Beatmap upload request error: %s", err)
+		ctx.Response.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	ctx.Server.Logger.Debugf("Beatmap upload request: %s", request)
+	ctx.Response.WriteHeader(http.StatusOK)
+	// TODO: Implement beatmap upload logic
+}
 
 func NewBeatmapSubmissionRequest(request *http.Request) (*BeatmapSubmissionRequest, error) {
 	err := request.ParseMultipartForm(10 << 20) // ~10 MB
@@ -81,5 +93,33 @@ func NewBeatmapSubmissionRequest(request *http.Request) (*BeatmapSubmissionReque
 		BeatmapIds:    beatmapIds,
 		SetId:         setIdInt,
 		ClientVersion: clientVersionInt,
+	}, nil
+}
+
+func NewBeatmapUploadRequest(request *http.Request) (*BeatmapUploadRequest, error) {
+	err := request.ParseMultipartForm(10 << 20) // ~10 MB
+	if err != nil {
+		return nil, err
+	}
+
+	username := GetMultipartFormValue(request, "u")
+	password := GetMultipartFormValue(request, "p")
+	clientVersion := GetMultipartFormValue(request, "x")
+
+	clientVersionInt, err := strconv.Atoi(clientVersion)
+	if err != nil {
+		return nil, err
+	}
+
+	zip, err := GetMultipartZipFile(request, "d")
+	if err != nil {
+		return nil, err
+	}
+
+	return &BeatmapUploadRequest{
+		Username:      username,
+		Password:      password,
+		ClientVersion: clientVersionInt,
+		Package:       zip,
 	}, nil
 }
