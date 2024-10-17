@@ -26,8 +26,8 @@ func (req *ScoreSubmissionRequest) String() string {
 type BeatmapSubmissionRequest struct {
 	Username      string
 	Password      string
+	BeatmapIds    []int
 	SetId         int
-	BeatmapIds    int
 	ClientVersion int
 }
 
