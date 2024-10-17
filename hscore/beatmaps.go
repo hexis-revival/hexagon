@@ -8,6 +8,13 @@ import (
 	"github.com/hexis-revival/hexagon/common"
 )
 
+const (
+	BssSuccess       = 0
+	BssInvalidOwner  = 1
+	BssNotAvailable  = 2
+	BssAlreadyRanked = 3
+)
+
 func BeatmapGenIdHandler(ctx *Context) {
 	request, err := NewBeatmapSubmissionRequest(ctx.Request)
 
@@ -19,7 +26,18 @@ func BeatmapGenIdHandler(ctx *Context) {
 
 	ctx.Server.Logger.Debugf("Beatmap submission request: %s", request)
 	ctx.Response.WriteHeader(http.StatusOK)
-	// TODO: Implement logic
+
+	// NOTE: The client will "update" the beatmap if
+	//       the same setId is responded with.
+	//       Otherwise it will do a full submission.
+	response := &BeatmapSubmissionResponse{
+		StatusCode: BssSuccess,
+		SetId:      request.SetId,
+		BeatmapIds: request.BeatmapIds,
+	}
+
+	// TODO: Implement beatmap submission logic
+	ctx.Response.Write([]byte(response.Write()))
 }
 
 func NewBeatmapSubmissionRequest(request *http.Request) (*BeatmapSubmissionRequest, error) {

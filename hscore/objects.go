@@ -2,6 +2,8 @@ package hscore
 
 import (
 	"math"
+	"strconv"
+	"strings"
 
 	"github.com/hexis-revival/hexagon/common"
 )
@@ -33,6 +35,30 @@ type BeatmapSubmissionRequest struct {
 
 func (req *BeatmapSubmissionRequest) String() string {
 	return common.FormatStruct(req)
+}
+
+type BeatmapSubmissionResponse struct {
+	StatusCode int
+	SetId      int
+	BeatmapIds []int
+}
+
+func (resp *BeatmapSubmissionResponse) String() string {
+	return common.FormatStruct(resp)
+}
+
+func (resp *BeatmapSubmissionResponse) Write() string {
+	beatmapIdsStrings := make([]string, 0, len(resp.BeatmapIds))
+
+	for _, beatmapId := range resp.BeatmapIds {
+		beatmapIdsStrings = append(beatmapIdsStrings, strconv.Itoa(beatmapId))
+	}
+
+	return strings.Join([]string{
+		strconv.Itoa(resp.StatusCode),
+		strconv.Itoa(resp.SetId),
+		strings.Join(beatmapIdsStrings, ":"),
+	}, ",")
 }
 
 type ScoreData struct {
