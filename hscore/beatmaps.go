@@ -68,7 +68,13 @@ func BeatmapGenTopicHandler(ctx *Context) {
 
 	ctx.Server.Logger.Debugf("Beatmap description request: %s", request)
 	ctx.Response.WriteHeader(http.StatusOK)
-	// TODO: Response
+
+	response := &BeatmapDescriptionResponse{
+		TopicId: 1,
+		Content: "The quick brown fox jumps over the lazy dog.",
+	}
+
+	ctx.Response.Write([]byte(response.Write()))
 }
 
 func NewBeatmapSubmissionRequest(request *http.Request) (*BeatmapSubmissionRequest, error) {
