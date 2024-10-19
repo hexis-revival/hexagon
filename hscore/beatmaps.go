@@ -89,7 +89,7 @@ func BeatmapPostHandler(ctx *Context) {
 
 	ctx.Server.Logger.Debugf("Beatmap post request: %s", request)
 	ctx.Response.WriteHeader(http.StatusOK)
-	// TODO: Response
+	// TODO: Implement beatmap post logic
 }
 
 func NewBeatmapSubmissionRequest(request *http.Request) (*BeatmapSubmissionRequest, error) {
