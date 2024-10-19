@@ -123,6 +123,18 @@ func (resp *BeatmapDescriptionResponse) Write() string {
 	}, ",")
 }
 
+type BeatmapPostRequest struct {
+	Username      string
+	Password      string
+	SetId         int
+	ClientVersion int
+	Content       string
+}
+
+func (req *BeatmapPostRequest) String() string {
+	return common.FormatStruct(req)
+}
+
 type ScoreData struct {
 	BeatmapChecksum string
 	ScoreChecksum   string
