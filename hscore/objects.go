@@ -96,6 +96,17 @@ func (resp *BeatmapUploadResponse) Write() string {
 	return strconv.Itoa(uploadFailed)
 }
 
+type BeatmapDescriptionRequest struct {
+	Username      string
+	Password      string
+	SetId         int
+	ClientVersion int
+}
+
+func (req *BeatmapDescriptionRequest) String() string {
+	return common.FormatStruct(req)
+}
+
 type ScoreData struct {
 	BeatmapChecksum string
 	ScoreChecksum   string

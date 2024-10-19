@@ -126,3 +126,32 @@ func NewBeatmapUploadRequest(request *http.Request) (*BeatmapUploadRequest, erro
 		Package:       zip,
 	}, nil
 }
+
+func NewBeatmapDescriptionRequest(request *http.Request) (*BeatmapDescriptionRequest, error) {
+	err := request.ParseMultipartForm(10 << 20) // ~10 MB
+	if err != nil {
+		return nil, err
+	}
+
+	username := GetMultipartFormValue(request, "u")
+	password := GetMultipartFormValue(request, "p")
+	clientVersion := GetMultipartFormValue(request, "x")
+	setId := GetMultipartFormValue(request, "s")
+
+	setIdInt, err := strconv.Atoi(setId)
+	if err != nil {
+		return nil, err
+	}
+
+	clientVersionInt, err := strconv.Atoi(clientVersion)
+	if err != nil {
+		return nil, err
+	}
+
+	return &BeatmapDescriptionRequest{
+		Username:      username,
+		Password:      password,
+		ClientVersion: clientVersionInt,
+		SetId:         setIdInt,
+	}, nil
+}
