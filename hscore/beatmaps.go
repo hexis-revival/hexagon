@@ -78,6 +78,20 @@ func BeatmapGenTopicHandler(ctx *Context) {
 	ctx.Response.Write([]byte(response.Write()))
 }
 
+func BeatmapPostHandler(ctx *Context) {
+	request, err := NewBeatmapPostRequest(ctx.Request)
+
+	if err != nil {
+		ctx.Server.Logger.Warningf("Beatmap post request error: %s", err)
+		ctx.Response.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	ctx.Server.Logger.Debugf("Beatmap post request: %s", request)
+	ctx.Response.WriteHeader(http.StatusOK)
+	// TODO: Response
+}
+
 func NewBeatmapSubmissionRequest(request *http.Request) (*BeatmapSubmissionRequest, error) {
 	err := request.ParseMultipartForm(10 << 20) // ~10 MB
 	if err != nil {
