@@ -107,6 +107,22 @@ func (req *BeatmapDescriptionRequest) String() string {
 	return common.FormatStruct(req)
 }
 
+type BeatmapDescriptionResponse struct {
+	TopicId int
+	Content string
+}
+
+func (resp *BeatmapDescriptionResponse) String() string {
+	return common.FormatStruct(resp)
+}
+
+func (resp *BeatmapDescriptionResponse) Write() string {
+	return strings.Join([]string{
+		strconv.Itoa(resp.TopicId),
+		resp.Content,
+	}, ",")
+}
+
 type ScoreData struct {
 	BeatmapChecksum string
 	ScoreChecksum   string
