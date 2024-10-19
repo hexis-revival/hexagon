@@ -74,6 +74,7 @@ func BeatmapGenTopicHandler(ctx *Context) {
 		Content: "The quick brown fox jumps over the lazy dog.",
 	}
 
+	// TODO: Implement beatmap description logic
 	ctx.Response.Write([]byte(response.Write()))
 }
 
