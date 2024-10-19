@@ -27,6 +27,7 @@ func (server *ScoreServer) Serve() {
 	server.Logger.Infof("Listening on %s", bind)
 
 	r := mux.NewRouter()
+	r.HandleFunc("/web/bss-gentid.php", server.contextMiddleware(BeatmapGenTopicHandler)).Methods("POST")
 	r.HandleFunc("/web/bss-upload.php", server.contextMiddleware(BeatmapUploadHandler)).Methods("POST")
 	r.HandleFunc("/web/bss-genid.php", server.contextMiddleware(BeatmapGenIdHandler)).Methods("POST")
 	r.HandleFunc("/score/submit", server.contextMiddleware(ScoreSubmissionHandler)).Methods("POST")
