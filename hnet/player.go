@@ -222,3 +222,11 @@ func (player *Player) ApplyUserData(user *common.User) error {
 	player.Stats.Accuracy = user.Stats.Accuracy
 	return nil
 }
+
+func (player *Player) IsSpectating() bool {
+	return player.Host != nil
+}
+
+func (player *Player) HasSpectators() bool {
+	return len(player.Spectators) > 0
+}
