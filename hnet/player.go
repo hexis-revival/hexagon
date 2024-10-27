@@ -175,8 +175,8 @@ func (player *Player) RemoveRelationship(targetId uint32, status common.Relation
 }
 
 func (player *Player) StartSpectating(host *Player) error {
-	player.Host = host
 	host.Spectators = append(host.Spectators, player)
+	player.Host = host
 
 	response := &SpectateRequest{
 		UserId: player.Info.Id,
@@ -187,6 +187,7 @@ func (player *Player) StartSpectating(host *Player) error {
 		return err
 	}
 
+	player.Logger.Infof("Started spectating '%s'", host.Info.Name)
 	return nil
 }
 
