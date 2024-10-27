@@ -163,7 +163,7 @@ func handleStartSpectating(stream *common.IOStream, player *Player) error {
 
 func handleSpectateFrames(stream *common.IOStream, player *Player) error {
 	if !player.HasSpectators() {
-		return fmt.Errorf("no spectators")
+		return nil
 	}
 
 	scorePack := ReadScorePack(stream)
