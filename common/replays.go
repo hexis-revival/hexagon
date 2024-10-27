@@ -186,8 +186,8 @@ func ReadReplayHeader(stream *IOStream) *ReplayHeader {
 	return header
 }
 
-func ReadCompressedReplay(stream *IOStream) (*ReplayData, error) {
-	defer handlePanic()
+func ReadCompressedReplay(stream *IOStream) (data *ReplayData, err error) {
+	defer HandlePanic(&err)
 
 	if stream.Available() < 4 {
 		return &ReplayData{}, fmt.Errorf("replay is too short")
