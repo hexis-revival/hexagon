@@ -7,7 +7,7 @@ import (
 )
 
 func ReadLoginRequest(stream *common.IOStream) *LoginRequest {
-	defer handlePanic()
+	defer recover()
 
 	username := stream.ReadString()
 	password := stream.ReadString()
@@ -34,7 +34,7 @@ func ReadLoginRequest(stream *common.IOStream) *LoginRequest {
 }
 
 func ReadLoginRequestReconnect(stream *common.IOStream) *LoginRequest {
-	defer handlePanic()
+	defer recover()
 
 	username := stream.ReadString()
 	password := stream.ReadString()
@@ -82,7 +82,7 @@ func ParseClientInfo(clientInfoString string) *ClientInfo {
 }
 
 func ReadStatusChange(stream *common.IOStream) *Status {
-	defer handlePanic()
+	defer recover()
 
 	status := &Status{
 		UserId:  stream.ReadU32(),
@@ -106,7 +106,7 @@ func ReadStatusChange(stream *common.IOStream) *Status {
 }
 
 func ReadStatsRequest(stream *common.IOStream) *StatsRequest {
-	defer handlePanic()
+	defer recover()
 
 	return &StatsRequest{
 		UserIds: stream.ReadIntList(),
@@ -114,7 +114,7 @@ func ReadStatsRequest(stream *common.IOStream) *StatsRequest {
 }
 
 func ReadRelationshipRequest(stream *common.IOStream) *RelationshipRequest {
-	defer handlePanic()
+	defer recover()
 
 	status := common.StatusBlocked
 	isFriend := stream.ReadBool()
@@ -128,8 +128,4 @@ func ReadRelationshipRequest(stream *common.IOStream) *RelationshipRequest {
 		Status: status,
 		UserId: userId,
 	}
-}
-
-func handlePanic() {
-	_ = recover()
 }
