@@ -174,9 +174,20 @@ func (player *Player) RemoveRelationship(targetId uint32, status common.Relation
 	return common.RemoveUserRelationship(rel, player.Server.State)
 }
 
-func (player *Player) StartSpectating(host *Player) {
+func (player *Player) StartSpectating(host *Player) error {
 	player.Host = host
 	host.Spectators = append(host.Spectators, player)
+
+	response := &SpectateRequest{
+		UserId: player.Info.Id,
+	}
+
+	err := host.SendPacket(SERVER_START_SPECTATING, response)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (player *Player) GetFriendIds() ([]uint32, error) {
