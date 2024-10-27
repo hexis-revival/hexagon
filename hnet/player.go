@@ -16,7 +16,7 @@ type Player struct {
 	Info       *UserInfo
 	Stats      *UserStats
 	Host       *Player
-	Spectators []*Player
+	Spectators *PlayerCollection
 }
 
 func (player *Player) Send(data []byte) error {
@@ -207,7 +207,7 @@ func (player *Player) ApplyUserData(user *common.User) error {
 }
 
 func (player *Player) StartSpectating(host *Player) error {
-	host.Spectators = append(host.Spectators, player)
+	host.Spectators.Add(player)
 	player.Host = host
 
 	response := &SpectateRequest{
@@ -228,5 +228,5 @@ func (player *Player) IsSpectating() bool {
 }
 
 func (player *Player) HasSpectators() bool {
-	return len(player.Spectators) > 0
+	return player.Spectators.Count() > 0
 }
