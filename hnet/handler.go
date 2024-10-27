@@ -144,6 +144,30 @@ func handleRequestStats(stream *common.IOStream, player *Player) error {
 	return nil
 }
 
+func handleStartSpectating(stream *common.IOStream, player *Player) error {
+	request := ReadSpectateRequest(stream)
+
+	if request == nil {
+		return fmt.Errorf("failed to read spectate request")
+	}
+
+	target := player.Server.Players.ByID(request.UserId)
+
+	if target == nil {
+		return fmt.Errorf("user %d not found", request.UserId)
+	}
+
+	player.LogIncomingPacket(CLIENT_START_SPECTATING, request)
+	err := player.StartSpectating(target)
+
+	if err != nil {
+		return err
+	}
+
+	player.Logger.Infof("Started spectating %s", target.Info.Name)
+	return nil
+}
+
 func handleUserRelationshipAdd(stream *common.IOStream, player *Player) error {
 	request := ReadRelationshipRequest(stream)
 
@@ -197,6 +221,7 @@ func init() {
 	Handlers[CLIENT_LOGIN_RECONNECT] = ensureUnauthenticated(handleReconnect)
 	Handlers[CLIENT_CHANGE_STATUS] = ensureAuthentication(handleStatusChange)
 	Handlers[CLIENT_REQUEST_STATS] = ensureAuthentication(handleRequestStats)
+	Handlers[CLIENT_START_SPECTATING] = ensureAuthentication(handleStartSpectating)
 	Handlers[CLIENT_RELATIONSHIP_ADD] = ensureAuthentication(handleUserRelationshipAdd)
 	Handlers[CLIENT_RELATIONSHIP_REMOVE] = ensureAuthentication(handleUserRelationshipRemove)
 }
