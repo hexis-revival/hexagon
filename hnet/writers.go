@@ -79,7 +79,7 @@ func (friends FriendsList) Serialize(stream *common.IOStream) {
 }
 
 func (response QuitResponse) Serialize(stream *common.IOStream) {
-	stream.WriteU8(0) // TODO: Unused?
+	stream.WriteU8(0)
 	stream.WriteU32(response.UserId)
 }
 
