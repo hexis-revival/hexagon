@@ -87,3 +87,8 @@ func (request RelationshipRequest) Serialize(stream *common.IOStream) {
 	stream.WriteBool(request.Status == common.StatusFriend)
 	stream.WriteU32(request.UserId)
 }
+
+func (request SpectateRequest) Serialize(stream *common.IOStream) {
+	stream.WriteU8(1)
+	stream.WriteU32(request.UserId)
+}
