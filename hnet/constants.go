@@ -5,6 +5,8 @@ const (
 	CLIENT_LOGIN_RECONNECT     uint32 = 2
 	CLIENT_CHANGE_STATUS       uint32 = 4
 	CLIENT_REQUEST_STATS       uint32 = 11
+	CLIENT_START_SPECTATING    uint32 = 14
+	CLIENT_STOP_SPECTATING     uint32 = 15
 	CLIENT_RELATIONSHIP_ADD    uint32 = 22
 	CLIENT_RELATIONSHIP_REMOVE uint32 = 23
 	CLIENT_LEADERBOARD_REQUEST uint32 = 25
@@ -17,6 +19,8 @@ const (
 	SERVER_USER_INFO            uint32 = 6
 	SERVER_USER_QUIT            uint32 = 7
 	SERVER_FRIENDS_LIST         uint32 = 8
+	SERVER_START_SPECTATING     uint32 = 19
+	SERVER_STOP_SPECTATING      uint32 = 20 // TODO: in theory this should be 20, but i haven't tested this
 	SERVER_LEADERBOARD_RESPONSE uint32 = 25
 )
 
