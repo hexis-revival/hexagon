@@ -158,14 +158,7 @@ func handleStartSpectating(stream *common.IOStream, player *Player) error {
 	}
 
 	player.LogIncomingPacket(CLIENT_START_SPECTATING, request)
-	err := player.StartSpectating(target)
-
-	if err != nil {
-		return err
-	}
-
-	player.Logger.Infof("Started spectating %s", target.Info.Name)
-	return nil
+	return player.StartSpectating(target)
 }
 
 func handleUserRelationshipAdd(stream *common.IOStream, player *Player) error {
