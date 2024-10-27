@@ -226,3 +226,12 @@ type SpectateRequest struct {
 func (request SpectateRequest) String() string {
 	return common.FormatStruct(request)
 }
+
+type ScorePack struct {
+	Action uint32
+	Frames []*common.ReplayFrame
+}
+
+func (pack ScorePack) String() string {
+	return common.FormatStruct(pack)
+}
