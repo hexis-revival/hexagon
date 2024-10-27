@@ -223,6 +223,18 @@ func (player *Player) StartSpectating(host *Player) error {
 	return nil
 }
 
+func (player *Player) StopSpectating() error {
+	response := &SpectateRequest{
+		UserId: player.Info.Id,
+	}
+
+	player.Host.SendPacket(SERVER_STOP_SPECTATING, response)
+	player.Host.Spectators.Remove(player)
+	player.Host = nil
+	player.Logger.Infof("Stopped spectating")
+	return nil
+}
+
 func (player *Player) IsSpectating() bool {
 	return player.Host != nil
 }

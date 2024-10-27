@@ -161,6 +161,21 @@ func handleStartSpectating(stream *common.IOStream, player *Player) error {
 	return player.StartSpectating(target)
 }
 
+func handleStopSpectating(stream *common.IOStream, player *Player) error {
+	if !player.IsSpectating() {
+		return nil
+	}
+
+	request := ReadSpectateRequest(stream)
+
+	if request == nil {
+		return fmt.Errorf("failed to read spectate request")
+	}
+
+	player.LogIncomingPacket(CLIENT_START_SPECTATING, request)
+	return player.StopSpectating()
+}
+
 func handleSpectateFrames(stream *common.IOStream, player *Player) error {
 	if !player.HasSpectators() {
 		return nil
@@ -231,6 +246,7 @@ func init() {
 	Handlers[CLIENT_CHANGE_STATUS] = ensureAuthentication(handleStatusChange)
 	Handlers[CLIENT_REQUEST_STATS] = ensureAuthentication(handleRequestStats)
 	Handlers[CLIENT_START_SPECTATING] = ensureAuthentication(handleStartSpectating)
+	Handlers[CLIENT_STOP_SPECTATING] = ensureAuthentication(handleStopSpectating)
 	Handlers[CLIENT_SPECTATE_FRAMES] = ensureAuthentication(handleSpectateFrames)
 	Handlers[CLIENT_RELATIONSHIP_ADD] = ensureAuthentication(handleUserRelationshipAdd)
 	Handlers[CLIENT_RELATIONSHIP_REMOVE] = ensureAuthentication(handleUserRelationshipRemove)
