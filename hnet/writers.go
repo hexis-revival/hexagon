@@ -92,3 +92,12 @@ func (request SpectateRequest) Serialize(stream *common.IOStream) {
 	stream.WriteU8(1)
 	stream.WriteU32(request.UserId)
 }
+
+func (pack ScorePack) Serialize(stream *common.IOStream) {
+	stream.WriteU32(pack.Action)
+	stream.WriteU32(uint32(len(pack.Frames)))
+
+	for _, frame := range pack.Frames {
+		frame.Serialize(stream)
+	}
+}

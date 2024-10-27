@@ -140,3 +140,19 @@ func ReadSpectateRequest(stream *common.IOStream) *SpectateRequest {
 		UserId: userId,
 	}
 }
+
+func ReadScorePack(stream *common.IOStream) *ScorePack {
+	defer recover()
+
+	action := stream.ReadU32()
+	frames := make([]*common.ReplayFrame, stream.ReadU32())
+
+	for i := range frames {
+		frames[i] = common.ReadReplayFrame(stream)
+	}
+
+	return &ScorePack{
+		Action: action,
+		Frames: frames,
+	}
+}
