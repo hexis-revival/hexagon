@@ -9,12 +9,14 @@ import (
 )
 
 type Player struct {
-	Conn   net.Conn
-	Logger *common.Logger
-	Server *HNetServer
-	Client *ClientInfo
-	Info   *UserInfo
-	Stats  *UserStats
+	Conn       net.Conn
+	Logger     *common.Logger
+	Server     *HNetServer
+	Client     *ClientInfo
+	Info       *UserInfo
+	Stats      *UserStats
+	Host       *Player
+	Spectators []*Player
 }
 
 func (player *Player) Send(data []byte) error {
@@ -170,6 +172,11 @@ func (player *Player) RemoveRelationship(targetId uint32, status common.Relation
 	}
 
 	return common.RemoveUserRelationship(rel, player.Server.State)
+}
+
+func (player *Player) StartSpectating(host *Player) {
+	player.Host = host
+	host.Spectators = append(host.Spectators, player)
 }
 
 func (player *Player) GetFriendIds() ([]uint32, error) {
