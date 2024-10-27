@@ -22,7 +22,7 @@ const (
 	SERVER_FRIENDS_LIST         uint32 = 8
 	SERVER_SPECTATE_FRAMES      uint32 = 18
 	SERVER_START_SPECTATING     uint32 = 19
-	SERVER_STOP_SPECTATING      uint32 = 20 // TODO: in theory this should be 20, but i haven't tested this
+	SERVER_STOP_SPECTATING      uint32 = 20
 	SERVER_LEADERBOARD_RESPONSE uint32 = 25
 )
 
