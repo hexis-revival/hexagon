@@ -23,15 +23,11 @@ func DecryptScoreData(iv []byte, encryptedData []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	if data == nil {
-		return nil, errors.New("failed to decrypt score data (panic)")
-	}
-
 	return data, nil
 }
 
-func AESDecrypt(key string, iv []byte, encryptedData []byte) ([]byte, error) {
-	defer handlePanic()
+func AESDecrypt(key string, iv []byte, encryptedData []byte) (decrypted []byte, err error) {
+	defer HandlePanic(&err)
 
 	// Ensure the encryption key length is valid for AES-256
 	if len(key) != 32 {
@@ -52,7 +48,7 @@ func AESDecrypt(key string, iv []byte, encryptedData []byte) ([]byte, error) {
 	mode := cipher.NewCBCDecrypter(block, iv)
 
 	// Decrypt the data
-	decrypted := make([]byte, len(encryptedData))
+	decrypted = make([]byte, len(encryptedData))
 	mode.CryptBlocks(decrypted, encryptedData)
 
 	// Unpad the decrypted data
@@ -85,8 +81,4 @@ func UnpadPKCS7(data []byte) ([]byte, error) {
 
 	// Sometimes we get trailing null bytes, for some reason...
 	return bytes.TrimRight(data, "\x00"), nil
-}
-
-func handlePanic() {
-	_ = recover()
 }

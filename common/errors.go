@@ -54,3 +54,9 @@ func (ec *ErrorCollection) HasErrors() bool {
 func NewErrorCollection() *ErrorCollection {
 	return &ErrorCollection{}
 }
+
+func HandlePanic(err *error) {
+	if r := recover(); r != nil {
+		*err = fmt.Errorf("panic: %v", r)
+	}
+}
