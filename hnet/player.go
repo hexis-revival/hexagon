@@ -174,23 +174,6 @@ func (player *Player) RemoveRelationship(targetId uint32, status common.Relation
 	return common.RemoveUserRelationship(rel, player.Server.State)
 }
 
-func (player *Player) StartSpectating(host *Player) error {
-	host.Spectators = append(host.Spectators, player)
-	player.Host = host
-
-	response := &SpectateRequest{
-		UserId: player.Info.Id,
-	}
-
-	err := host.SendPacket(SERVER_START_SPECTATING, response)
-	if err != nil {
-		return err
-	}
-
-	player.Logger.Infof("Started spectating '%s'", host.Info.Name)
-	return nil
-}
-
 func (player *Player) GetFriendIds() ([]uint32, error) {
 	relationships, err := common.FetchUserRelationships(
 		int(player.Info.Id),
@@ -220,6 +203,23 @@ func (player *Player) ApplyUserData(user *common.User) error {
 	player.Stats.TotalScore = uint64(user.Stats.TotalScore)
 	player.Stats.Plays = uint32(user.Stats.Playcount)
 	player.Stats.Accuracy = user.Stats.Accuracy
+	return nil
+}
+
+func (player *Player) StartSpectating(host *Player) error {
+	host.Spectators = append(host.Spectators, player)
+	player.Host = host
+
+	response := &SpectateRequest{
+		UserId: player.Info.Id,
+	}
+
+	err := host.SendPacket(SERVER_START_SPECTATING, response)
+	if err != nil {
+		return err
+	}
+
+	player.Logger.Infof("Started spectating '%s'", host.Info.Name)
 	return nil
 }
 
