@@ -218,3 +218,11 @@ type RelationshipRequest struct {
 func (request RelationshipRequest) String() string {
 	return common.FormatStruct(request)
 }
+
+type SpectateRequest struct {
+	UserId uint32
+}
+
+func (request SpectateRequest) String() string {
+	return common.FormatStruct(request)
+}
