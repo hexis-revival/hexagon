@@ -131,7 +131,7 @@ func ReadRelationshipRequest(stream *common.IOStream) *RelationshipRequest {
 }
 
 func ReadSpectateRequest(stream *common.IOStream) *SpectateRequest {
-	defer handlePanic()
+	defer recover()
 
 	_ = stream.ReadBool() // TODO: this seems to be always 1?
 	userId := stream.ReadU32()
@@ -139,8 +139,4 @@ func ReadSpectateRequest(stream *common.IOStream) *SpectateRequest {
 	return &SpectateRequest{
 		UserId: userId,
 	}
-}
-
-func handlePanic() {
-	_ = recover()
 }
