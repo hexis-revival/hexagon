@@ -14,17 +14,17 @@ const (
 )
 
 const (
-	SERVER_LOGIN_RESPONSE          uint32 = 2
-	SERVER_LOGIN_REVOKED           uint32 = 3
-	SERVER_USER_STATS              uint32 = 5
-	SERVER_USER_INFO               uint32 = 6
-	SERVER_USER_QUIT               uint32 = 7
-	SERVER_FRIENDS_LIST            uint32 = 8
-	SERVER_SPECTATE_BEATMAP_CHANGE uint32 = 17 // TODO: Not sure if this is correct
-	SERVER_SPECTATE_FRAMES         uint32 = 18
-	SERVER_START_SPECTATING        uint32 = 19
-	SERVER_STOP_SPECTATING         uint32 = 20
-	SERVER_LEADERBOARD_RESPONSE    uint32 = 25
+	SERVER_LOGIN_RESPONSE         uint32 = 2
+	SERVER_LOGIN_REVOKED          uint32 = 3
+	SERVER_USER_STATS             uint32 = 5
+	SERVER_USER_INFO              uint32 = 6
+	SERVER_USER_QUIT              uint32 = 7
+	SERVER_FRIENDS_LIST           uint32 = 8
+	SERVER_SPECTATE_STATUS_UPDATE uint32 = 17
+	SERVER_SPECTATE_FRAMES        uint32 = 18
+	SERVER_START_SPECTATING       uint32 = 19
+	SERVER_STOP_SPECTATING        uint32 = 20
+	SERVER_LEADERBOARD_RESPONSE   uint32 = 25
 )
 
 const (
