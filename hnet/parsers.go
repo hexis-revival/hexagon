@@ -129,3 +129,30 @@ func ReadRelationshipRequest(stream *common.IOStream) *RelationshipRequest {
 		UserId: userId,
 	}
 }
+
+func ReadSpectateRequest(stream *common.IOStream) *SpectateRequest {
+	defer recover()
+
+	_ = stream.ReadBool() // TODO: this seems to be always 1?
+	userId := stream.ReadU32()
+
+	return &SpectateRequest{
+		UserId: userId,
+	}
+}
+
+func ReadScorePack(stream *common.IOStream) *ScorePack {
+	defer recover()
+
+	action := stream.ReadU32()
+	frames := make([]*common.ReplayFrame, stream.ReadU32())
+
+	for i := range frames {
+		frames[i] = common.ReadReplayFrame(stream)
+	}
+
+	return &ScorePack{
+		Action: action,
+		Frames: frames,
+	}
+}

@@ -218,3 +218,20 @@ type RelationshipRequest struct {
 func (request RelationshipRequest) String() string {
 	return common.FormatStruct(request)
 }
+
+type SpectateRequest struct {
+	UserId uint32
+}
+
+func (request SpectateRequest) String() string {
+	return common.FormatStruct(request)
+}
+
+type ScorePack struct {
+	Action uint32
+	Frames []*common.ReplayFrame
+}
+
+func (pack ScorePack) String() string {
+	return common.FormatStruct(pack)
+}

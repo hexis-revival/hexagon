@@ -9,12 +9,14 @@ import (
 )
 
 type Player struct {
-	Conn   net.Conn
-	Logger *common.Logger
-	Server *HNetServer
-	Client *ClientInfo
-	Info   *UserInfo
-	Stats  *UserStats
+	Conn       net.Conn
+	Logger     *common.Logger
+	Server     *HNetServer
+	Client     *ClientInfo
+	Info       *UserInfo
+	Stats      *UserStats
+	Host       *Player
+	Spectators PlayerCollection
 }
 
 func (player *Player) Send(data []byte) error {
@@ -202,4 +204,41 @@ func (player *Player) ApplyUserData(user *common.User) error {
 	player.Stats.Plays = uint32(user.Stats.Playcount)
 	player.Stats.Accuracy = user.Stats.Accuracy
 	return nil
+}
+
+func (player *Player) StartSpectating(host *Player) error {
+	host.Spectators.Add(player)
+	player.Host = host
+
+	response := &SpectateRequest{
+		UserId: player.Info.Id,
+	}
+
+	err := host.SendPacket(SERVER_START_SPECTATING, response)
+	if err != nil {
+		return err
+	}
+
+	player.Logger.Infof("Started spectating '%s'", host.Info.Name)
+	return nil
+}
+
+func (player *Player) StopSpectating() error {
+	response := &SpectateRequest{
+		UserId: player.Info.Id,
+	}
+
+	player.Host.SendPacket(SERVER_STOP_SPECTATING, response)
+	player.Host.Spectators.Remove(player)
+	player.Host = nil
+	player.Logger.Infof("Stopped spectating")
+	return nil
+}
+
+func (player *Player) IsSpectating() bool {
+	return player.Host != nil
+}
+
+func (player *Player) HasSpectators() bool {
+	return player.Spectators.Count() > 0
 }

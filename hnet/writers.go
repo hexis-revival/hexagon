@@ -79,11 +79,25 @@ func (friends FriendsList) Serialize(stream *common.IOStream) {
 }
 
 func (response QuitResponse) Serialize(stream *common.IOStream) {
-	stream.WriteU8(0) // TODO: Unused?
+	stream.WriteU8(0)
 	stream.WriteU32(response.UserId)
 }
 
 func (request RelationshipRequest) Serialize(stream *common.IOStream) {
 	stream.WriteBool(request.Status == common.StatusFriend)
 	stream.WriteU32(request.UserId)
+}
+
+func (request SpectateRequest) Serialize(stream *common.IOStream) {
+	stream.WriteU8(1)
+	stream.WriteU32(request.UserId)
+}
+
+func (pack ScorePack) Serialize(stream *common.IOStream) {
+	stream.WriteU32(pack.Action)
+	stream.WriteU32(uint32(len(pack.Frames)))
+
+	for _, frame := range pack.Frames {
+		frame.Serialize(stream)
+	}
 }

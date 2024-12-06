@@ -119,6 +119,11 @@ func handleStatusChange(stream *common.IOStream, player *Player) error {
 
 	player.LogIncomingPacket(CLIENT_CHANGE_STATUS, status)
 	player.Stats.Status = status
+
+	if player.HasSpectators() {
+		player.Spectators.Broadcast(SERVER_SPECTATE_STATUS_UPDATE, player.Stats.Status)
+	}
+
 	return nil
 }
 
@@ -141,6 +146,54 @@ func handleRequestStats(stream *common.IOStream, player *Player) error {
 		player.SendPacket(SERVER_USER_STATS, user.Stats)
 	}
 
+	return nil
+}
+
+func handleStartSpectating(stream *common.IOStream, player *Player) error {
+	request := ReadSpectateRequest(stream)
+
+	if request == nil {
+		return fmt.Errorf("failed to read spectate request")
+	}
+
+	target := player.Server.Players.ByID(request.UserId)
+
+	if target == nil {
+		return fmt.Errorf("user %d not found", request.UserId)
+	}
+
+	player.LogIncomingPacket(CLIENT_START_SPECTATING, request)
+	return player.StartSpectating(target)
+}
+
+func handleStopSpectating(stream *common.IOStream, player *Player) error {
+	if !player.IsSpectating() {
+		return nil
+	}
+
+	request := ReadSpectateRequest(stream)
+
+	if request == nil {
+		return fmt.Errorf("failed to read spectate request")
+	}
+
+	player.LogIncomingPacket(CLIENT_STOP_SPECTATING, request)
+	return player.StopSpectating()
+}
+
+func handleSpectateFrames(stream *common.IOStream, player *Player) error {
+	if !player.HasSpectators() {
+		return nil
+	}
+
+	scorePack := ReadScorePack(stream)
+
+	if scorePack == nil {
+		return fmt.Errorf("failed to read score pack")
+	}
+
+	player.LogIncomingPacket(CLIENT_SPECTATE_FRAMES, scorePack)
+	player.Spectators.Broadcast(SERVER_SPECTATE_FRAMES, scorePack)
 	return nil
 }
 
@@ -197,6 +250,9 @@ func init() {
 	Handlers[CLIENT_LOGIN_RECONNECT] = ensureUnauthenticated(handleReconnect)
 	Handlers[CLIENT_CHANGE_STATUS] = ensureAuthentication(handleStatusChange)
 	Handlers[CLIENT_REQUEST_STATS] = ensureAuthentication(handleRequestStats)
+	Handlers[CLIENT_START_SPECTATING] = ensureAuthentication(handleStartSpectating)
+	Handlers[CLIENT_STOP_SPECTATING] = ensureAuthentication(handleStopSpectating)
+	Handlers[CLIENT_SPECTATE_FRAMES] = ensureAuthentication(handleSpectateFrames)
 	Handlers[CLIENT_RELATIONSHIP_ADD] = ensureAuthentication(handleUserRelationshipAdd)
 	Handlers[CLIENT_RELATIONSHIP_REMOVE] = ensureAuthentication(handleUserRelationshipRemove)
 }
