@@ -177,7 +177,7 @@ func handleStopSpectating(stream *common.IOStream, player *Player) error {
 		return fmt.Errorf("failed to read spectate request")
 	}
 
-	player.LogIncomingPacket(CLIENT_START_SPECTATING, request)
+	player.LogIncomingPacket(CLIENT_STOP_SPECTATING, request)
 	return player.StopSpectating()
 }
 
