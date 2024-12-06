@@ -121,7 +121,7 @@ func handleStatusChange(stream *common.IOStream, player *Player) error {
 	player.Stats.Status = status
 
 	if player.HasSpectators() {
-		player.Spectators.Broadcast(SERVER_SPECTATE_BEATMAP_CHANGE, player.Stats.Status)
+		player.Spectators.Broadcast(SERVER_SPECTATE_STATUS_UPDATE, player.Stats.Status)
 	}
 
 	return nil
