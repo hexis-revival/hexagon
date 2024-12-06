@@ -119,6 +119,15 @@ func handleStatusChange(stream *common.IOStream, player *Player) error {
 
 	player.LogIncomingPacket(CLIENT_CHANGE_STATUS, status)
 	player.Stats.Status = status
+
+	if !player.HasSpectators() {
+		return nil
+	}
+
+	for _, spectator := range player.Spectators.All() {
+		spectator.SendPacket(SERVER_SPECTATE_BEATMAP_CHANGE, player.Stats.Status)
+	}
+
 	return nil
 }
 
