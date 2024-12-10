@@ -219,6 +219,7 @@ func (player *Player) StartSpectating(host *Player) error {
 		return err
 	}
 
+	player.SendPacket(SERVER_SPECTATE_STATUS_UPDATE, host.Stats.Status)
 	player.Logger.Infof("Started spectating '%s'", host.Info.Name)
 	return nil
 }
