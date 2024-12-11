@@ -16,9 +16,9 @@ func CreateUser(user *User, state *State) error {
 	return nil
 }
 
-func FetchUserById(id int, state *State) (*User, error) {
+func FetchUserById(id int, state *State, preload ...string) (*User, error) {
 	user := &User{}
-	result := state.Database.Preload("Stats").First(user, id)
+	result := preloadQuery(state, preload).First(user, id)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -27,10 +27,10 @@ func FetchUserById(id int, state *State) (*User, error) {
 	return user, nil
 }
 
-func FetchUserByName(name string, state *State) (*User, error) {
+func FetchUserByName(name string, state *State, preload ...string) (*User, error) {
 	user := &User{}
-	query := state.Database.Where("name = ?", name)
-	result := query.Preload("Stats").First(user)
+	query := preloadQuery(state, preload).Where("name = ?", name)
+	result := query.First(user)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -39,10 +39,10 @@ func FetchUserByName(name string, state *State) (*User, error) {
 	return user, nil
 }
 
-func FetchUserByNameCaseInsensitive(name string, state *State) (*User, error) {
+func FetchUserByNameCaseInsensitive(name string, state *State, preload ...string) (*User, error) {
 	user := &User{}
-	result := state.Database.Where("lower(name) = ?", strings.ToLower(name))
-	result = result.Preload("Stats").First(user)
+	query := preloadQuery(state, preload).Where("lower(name) = ?", strings.ToLower(name))
+	result := query.First(user)
 
 	if result.Error != nil {
 		return nil, result.Error

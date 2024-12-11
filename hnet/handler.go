@@ -28,6 +28,7 @@ func handleLogin(stream *common.IOStream, player *Player) error {
 	userObject, err := common.FetchUserByNameCaseInsensitive(
 		request.Username,
 		player.Server.State,
+		"Stats",
 	)
 
 	if err != nil {
@@ -80,6 +81,7 @@ func handleReconnect(stream *common.IOStream, player *Player) error {
 	userObject, err := common.FetchUserByNameCaseInsensitive(
 		request.Username,
 		player.Server.State,
+		"Stats",
 	)
 
 	if err != nil {
