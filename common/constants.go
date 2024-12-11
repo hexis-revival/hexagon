@@ -34,6 +34,7 @@ const (
 type BeatmapAvailability int
 
 const (
-	BeatmapHasDownload BeatmapAvailability = iota
-	BeatmapHasDMCA     BeatmapAvailability = iota
+	BeatmapHasDownload             BeatmapAvailability = iota
+	BeatmapHasDMCA                 BeatmapAvailability = iota
+	BeatmapHasInappropriateContent BeatmapAvailability = iota
 )
