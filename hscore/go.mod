@@ -6,6 +6,8 @@ replace github.com/hexis-revival/hexagon/common => ../common
 
 require github.com/hexis-revival/hexagon/common v0.0.0-20241005191625-f1f1499b1fd1
 
+require github.com/lib/pq v1.10.9 // indirect
+
 require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
