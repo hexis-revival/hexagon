@@ -92,9 +92,10 @@ func RemoveUserRelationship(relationship *Relationship, state *State) error {
 	return nil
 }
 
-func FetchUserRelationships(userId int, status RelationshipStatus, state *State) ([]*Relationship, error) {
+func FetchUserRelationships(userId int, status RelationshipStatus, state *State, preload ...string) ([]*Relationship, error) {
 	relationships := []*Relationship{}
-	result := state.Database.Where("user_id = ? AND status = ?", userId, status).Find(&relationships)
+	query := preloadQuery(state, preload).Where("user_id = ? AND status = ?", userId, status)
+	result := query.Find(&relationships)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -103,9 +104,9 @@ func FetchUserRelationships(userId int, status RelationshipStatus, state *State)
 	return relationships, nil
 }
 
-func FetchUserRelationship(userId int, targetId int, state *State) (*Relationship, error) {
+func FetchUserRelationship(userId int, targetId int, state *State, preload ...string) (*Relationship, error) {
 	relationship := &Relationship{}
-	result := state.Database.First(relationship, "user_id = ? AND target_id = ?", userId, targetId)
+	result := preloadQuery(state, preload).First(relationship, "user_id = ? AND target_id = ?", userId, targetId)
 
 	if result.Error != nil {
 		return nil, result.Error
