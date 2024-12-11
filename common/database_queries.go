@@ -2,6 +2,8 @@ package common
 
 import (
 	"strings"
+
+	"gorm.io/gorm"
 )
 
 func CreateUser(user *User, state *State) error {
@@ -14,9 +16,9 @@ func CreateUser(user *User, state *State) error {
 	return nil
 }
 
-func FetchUserById(id int, state *State) (*User, error) {
+func FetchUserById(id int, state *State, preload ...string) (*User, error) {
 	user := &User{}
-	result := state.Database.Preload("Stats").First(user, id)
+	result := preloadQuery(state, preload).First(user, id)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -25,10 +27,10 @@ func FetchUserById(id int, state *State) (*User, error) {
 	return user, nil
 }
 
-func FetchUserByName(name string, state *State) (*User, error) {
+func FetchUserByName(name string, state *State, preload ...string) (*User, error) {
 	user := &User{}
-	query := state.Database.Where("name = ?", name)
-	result := query.Preload("Stats").First(user)
+	query := preloadQuery(state, preload).Where("name = ?", name)
+	result := query.First(user)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -37,10 +39,10 @@ func FetchUserByName(name string, state *State) (*User, error) {
 	return user, nil
 }
 
-func FetchUserByNameCaseInsensitive(name string, state *State) (*User, error) {
+func FetchUserByNameCaseInsensitive(name string, state *State, preload ...string) (*User, error) {
 	user := &User{}
-	result := state.Database.Where("lower(name) = ?", strings.ToLower(name))
-	result = result.Preload("Stats").First(user)
+	query := preloadQuery(state, preload).Where("lower(name) = ?", strings.ToLower(name))
+	result := query.First(user)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -90,9 +92,10 @@ func RemoveUserRelationship(relationship *Relationship, state *State) error {
 	return nil
 }
 
-func FetchUserRelationships(userId int, status RelationshipStatus, state *State) ([]*Relationship, error) {
+func FetchUserRelationships(userId int, status RelationshipStatus, state *State, preload ...string) ([]*Relationship, error) {
 	relationships := []*Relationship{}
-	result := state.Database.Where("user_id = ? AND status = ?", userId, status).Find(&relationships)
+	query := preloadQuery(state, preload).Where("user_id = ? AND status = ?", userId, status)
+	result := query.Find(&relationships)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -101,13 +104,45 @@ func FetchUserRelationships(userId int, status RelationshipStatus, state *State)
 	return relationships, nil
 }
 
-func FetchUserRelationship(userId int, targetId int, state *State) (*Relationship, error) {
+func FetchUserRelationship(userId int, targetId int, state *State, preload ...string) (*Relationship, error) {
 	relationship := &Relationship{}
-	result := state.Database.First(relationship, "user_id = ? AND target_id = ?", userId, targetId)
+	result := preloadQuery(state, preload).First(relationship, "user_id = ? AND target_id = ?", userId, targetId)
 
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
 	return relationship, nil
+}
+
+func FetchBeatmapsetById(id int, state *State, preload ...string) (*Beatmapset, error) {
+	beatmapset := &Beatmapset{}
+	result := preloadQuery(state, preload).First(beatmapset, id)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return beatmapset, nil
+}
+
+func FetchBeatmapById(id int, state *State, preload ...string) (*Beatmap, error) {
+	beatmap := &Beatmap{}
+	result := preloadQuery(state, preload).First(beatmap, id)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return beatmap, nil
+}
+
+func preloadQuery(state *State, preload []string) *gorm.DB {
+	result := state.Database
+
+	for _, p := range preload {
+		result = result.Preload(p)
+	}
+
+	return result
 }
