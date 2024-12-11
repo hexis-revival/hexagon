@@ -114,6 +114,28 @@ func FetchUserRelationship(userId int, targetId int, state *State) (*Relationshi
 	return relationship, nil
 }
 
+func FetchBeatmapsetById(id int, state *State, preload ...string) (*Beatmapset, error) {
+	beatmapset := &Beatmapset{}
+	result := preloadQuery(state, preload).First(beatmapset, id)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return beatmapset, nil
+}
+
+func FetchBeatmapById(id int, state *State, preload ...string) (*Beatmap, error) {
+	beatmap := &Beatmap{}
+	result := preloadQuery(state, preload).First(beatmap, id)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return beatmap, nil
+}
+
 func preloadQuery(state *State, preload []string) *gorm.DB {
 	result := state.Database
 
