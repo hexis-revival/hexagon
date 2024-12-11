@@ -2,6 +2,8 @@ package common
 
 import (
 	"strings"
+
+	"gorm.io/gorm"
 )
 
 func CreateUser(user *User, state *State) error {
@@ -110,4 +112,14 @@ func FetchUserRelationship(userId int, targetId int, state *State) (*Relationshi
 	}
 
 	return relationship, nil
+}
+
+func preloadQuery(state *State, preload []string) *gorm.DB {
+	result := state.Database
+
+	for _, p := range preload {
+		result = result.Preload(p)
+	}
+
+	return result
 }
