@@ -124,6 +124,10 @@ func (stream *IOStream) ReadString() string {
 		return ""
 	}
 
+	if length == math.MaxUint32 {
+		return ""
+	}
+
 	data := stream.Read(int(length))
 	chars := make([]rune, 0, length)
 
@@ -219,6 +223,11 @@ func (stream *IOStream) WriteBool(value bool) {
 }
 
 func (stream *IOStream) WriteString(value string) {
+	if value == "" {
+		stream.WriteU32(math.MaxUint32)
+		return
+	}
+
 	stream.WriteU32(uint32(len(value) * 2))
 
 	for _, c := range value {

@@ -243,7 +243,7 @@ type Mods struct {
 	OdOffset  int8
 	CsOffset  int8
 	HpOffset  int8
-	PlaySpeed float32 // TODO: adjust this?
+	PlaySpeed float32
 	Hidden    bool
 	NoFail    bool
 	Autoplay  bool

@@ -102,11 +102,7 @@ func ReadStatusChange(stream *common.IOStream) *Status {
 		Version:  stream.ReadString(),
 	}
 
-	if status.Action == ACTION_WATCHING {
-		status.Watching = stream.ReadString()
-	} else {
-		_ = stream.ReadU32() // always {0xFF, 0xFF, 0xFF, 0xFF} if not watching
-	}
+	status.Watching = stream.ReadString()
 
 	status.Mods = &Mods{
 		ArOffset:  stream.ReadI8(),
