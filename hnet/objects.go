@@ -89,9 +89,11 @@ func (info VersionInfo) String() string {
 }
 
 type Status struct {
-	UserId  uint32
-	Action  uint32
-	Beatmap *BeatmapInfo
+	UserId   uint32
+	Action   uint32
+	Beatmap  *BeatmapInfo
+	Watching string
+	Mods     *Mods
 }
 
 func (status Status) HasBeatmapInfo() bool {
@@ -234,4 +236,19 @@ type ScorePack struct {
 
 func (pack ScorePack) String() string {
 	return common.FormatStruct(pack)
+}
+
+type Mods struct {
+	ArOffset  int8
+	OdOffset  int8
+	CsOffset  int8
+	HpOffset  int8
+	PlaySpeed float32 // TODO: adjust this?
+	Hidden    bool
+	NoFail    bool
+	Autoplay  bool
+}
+
+func (mods *Mods) String() string {
+	return common.FormatStruct(mods)
 }

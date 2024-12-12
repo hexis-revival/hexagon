@@ -64,6 +64,18 @@ func (status Status) Serialize(stream *common.IOStream) {
 	}
 
 	status.Beatmap.Serialize(stream)
+
+	if status.Action != ACTION_WATCHING {
+		stream.Write([]byte{0xFF, 0xFF, 0xFF, 0xFF})
+	} else {
+		stream.WriteString(status.Watching)
+	}
+
+	status.Mods.Serialize(stream)
+}
+
+func (mods Mods) Serialize(stream *common.IOStream) {
+
 }
 
 func (info BeatmapInfo) Serialize(stream *common.IOStream) {
