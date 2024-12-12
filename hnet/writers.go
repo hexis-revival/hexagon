@@ -75,7 +75,14 @@ func (status Status) Serialize(stream *common.IOStream) {
 }
 
 func (mods Mods) Serialize(stream *common.IOStream) {
-
+	stream.WriteI8(mods.ArOffset)
+	stream.WriteI8(mods.OdOffset)
+	stream.WriteI8(mods.CsOffset)
+	stream.WriteI8(mods.HpOffset)
+	stream.WriteI8(int8(mods.PlaySpeed-1) * 20)
+	stream.WriteBool(mods.Hidden)
+	stream.WriteBool(mods.NoFail)
+	stream.WriteBool(mods.Autoplay)
 }
 
 func (info BeatmapInfo) Serialize(stream *common.IOStream) {
