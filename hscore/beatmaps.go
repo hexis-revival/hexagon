@@ -2,6 +2,7 @@ package hscore
 
 import (
 	"encoding/hex"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -10,14 +11,28 @@ import (
 )
 
 const (
-	BssSuccess             = 0
+	BssSuccess = 0
+	// The username or password you entered is incorrect.
 	BssAuthenticationError = 1
-	BssNotAvailable        = 2
-	BssAlreadyRanked       = 3
-	BssInvalidOwner        = 4
+	// The beatmap you are trying to submit is no longer available.
+	BssNotAvailable = 2
+	// The beatmap you are trying to submit has already been ranked.
+	BssAlreadyRanked = 3
+	// The beatmap you are trying to submit is not owned by you.
+	BssInvalidOwner = 4
 )
 
-func AuthenticateUser(username string, password string, server *ScoreServer) bool {
+func FormatBeatmapsetName(beatmapset *common.Beatmapset) string {
+	return fmt.Sprintf(
+		"%d %s - %s (%s)",
+		beatmapset.Id,
+		beatmapset.Artist,
+		beatmapset.Title,
+		beatmapset.Creator.Name,
+	)
+}
+
+func AuthenticateUser(username string, password string, server *ScoreServer) (*common.User, bool) {
 	userObject, err := common.FetchUserByNameCaseInsensitive(
 		username,
 		server.State,
@@ -26,14 +41,14 @@ func AuthenticateUser(username string, password string, server *ScoreServer) boo
 
 	if err != nil {
 		server.Logger.Warningf("[Beatmap Submission] User '%s' not found", username)
-		return false
+		return nil, false
 	}
 
 	decodedPassword, err := hex.DecodeString(password)
 
 	if err != nil {
 		server.Logger.Warningf("[Beatmap Submission] Password decoding error: %s", err)
-		return false
+		return nil, false
 	}
 
 	isCorrect := common.CheckPasswordHashed(
@@ -43,20 +58,49 @@ func AuthenticateUser(username string, password string, server *ScoreServer) boo
 
 	if !isCorrect {
 		server.Logger.Warningf("[Beatmap Submission] Incorrect password for '%s'", username)
-		return false
+		return nil, false
 	}
 
 	if !userObject.Activated {
 		server.Logger.Warningf("[Beatmap Submission] Account not activated for '%s'", username)
-		return false
+		return nil, false
 	}
 
 	if userObject.Restricted {
 		server.Logger.Warningf("[Beatmap Submission] Account restricted for '%s'", username)
-		return false
+		return nil, false
 	}
 
-	return true
+	return userObject, true
+}
+
+func CreateBeatmapset(beatmapIds []int, user *common.User, server *ScoreServer) (*common.Beatmapset, error) {
+	beatmapset := &common.Beatmapset{
+		Title:     "",
+		Artist:    "",
+		Source:    "",
+		CreatorId: user.Id,
+	}
+
+	err := common.CreateBeatmapset(beatmapset, server.State)
+	if err != nil {
+		return nil, err
+	}
+
+	beatmaps := make([]common.Beatmap, 0, len(beatmapIds))
+
+	for i := 0; i < len(beatmapIds); i++ {
+		beatmap := common.Beatmap{SetId: beatmapset.Id, CreatorId: user.Id}
+		beatmaps = append(beatmaps, beatmap)
+	}
+
+	err = common.CreateBeatmaps(beatmaps, server.State)
+	if err != nil {
+		return nil, err
+	}
+
+	beatmapset.Beatmaps = beatmaps
+	return beatmapset, nil
 }
 
 func BeatmapGenIdHandler(ctx *Context) {
@@ -71,15 +115,12 @@ func BeatmapGenIdHandler(ctx *Context) {
 	ctx.Server.Logger.Debugf("[Beatmap Submission] Request: %s", request)
 	ctx.Response.WriteHeader(http.StatusOK)
 
-	success := AuthenticateUser(
+	user, success := AuthenticateUser(
 		request.Username,
 		request.Password,
 		ctx.Server,
 	)
 
-	// NOTE: The client will "update" the beatmap if
-	//       the same setId is responded with.
-	//       Otherwise it will do a full submission.
 	response := &BeatmapSubmissionResponse{
 		StatusCode: BssSuccess,
 		SetId:      -1,
@@ -92,7 +133,47 @@ func BeatmapGenIdHandler(ctx *Context) {
 		return
 	}
 
+	beatmapset, err := common.FetchBeatmapsetById(
+		request.SetId,
+		ctx.Server.State,
+		"Beatmaps",
+	)
+
+	if err != nil {
+		beatmapset, err = CreateBeatmapset(
+			request.BeatmapIds,
+			user,
+			ctx.Server,
+		)
+
+		if err != nil {
+			ctx.Server.Logger.Warningf("[Beatmap Submission] Beatmapset creation error: %s", err)
+			response.StatusCode = BssNotAvailable
+			ctx.Response.Write([]byte(response.Write()))
+			return
+		}
+
+		for _, beatmap := range beatmapset.Beatmaps {
+			response.BeatmapIds = append(response.BeatmapIds, beatmap.Id)
+		}
+
+		response.SetId = beatmapset.Id
+		response.StatusCode = BssSuccess
+		ctx.Response.Write([]byte(response.Write()))
+		ctx.Server.Logger.Infof(
+			"[Beatmap Submission] Beatmapset for '%s' created (%d)",
+			user.Name,
+			beatmapset.Id,
+		)
+		return
+	}
+
 	// TODO: Generate/Update beatmapset
+	ctx.Server.Logger.Infof(
+		"[Beatmap Submission] Beatmapset for '%s' updated (%d)",
+		user.Name,
+		beatmapset.Id,
+	)
 	ctx.Response.Write([]byte(response.Write()))
 }
 
