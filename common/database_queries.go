@@ -168,6 +168,17 @@ func FetchBeatmapById(id int, state *State, preload ...string) (*Beatmap, error)
 	return beatmap, nil
 }
 
+func FetchBeatmapsBySetId(setId int, state *State, preload ...string) ([]Beatmap, error) {
+	beatmaps := []Beatmap{}
+	result := preloadQuery(state, preload).Find(&beatmaps, "set_id = ?", setId)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return beatmaps, nil
+}
+
 func RemoveBeatmap(beatmap *Beatmap, state *State) error {
 	result := state.Database.Delete(beatmap)
 
