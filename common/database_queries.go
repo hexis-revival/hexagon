@@ -136,6 +136,16 @@ func FetchBeatmapsetById(id int, state *State, preload ...string) (*Beatmapset, 
 	return beatmapset, nil
 }
 
+func RemoveBeatmapset(beatmapset *Beatmapset, state *State) error {
+	result := state.Database.Delete(beatmapset)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
 func CreateBeatmap(beatmap *Beatmap, state *State) error {
 	result := state.Database.Create(beatmap)
 
@@ -181,6 +191,16 @@ func FetchBeatmapsBySetId(setId int, state *State, preload ...string) ([]Beatmap
 
 func RemoveBeatmap(beatmap *Beatmap, state *State) error {
 	result := state.Database.Delete(beatmap)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func RemoveBeatmapsBySetId(setId int, state *State) error {
+	result := state.Database.Delete(&Beatmap{}, "set_id = ?", setId)
 
 	if result.Error != nil {
 		return result.Error
