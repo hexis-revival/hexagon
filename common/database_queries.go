@@ -115,6 +115,16 @@ func FetchUserRelationship(userId int, targetId int, state *State, preload ...st
 	return relationship, nil
 }
 
+func CreateBeatmapset(beatmapset *Beatmapset, state *State) error {
+	result := state.Database.Create(beatmapset)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
 func FetchBeatmapsetById(id int, state *State, preload ...string) (*Beatmapset, error) {
 	beatmapset := &Beatmapset{}
 	result := preloadQuery(state, preload).First(beatmapset, id)
@@ -126,6 +136,92 @@ func FetchBeatmapsetById(id int, state *State, preload ...string) (*Beatmapset, 
 	return beatmapset, nil
 }
 
+func RemoveBeatmapset(beatmapset *Beatmapset, state *State) error {
+	result := state.Database.Delete(beatmapset)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func FetchBeatmapsetsByCreatorId(userId int, state *State, preload ...string) ([]Beatmapset, error) {
+	beatmapsets := []Beatmapset{}
+	result := preloadQuery(state, preload).Find(&beatmapsets, "creator_id = ?", userId)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return beatmapsets, nil
+}
+
+func FetchBeatmapsetCountByCreatorId(userId int, state *State) (int, error) {
+	var count int64
+	result := state.Database.Model(&Beatmapset{}).Where("creator_id = ?", userId).Count(&count)
+
+	if result.Error != nil {
+		return 0, result.Error
+	}
+
+	return int(count), nil
+}
+
+func FetchBeatmapsetRankedCountByCreatorId(userId int, state *State) (int, error) {
+	var count int64
+	result := state.Database.Model(&Beatmapset{}).Where("creator_id = ? AND status >= ?", userId, StatusRanked).Count(&count)
+
+	if result.Error != nil {
+		return 0, result.Error
+	}
+
+	return int(count), nil
+}
+
+func FetchBeatmapsetUnrankedCountByCreatorId(userId int, state *State) (int, error) {
+	var count int64
+	result := state.Database.Model(&Beatmapset{}).Where("creator_id = ? AND status < ?", userId, StatusRanked).Count(&count)
+
+	if result.Error != nil {
+		return 0, result.Error
+	}
+
+	return int(count), nil
+}
+
+func FetchBeatmapsetsByStatus(userId int, status BeatmapStatus, state *State, preload ...string) ([]Beatmapset, error) {
+	beatmapsets := []Beatmapset{}
+	result := preloadQuery(state, preload).Find(&beatmapsets, "creator_id = ? AND status = ?", userId, status)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return beatmapsets, nil
+}
+
+func CreateBeatmap(beatmap *Beatmap, state *State) error {
+	result := state.Database.Create(beatmap)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func CreateBeatmaps(beatmaps []Beatmap, state *State) error {
+	for _, beatmap := range beatmaps {
+		err := CreateBeatmap(&beatmap, state)
+
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func FetchBeatmapById(id int, state *State, preload ...string) (*Beatmap, error) {
 	beatmap := &Beatmap{}
 	result := preloadQuery(state, preload).First(beatmap, id)
@@ -135,6 +231,37 @@ func FetchBeatmapById(id int, state *State, preload ...string) (*Beatmap, error)
 	}
 
 	return beatmap, nil
+}
+
+func FetchBeatmapsBySetId(setId int, state *State, preload ...string) ([]Beatmap, error) {
+	beatmaps := []Beatmap{}
+	result := preloadQuery(state, preload).Find(&beatmaps, "set_id = ?", setId)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return beatmaps, nil
+}
+
+func RemoveBeatmap(beatmap *Beatmap, state *State) error {
+	result := state.Database.Delete(beatmap)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func RemoveBeatmapsBySetId(setId int, state *State) error {
+	result := state.Database.Delete(&Beatmap{}, "set_id = ?", setId)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
 }
 
 func preloadQuery(state *State, preload []string) *gorm.DB {
