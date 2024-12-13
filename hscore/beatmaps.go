@@ -103,6 +103,106 @@ func CreateBeatmapset(beatmapIds []int, user *common.User, server *ScoreServer) 
 	return beatmapset, nil
 }
 
+func ValidateBeatmapset(beatmapset *common.Beatmapset, user *common.User, server *ScoreServer) int {
+	if beatmapset.CreatorId != user.Id {
+		server.Logger.Warningf("[Beatmap Submission] Invalid owner for '%s'", user.Name)
+		return BssInvalidOwner
+	}
+
+	if beatmapset.Status > common.StatusPending {
+		server.Logger.Warningf("[Beatmap Submission] Beatmapset already ranked (%d)", beatmapset.Id)
+		return BssAlreadyRanked
+	}
+
+	if beatmapset.AvailabilityStatus != common.BeatmapHasDownload {
+		server.Logger.Warningf("[Beatmap Submission] Beatmapset not available (%d)", beatmapset.Id)
+		return BssNotAvailable
+	}
+
+	return BssSuccess
+}
+
+func UpdateBeatmapIds(beatmapset *common.Beatmapset, beatmapIds []int, server *ScoreServer) (_ []int, err error) {
+	if len(beatmapIds) <= 0 {
+		return nil, fmt.Errorf("beatmapIds list is empty")
+	}
+
+	currentBeatmapIds := make(map[int]bool, len(beatmapset.Beatmaps))
+	beatmapIdMap := make(map[int]bool, len(beatmapIds))
+
+	for _, beatmap := range beatmapset.Beatmaps {
+		currentBeatmapIds[beatmap.Id] = true
+	}
+
+	for _, beatmapId := range beatmapIds {
+		beatmapIdMap[beatmapId] = true
+	}
+
+	if len(beatmapIds) < len(beatmapset.Beatmaps) {
+		// Ensure every beatmap id is inside current beatmap ids
+		for _, beatmapId := range beatmapIds {
+			if !currentBeatmapIds[beatmapId] {
+				return nil, fmt.Errorf("Beatmap '%d' not found", beatmapId)
+			}
+		}
+
+		// Remove unused beatmaps
+		for _, beatmap := range beatmapset.Beatmaps {
+			if !beatmapIdMap[beatmap.Id] {
+				continue
+			}
+
+			err := common.RemoveBeatmap(&beatmap, server.State)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		server.Logger.Debugf(
+			"Removed %d beatmaps from beatmapset",
+			len(currentBeatmapIds)-len(beatmapIds),
+		)
+	}
+
+	// Calculate how many beatmaps we need to create
+	requiredMaps := max(0, len(beatmapIds)-len(currentBeatmapIds))
+	newBeatmaps := make([]common.Beatmap, 0, requiredMaps)
+
+	// Create new beatmaps
+	for i := 0; i < requiredMaps; i++ {
+		beatmap := common.Beatmap{SetId: beatmapset.Id, CreatorId: beatmapset.CreatorId}
+		newBeatmaps = append(newBeatmaps, beatmap)
+
+		err := common.CreateBeatmap(&beatmap, server.State)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	server.Logger.Debugf(
+		"Added %d beatmaps to beatmapset",
+		requiredMaps,
+	)
+
+	// Append new beatmaps to the beatmapset & return new beatmap ids
+	beatmapset.Beatmaps, err = common.FetchBeatmapsBySetId(
+		beatmapset.Id,
+		server.State,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	beatmapIds = make([]int, 0, len(beatmapset.Beatmaps))
+
+	for _, beatmap := range beatmapset.Beatmaps {
+		beatmapIds = append(beatmapIds, beatmap.Id)
+	}
+
+	return beatmapIds, nil
+}
+
 func BeatmapGenIdHandler(ctx *Context) {
 	request, err := NewBeatmapSubmissionRequest(ctx.Request)
 
@@ -133,6 +233,9 @@ func BeatmapGenIdHandler(ctx *Context) {
 		return
 	}
 
+	// TODO: Remove inactive beatmaps
+	// TODO: Check remaining beatmap uploads
+
 	beatmapset, err := common.FetchBeatmapsetById(
 		request.SetId,
 		ctx.Server.State,
@@ -161,17 +264,43 @@ func BeatmapGenIdHandler(ctx *Context) {
 		response.StatusCode = BssSuccess
 		ctx.Response.Write([]byte(response.Write()))
 		ctx.Server.Logger.Infof(
-			"[Beatmap Submission] Beatmapset for '%s' created (%d)",
+			"[Beatmap Submission] Beatmapset for '%s' created with %d beatmaps (%d)",
 			user.Name,
+			len(beatmapset.Beatmaps),
 			beatmapset.Id,
 		)
 		return
 	}
 
-	// TODO: Generate/Update beatmapset
+	response.StatusCode = ValidateBeatmapset(
+		beatmapset,
+		user,
+		ctx.Server,
+	)
+
+	if response.StatusCode != BssSuccess {
+		ctx.Response.Write([]byte(response.Write()))
+		return
+	}
+
+	response.BeatmapIds, err = UpdateBeatmapIds(
+		beatmapset,
+		request.BeatmapIds,
+		ctx.Server,
+	)
+
+	if err != nil {
+		ctx.Server.Logger.Warningf("[Beatmap Submission] Beatmapset update error: %s", err)
+		response.StatusCode = BssNotAvailable
+		ctx.Response.Write([]byte(response.Write()))
+		return
+	}
+
+	response.SetId = beatmapset.Id
 	ctx.Server.Logger.Infof(
-		"[Beatmap Submission] Beatmapset for '%s' updated (%d)",
+		"[Beatmap Submission] Beatmapset for '%s' updated with %d beatmaps (%d)",
 		user.Name,
+		len(beatmapset.Beatmaps),
 		beatmapset.Id,
 	)
 	ctx.Response.Write([]byte(response.Write()))
