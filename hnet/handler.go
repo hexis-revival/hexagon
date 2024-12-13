@@ -190,13 +190,13 @@ func handleHasMap(stream *common.IOStream, player *Player) error {
 		return fmt.Errorf("failed to read has map request")
 	}
 
-	player.LogIncomingPacket(CLIENT_HAS_MAP, request)
+	player.LogIncomingPacket(CLIENT_SPECTATE_HAS_MAP, request)
 
 	response := &HasMapResponse{
 		UserId: player.Info.Id,
 		HasMap: request.HasMap,
 	}
-	player.Host.SendPacket(SERVER_HAS_MAP, response)
+	player.Host.SendPacket(SERVER_SPECTATE_HAS_MAP, response)
 
 	return nil
 }
@@ -272,7 +272,7 @@ func init() {
 	Handlers[CLIENT_REQUEST_STATS] = ensureAuthentication(handleRequestStats)
 	Handlers[CLIENT_START_SPECTATING] = ensureAuthentication(handleStartSpectating)
 	Handlers[CLIENT_STOP_SPECTATING] = ensureAuthentication(handleStopSpectating)
-	Handlers[CLIENT_HAS_MAP] = ensureAuthentication(handleHasMap)
+	Handlers[CLIENT_SPECTATE_HAS_MAP] = ensureAuthentication(handleHasMap)
 	Handlers[CLIENT_SPECTATE_FRAMES] = ensureAuthentication(handleSpectateFrames)
 	Handlers[CLIENT_RELATIONSHIP_ADD] = ensureAuthentication(handleUserRelationshipAdd)
 	Handlers[CLIENT_RELATIONSHIP_REMOVE] = ensureAuthentication(handleUserRelationshipRemove)
