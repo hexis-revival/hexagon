@@ -117,6 +117,10 @@ func (stream *IOStream) ReadBool() bool {
 	return stream.ReadU8() == 1
 }
 
+func (stream *IOStream) ReadU32Bool() bool {
+	return stream.ReadU32() == 1
+}
+
 func (stream *IOStream) ReadString() string {
 	length := stream.ReadU32()
 
@@ -219,6 +223,14 @@ func (stream *IOStream) WriteBool(value bool) {
 		stream.WriteU8(1)
 	} else {
 		stream.WriteU8(0)
+	}
+}
+
+func (stream *IOStream) WriteU32Bool(value bool) {
+	if value {
+		stream.WriteU32(1)
+	} else {
+		stream.WriteU32(0)
 	}
 }
 
