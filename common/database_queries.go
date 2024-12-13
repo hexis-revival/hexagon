@@ -168,6 +168,16 @@ func FetchBeatmapById(id int, state *State, preload ...string) (*Beatmap, error)
 	return beatmap, nil
 }
 
+func RemoveBeatmap(beatmap *Beatmap, state *State) error {
+	result := state.Database.Delete(beatmap)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
 func preloadQuery(state *State, preload []string) *gorm.DB {
 	result := state.Database
 
