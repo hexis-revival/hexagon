@@ -1,6 +1,7 @@
 package hscore
 
 import (
+	"encoding/hex"
 	"net/http"
 	"strconv"
 	"strings"
@@ -9,34 +10,89 @@ import (
 )
 
 const (
-	BssSuccess       = 0
-	BssInvalidOwner  = 1
-	BssNotAvailable  = 2
-	BssAlreadyRanked = 3
+	BssSuccess             = 0
+	BssAuthenticationError = 1
+	BssNotAvailable        = 2
+	BssAlreadyRanked       = 3
+	BssInvalidOwner        = 4
 )
+
+func AuthenticateUser(username string, password string, server *ScoreServer) bool {
+	userObject, err := common.FetchUserByNameCaseInsensitive(
+		username,
+		server.State,
+		"Stats",
+	)
+
+	if err != nil {
+		server.Logger.Warningf("[Beatmap Submission] User '%s' not found", username)
+		return false
+	}
+
+	decodedPassword, err := hex.DecodeString(password)
+
+	if err != nil {
+		server.Logger.Warningf("[Beatmap Submission] Password decoding error: %s", err)
+		return false
+	}
+
+	isCorrect := common.CheckPasswordHashed(
+		decodedPassword,
+		userObject.Password,
+	)
+
+	if !isCorrect {
+		server.Logger.Warningf("[Beatmap Submission] Incorrect password for '%s'", username)
+		return false
+	}
+
+	if !userObject.Activated {
+		server.Logger.Warningf("[Beatmap Submission] Account not activated for '%s'", username)
+		return false
+	}
+
+	if userObject.Restricted {
+		server.Logger.Warningf("[Beatmap Submission] Account restricted for '%s'", username)
+		return false
+	}
+
+	return true
+}
 
 func BeatmapGenIdHandler(ctx *Context) {
 	request, err := NewBeatmapSubmissionRequest(ctx.Request)
 
 	if err != nil {
-		ctx.Server.Logger.Warningf("Beatmap submission request error: %s", err)
+		ctx.Server.Logger.Warningf("[Beatmap Submission] Request error: %s", err)
 		ctx.Response.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	ctx.Server.Logger.Debugf("Beatmap submission request: %s", request)
+	ctx.Server.Logger.Debugf("[Beatmap Submission] Request: %s", request)
 	ctx.Response.WriteHeader(http.StatusOK)
+
+	success := AuthenticateUser(
+		request.Username,
+		request.Password,
+		ctx.Server,
+	)
 
 	// NOTE: The client will "update" the beatmap if
 	//       the same setId is responded with.
 	//       Otherwise it will do a full submission.
 	response := &BeatmapSubmissionResponse{
 		StatusCode: BssSuccess,
-		SetId:      request.SetId,
-		BeatmapIds: request.BeatmapIds,
+		SetId:      -1,
+		BeatmapIds: []int{},
 	}
 
-	// TODO: Implement beatmap submission logic
+	if !success {
+		response.StatusCode = BssAuthenticationError
+		ctx.Response.Write([]byte(response.Write()))
+		return
+	}
+
+	// TODO: Generate/Update beatmapset
 	ctx.Response.Write([]byte(response.Write()))
 }
 
@@ -44,12 +100,12 @@ func BeatmapUploadHandler(ctx *Context) {
 	request, err := NewBeatmapUploadRequest(ctx.Request)
 
 	if err != nil {
-		ctx.Server.Logger.Warningf("Beatmap upload request error: %s", err)
+		ctx.Server.Logger.Warningf("[Beatmap Submission] Upload request error: %s", err)
 		ctx.Response.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	ctx.Server.Logger.Debugf("Beatmap upload request: %s", request)
+	ctx.Server.Logger.Debugf("[Beatmap Submission] Upload request: %s", request)
 	ctx.Response.WriteHeader(http.StatusOK)
 
 	// TODO: Implement beatmap upload logic
@@ -61,12 +117,12 @@ func BeatmapGenTopicHandler(ctx *Context) {
 	request, err := NewBeatmapDescriptionRequest(ctx.Request)
 
 	if err != nil {
-		ctx.Server.Logger.Warningf("Beatmap description request error: %s", err)
+		ctx.Server.Logger.Warningf("[Beatmap Submission] Description request error: %s", err)
 		ctx.Response.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	ctx.Server.Logger.Debugf("Beatmap description request: %s", request)
+	ctx.Server.Logger.Debugf("[Beatmap Submission] Description request: %s", request)
 	ctx.Response.WriteHeader(http.StatusOK)
 
 	response := &BeatmapDescriptionResponse{
@@ -82,12 +138,12 @@ func BeatmapPostHandler(ctx *Context) {
 	request, err := NewBeatmapPostRequest(ctx.Request)
 
 	if err != nil {
-		ctx.Server.Logger.Warningf("Beatmap post request error: %s", err)
+		ctx.Server.Logger.Warningf("[Beatmap Submission] Post request error: %s", err)
 		ctx.Response.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	ctx.Server.Logger.Debugf("Beatmap post request: %s", request)
+	ctx.Server.Logger.Debugf("[Beatmap Submission] Post request: %s", request)
 	ctx.Response.WriteHeader(http.StatusOK)
 	// TODO: Implement beatmap post logic
 }
