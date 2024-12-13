@@ -243,6 +243,14 @@ func BeatmapGenIdHandler(ctx *Context) {
 	)
 
 	if err != nil {
+		if err.Error() != "record not found" {
+			// Database failure
+			ctx.Server.Logger.Warningf("[Beatmap Submission] Beatmapset fetch error: %s", err)
+			response.StatusCode = BssNotAvailable
+			ctx.Response.Write([]byte(response.Write()))
+			return
+		}
+
 		beatmapset, err = CreateBeatmapset(
 			request.BeatmapIds,
 			user,
