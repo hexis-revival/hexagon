@@ -157,6 +157,39 @@ func FetchBeatmapsetsByCreatorId(userId int, state *State, preload ...string) ([
 	return beatmapsets, nil
 }
 
+func FetchBeatmapsetCountByCreatorId(userId int, state *State) (int, error) {
+	var count int64
+	result := state.Database.Model(&Beatmapset{}).Where("creator_id = ?", userId).Count(&count)
+
+	if result.Error != nil {
+		return 0, result.Error
+	}
+
+	return int(count), nil
+}
+
+func FetchBeatmapsetRankedCountByCreatorId(userId int, state *State) (int, error) {
+	var count int64
+	result := state.Database.Model(&Beatmapset{}).Where("creator_id = ? AND status >= ?", userId, StatusRanked).Count(&count)
+
+	if result.Error != nil {
+		return 0, result.Error
+	}
+
+	return int(count), nil
+}
+
+func FetchBeatmapsetUnrankedCountByCreatorId(userId int, state *State) (int, error) {
+	var count int64
+	result := state.Database.Model(&Beatmapset{}).Where("creator_id = ? AND status < ?", userId, StatusRanked).Count(&count)
+
+	if result.Error != nil {
+		return 0, result.Error
+	}
+
+	return int(count), nil
+}
+
 func FetchBeatmapsetsByStatus(userId int, status BeatmapStatus, state *State, preload ...string) ([]Beatmapset, error) {
 	beatmapsets := []Beatmapset{}
 	result := preloadQuery(state, preload).Find(&beatmapsets, "creator_id = ? AND status = ?", userId, status)
