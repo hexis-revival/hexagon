@@ -229,6 +229,23 @@ func (request SpectateRequest) String() string {
 	return common.FormatStruct(request)
 }
 
+type HasMapRequest struct {
+	HasMap bool
+}
+
+func (request HasMapRequest) String() string {
+	return common.FormatStruct(request)
+}
+
+type HasMapResponse struct {
+	UserId uint32
+	HasMap bool
+}
+
+func (response HasMapResponse) String() string {
+	return common.FormatStruct(response)
+}
+
 type ScorePack struct {
 	Action uint32
 	Frames []*common.ReplayFrame

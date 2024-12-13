@@ -154,6 +154,17 @@ func ReadSpectateRequest(stream *common.IOStream) *SpectateRequest {
 	}
 }
 
+func ReadHasMapRequest(stream *common.IOStream) *HasMapRequest {
+	defer recover()
+
+	_ = stream.ReadU8()
+	hasMap := stream.ReadU32Bool()
+
+	return &HasMapRequest{
+		HasMap: hasMap,
+	}
+}
+
 func ReadScorePack(stream *common.IOStream) *ScorePack {
 	defer recover()
 

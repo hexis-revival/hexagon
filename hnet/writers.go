@@ -106,6 +106,17 @@ func (request SpectateRequest) Serialize(stream *common.IOStream) {
 	stream.WriteU32(request.UserId)
 }
 
+func (request HasMapRequest) Serialize(stream *common.IOStream) {
+	stream.WriteU8(1)
+	stream.WriteU32Bool(request.HasMap)
+}
+
+func (response HasMapResponse) Serialize(stream *common.IOStream) {
+	stream.WriteU32(2)
+	stream.WriteU32(response.UserId)
+	stream.WriteU32Bool(response.HasMap)
+}
+
 func (pack ScorePack) Serialize(stream *common.IOStream) {
 	stream.WriteU32(pack.Action)
 	stream.WriteU32(uint32(len(pack.Frames)))
