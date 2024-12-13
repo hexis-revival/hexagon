@@ -234,6 +234,30 @@ func RemoveInactiveBeatmaps(user *common.User, server *ScoreServer) error {
 	return nil
 }
 
+func RemainingBeatmapUpdloads(user *common.User, server *ScoreServer) (int, error) {
+	unrankedBeatmaps, err := common.FetchBeatmapsetUnrankedCountByCreatorId(
+		user.Id,
+		server.State,
+	)
+
+	if err != nil {
+		return 0, err
+	}
+
+	rankedBeatmaps, err := common.FetchBeatmapsetRankedCountByCreatorId(
+		user.Id,
+		server.State,
+	)
+
+	if err != nil {
+		return 0, err
+	}
+
+	// Users can upload up to 6 pending maps plus
+	// 1 per ranked map, up to a maximum of 10.
+	return (6 - unrankedBeatmaps) + min(rankedBeatmaps, 10), nil
+}
+
 func BeatmapGenIdHandler(ctx *Context) {
 	request, err := NewBeatmapSubmissionRequest(ctx.Request)
 
@@ -267,6 +291,21 @@ func BeatmapGenIdHandler(ctx *Context) {
 	err = RemoveInactiveBeatmaps(user, ctx.Server)
 	if err != nil {
 		ctx.Server.Logger.Warningf("[Beatmap Submission] Failed to remove inactive beatmaps: %s", err)
+	}
+
+	remainingUploads, err := RemainingBeatmapUpdloads(user, ctx.Server)
+	if err != nil {
+		ctx.Server.Logger.Warningf("[Beatmap Submission] Failed to fetch remaining uploads: %s", err)
+		response.StatusCode = BssNotAvailable
+		ctx.Response.Write([]byte(response.Write()))
+		return
+	}
+
+	if remainingUploads <= 0 {
+		ctx.Server.Logger.Warningf("[Beatmap Submission] No remaining uploads for '%s'", user.Name)
+		response.StatusCode = BssNotAvailable
+		ctx.Response.Write([]byte(response.Write()))
+		return
 	}
 
 	beatmapset, err := common.FetchBeatmapsetById(
