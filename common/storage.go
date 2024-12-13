@@ -22,6 +22,14 @@ type Storage interface {
 	SaveAvatar(userId int, data []byte) error
 	DefaultAvatar() ([]byte, error)
 	EnsureDefaultAvatar() error
+
+	// Beatmaps
+	GetBeatmapFile(beatmapId int) ([]byte, error)
+	GetBeatmapPackage(beatmapsetId int) ([]byte, error)
+	SaveBeatmapFile(beatmapId int, data []byte) error
+	SaveBeatmapPackage(beatmapsetId int, data []byte) error
+	RemoveBeatmapFile(beatmapId int) error
+	RemoveBeatmapPackage(beatmapsetId int) error
 }
 
 type FileStorage struct {
@@ -106,4 +114,28 @@ func (storage *FileStorage) EnsureDefaultAvatar() error {
 	}
 
 	return nil
+}
+
+func (storage *FileStorage) GetBeatmapFile(beatmapId int) ([]byte, error) {
+	return storage.Read(fmt.Sprintf("%d", beatmapId), "beatmaps")
+}
+
+func (storage *FileStorage) GetBeatmapPackage(beatmapsetId int) ([]byte, error) {
+	return storage.Read(fmt.Sprintf("%d", beatmapsetId), "packages")
+}
+
+func (storage *FileStorage) SaveBeatmapFile(beatmapId int, data []byte) error {
+	return storage.Save(strconv.Itoa(beatmapId), "beatmaps", data)
+}
+
+func (storage *FileStorage) SaveBeatmapPackage(beatmapsetId int, data []byte) error {
+	return storage.Save(strconv.Itoa(beatmapsetId), "packages", data)
+}
+
+func (storage *FileStorage) RemoveBeatmapFile(beatmapId int) error {
+	return storage.Remove(strconv.Itoa(beatmapId), "beatmaps")
+}
+
+func (storage *FileStorage) RemoveBeatmapPackage(beatmapsetId int) error {
+	return storage.Remove(strconv.Itoa(beatmapsetId), "packages")
 }
