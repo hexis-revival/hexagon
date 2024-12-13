@@ -203,6 +203,37 @@ func UpdateBeatmapIds(beatmapset *common.Beatmapset, beatmapIds []int, server *S
 	return beatmapIds, nil
 }
 
+func RemoveInactiveBeatmaps(user *common.User, server *ScoreServer) error {
+	beatmapsets, err := common.FetchBeatmapsetsByStatus(
+		user.Id,
+		common.StatusNotSubmitted,
+		server.State,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	server.Logger.Debugf(
+		"Found %d inactive beatmapsets for '%s'",
+		len(beatmapsets), user.Name,
+	)
+	// TODO: Remove beatmap assets from storage
+
+	for _, beatmapset := range beatmapsets {
+		err := common.RemoveBeatmapsBySetId(beatmapset.Id, server.State)
+		if err != nil {
+			return err
+		}
+
+		err = common.RemoveBeatmapset(&beatmapset, server.State)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func BeatmapGenIdHandler(ctx *Context) {
 	request, err := NewBeatmapSubmissionRequest(ctx.Request)
 
@@ -233,8 +264,10 @@ func BeatmapGenIdHandler(ctx *Context) {
 		return
 	}
 
-	// TODO: Remove inactive beatmaps
-	// TODO: Check remaining beatmap uploads
+	err = RemoveInactiveBeatmaps(user, ctx.Server)
+	if err != nil {
+		ctx.Server.Logger.Warningf("[Beatmap Submission] Failed to remove inactive beatmaps: %s", err)
+	}
 
 	beatmapset, err := common.FetchBeatmapsetById(
 		request.SetId,
