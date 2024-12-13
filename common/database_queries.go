@@ -115,6 +115,16 @@ func FetchUserRelationship(userId int, targetId int, state *State, preload ...st
 	return relationship, nil
 }
 
+func CreateBeatmapset(beatmapset *Beatmapset, state *State) error {
+	result := state.Database.Create(beatmapset)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
 func FetchBeatmapsetById(id int, state *State, preload ...string) (*Beatmapset, error) {
 	beatmapset := &Beatmapset{}
 	result := preloadQuery(state, preload).First(beatmapset, id)
@@ -124,6 +134,27 @@ func FetchBeatmapsetById(id int, state *State, preload ...string) (*Beatmapset, 
 	}
 
 	return beatmapset, nil
+}
+
+func CreateBeatmap(beatmap *Beatmap, state *State) error {
+	result := state.Database.Create(beatmap)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func CreateBeatmaps(beatmaps []Beatmap, state *State) error {
+	for _, beatmap := range beatmaps {
+		err := CreateBeatmap(&beatmap, state)
+
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func FetchBeatmapById(id int, state *State, preload ...string) (*Beatmap, error) {
