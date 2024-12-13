@@ -146,6 +146,17 @@ func RemoveBeatmapset(beatmapset *Beatmapset, state *State) error {
 	return nil
 }
 
+func FetchBeatmapsetsByCreatorId(userId int, state *State, preload ...string) ([]Beatmapset, error) {
+	beatmapsets := []Beatmapset{}
+	result := preloadQuery(state, preload).Find(&beatmapsets, "creator_id = ?", userId)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return beatmapsets, nil
+}
+
 func FetchBeatmapsetsByStatus(userId int, status BeatmapStatus, state *State, preload ...string) ([]Beatmapset, error) {
 	beatmapsets := []Beatmapset{}
 	result := preloadQuery(state, preload).Find(&beatmapsets, "creator_id = ? AND status = ?", userId, status)
