@@ -70,11 +70,11 @@ type Beatmapset struct {
 	LastUpdated        time.Time           `gorm:"not null;default:now()"`
 	ApprovedAt         time.Time           `gorm:"default:null"`
 	ApprovedBy         int                 `gorm:"default:null"`
-	Status             BeatmapStatus       `gorm:"not null"`
+	Status             BeatmapStatus       `gorm:"not null;default:1"`
 	Description        string              `gorm:"type:text;not null"`
 	HasVideo           bool                `gorm:"not null;default:false"`
-	AvailabilityStatus BeatmapAvailability `gorm:"not null"`
-	AvailabilityInfo   string              `gorm:"type:text;not null"`
+	AvailabilityStatus BeatmapAvailability `gorm:"not null;default:0"`
+	AvailabilityInfo   string              `gorm:"type:text;not null;default:''"`
 
 	Beatmaps []Beatmap `gorm:"foreignKey:SetId"`
 	Creator  User      `gorm:"foreignKey:CreatorId"`
