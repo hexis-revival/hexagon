@@ -260,6 +260,36 @@ func RemainingBeatmapUpdloads(user *common.User, server *ScoreServer) (int, erro
 	return (6 - unrankedBeatmaps) + min(rankedBeatmaps, 10), nil
 }
 
+func ProcessUploadPackage(request *BeatmapUploadRequest, server *ScoreServer) (map[string][]byte, map[string]*hbxml.Beatmap, error) {
+	beatmapFiles := make(map[string][]byte, 0)
+	beatmapObjects := make(map[string]*hbxml.Beatmap, 0)
+
+	for _, file := range request.Package.File {
+		if !strings.HasSuffix(file.Name, ".hbxml") {
+			continue
+		}
+
+		beatmapFile, err := request.Package.Open(file.Name)
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to open file: %s", err)
+		}
+
+		beatmap, err := hbxml.NewBeatmap(beatmapFile)
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to parse beatmap: %s", err)
+		}
+
+		beatmapObjects[file.Name] = beatmap
+		beatmapFiles[file.Name], err = io.ReadAll(beatmapFile)
+
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to read file: %s", err)
+		}
+	}
+
+	return beatmapFiles, beatmapObjects, nil
+}
+
 func BeatmapGenIdHandler(ctx *Context) {
 	request, err := NewBeatmapSubmissionRequest(ctx.Request)
 
@@ -438,42 +468,18 @@ func BeatmapUploadHandler(ctx *Context) {
 		return
 	}
 
-	beatmapFiles := make(map[string][]byte, 0)
-	beatmapObjects := make(map[string]*hbxml.Beatmap, 0)
+	_, _, err = ProcessUploadPackage(
+		request,
+		ctx.Server,
+	)
 
-	for _, file := range request.Package.File {
-		if !strings.HasSuffix(file.Name, ".hbxml") {
-			continue
-		}
-
-		beatmapFile, err := request.Package.Open(file.Name)
-		if err != nil {
-			response.Success = false
-			ctx.Server.Logger.Warningf("[Beatmap Submission] Failed to open beatmap file: %s", err)
-			ctx.Response.Write([]byte(response.Write()))
-			return
-		}
-
-		beatmap, err := hbxml.NewBeatmap(beatmapFile)
-		if err != nil {
-			response.Success = false
-			ctx.Server.Logger.Warningf("[Beatmap Submission] Failed to parse beatmap file: %s", err)
-			ctx.Response.Write([]byte(response.Write()))
-			return
-		}
-
-		beatmapObjects[file.Name] = beatmap
-		beatmapFiles[file.Name], err = io.ReadAll(beatmapFile)
-
-		if err != nil {
-			response.Success = false
-			ctx.Server.Logger.Warningf("[Beatmap Submission] Failed to read beatmap file: %s", err)
-			ctx.Response.Write([]byte(response.Write()))
-			return
-		}
+	if err != nil {
+		response.Success = false
+		ctx.Server.Logger.Warningf("[Beatmap Submission] %s", err)
+		ctx.Response.Write([]byte(response.Write()))
+		return
 	}
 
-	ctx.Server.Logger.Debugf("[Beatmap Submission] Got %d beatmap files.", len(beatmapFiles))
 	ctx.Response.Write([]byte(response.Write()))
 }
 
