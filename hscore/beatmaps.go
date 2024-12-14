@@ -1,6 +1,8 @@
 package hscore
 
 import (
+	"archive/zip"
+	"bytes"
 	"crypto/md5"
 	"encoding/hex"
 	"errors"
@@ -376,6 +378,58 @@ func UpdateBeatmapMetadata(beatmap *common.Beatmap, beatmapObject *hbxml.Beatmap
 	return common.UpdateBeatmap(beatmap, server.State)
 }
 
+func UploadBeatmapPackage(request *BeatmapUploadRequest, server *ScoreServer) error {
+	buffer := new(bytes.Buffer)
+	zipWriter := zip.NewWriter(buffer)
+
+	for _, file := range request.Package.File {
+		if !strings.HasSuffix(file.Name, ".hbxml") {
+			continue
+		}
+
+		beatmapFile, err := request.Package.Open(file.Name)
+		if err != nil {
+			return fmt.Errorf("failed to open file: %s", err)
+		}
+
+		beatmap, err := io.ReadAll(beatmapFile)
+		if err != nil {
+			return fmt.Errorf("failed to read file: %s", err)
+		}
+
+		zipFile, err := zipWriter.Create(file.Name)
+		if err != nil {
+			return fmt.Errorf("failed to create zip file: %s", err)
+		}
+
+		_, err = zipFile.Write(beatmap)
+		if err != nil {
+			return fmt.Errorf("failed to write zip file: %s", err)
+		}
+
+		beatmapFile.Close()
+	}
+
+	// TODO: Validate package files
+	// TODO: Limit package size
+
+	return server.State.Storage.SaveBeatmapPackage(
+		request.SetId,
+		buffer.Bytes(),
+	)
+}
+
+func UploadBeatmapFiles(beatmapFiles map[int][]byte, server *ScoreServer) error {
+	for beatmapId, file := range beatmapFiles {
+		err := server.State.Storage.SaveBeatmapFile(beatmapId, file)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func BeatmapGenIdHandler(ctx *Context) {
 	request, err := NewBeatmapSubmissionRequest(ctx.Request)
 
@@ -609,6 +663,28 @@ func BeatmapUploadHandler(ctx *Context) {
 	if err != nil {
 		response.Success = false
 		ctx.Server.Logger.Warningf("[Beatmap Submission] Failed to update beatmapset metadata: %s", err)
+		ctx.Response.Write([]byte(response.Write()))
+		return
+	}
+
+	beatmapIdMap := make(map[int][]byte, 0)
+
+	for _, beatmap := range beatmapset.Beatmaps {
+		beatmapIdMap[beatmap.Id] = beatmapFiles[beatmap.Filename]
+	}
+
+	err = UploadBeatmapFiles(beatmapIdMap, ctx.Server)
+	if err != nil {
+		response.Success = false
+		ctx.Server.Logger.Warningf("[Beatmap Submission] Failed to upload beatmap files: %s", err)
+		ctx.Response.Write([]byte(response.Write()))
+		return
+	}
+
+	err = UploadBeatmapPackage(request, ctx.Server)
+	if err != nil {
+		response.Success = false
+		ctx.Server.Logger.Warningf("[Beatmap Submission] Failed to upload beatmap package: %s", err)
 		ctx.Response.Write([]byte(response.Write()))
 		return
 	}
