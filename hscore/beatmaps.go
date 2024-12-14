@@ -1,6 +1,7 @@
 package hscore
 
 import (
+	"archive/zip"
 	"bytes"
 	"crypto/md5"
 	"encoding/hex"
@@ -265,31 +266,32 @@ func RemainingBeatmapUpdloads(user *common.User, server *ScoreServer) (int, erro
 }
 
 func ProcessUploadPackage(request *BeatmapUploadRequest, server *ScoreServer) (map[string][]byte, map[string]*hbxml.Beatmap, error) {
-	beatmapFiles := make(map[string][]byte, 0)
-	beatmapObjects := make(map[string]*hbxml.Beatmap, 0)
+	files := make(map[string][]byte, 0)
+	beatmaps := make(map[string]*hbxml.Beatmap, 0)
 
 	for _, file := range request.Package.File {
-		if !strings.HasSuffix(file.Name, ".hbxml") {
-			continue
-		}
-
-		beatmapFile, err := request.Package.Open(file.Name)
+		fileHandle, err := request.Package.Open(file.Name)
 		if err != nil {
 			return nil, nil, fmt.Errorf("failed to open file: %s", err)
 		}
 
-		beatmapFiles[file.Name], err = io.ReadAll(beatmapFile)
+		files[file.Name], err = io.ReadAll(fileHandle)
 		if err != nil {
 			return nil, nil, fmt.Errorf("failed to read file: %s", err)
 		}
 
-		beatmapObjects[file.Name], err = hbxml.NewBeatmap(bytes.NewReader(beatmapFiles[file.Name]))
+		if !strings.HasSuffix(file.Name, ".hbxml") {
+			continue
+		}
+
+		reader := bytes.NewReader(files[file.Name])
+		beatmaps[file.Name], err = hbxml.NewBeatmap(reader)
 		if err != nil {
 			return nil, nil, fmt.Errorf("failed to parse beatmap: %s", err)
 		}
 	}
 
-	return beatmapFiles, beatmapObjects, nil
+	return files, beatmaps, nil
 }
 
 func ResolveBeatmaps(beatmapObjects map[string]*hbxml.Beatmap, beatmaps []common.Beatmap) (map[string]*common.Beatmap, error) {
@@ -377,12 +379,32 @@ func UpdateBeatmapMetadata(beatmap *common.Beatmap, beatmapObject *hbxml.Beatmap
 	return common.UpdateBeatmap(beatmap, server.State)
 }
 
-func UploadBeatmapPackage(request *BeatmapUploadRequest, server *ScoreServer) error {
+func UploadBeatmapPackage(setId int, files map[string][]byte, server *ScoreServer) error {
+	buffer := bytes.Buffer{}
+	zipWriter := zip.NewWriter(&buffer)
+
+	for filename, file := range files {
+		fileWriter, err := zipWriter.Create(filename)
+		if err != nil {
+			return err
+		}
+
+		_, err = fileWriter.Write(file)
+		if err != nil {
+			return err
+		}
+	}
+
+	err := zipWriter.Close()
+	if err != nil {
+		return err
+	}
+
 	// TODO: Validate package files
 	// TODO: Limit package size
 	return server.State.Storage.SaveBeatmapPackage(
-		request.SetId,
-		request.PackageBytes,
+		setId,
+		buffer.Bytes(),
 	)
 }
 
@@ -575,7 +597,7 @@ func BeatmapUploadHandler(ctx *Context) {
 		return
 	}
 
-	beatmapFiles, beatmapObjects, err := ProcessUploadPackage(
+	files, beatmapObjects, err := ProcessUploadPackage(
 		request,
 		ctx.Server,
 	)
@@ -599,7 +621,7 @@ func BeatmapUploadHandler(ctx *Context) {
 		return
 	}
 
-	ctx.Server.Logger.Debugf("[Beatmap Submission] Got %d beatmap files.", len(beatmapFiles))
+	ctx.Server.Logger.Debugf("[Beatmap Submission] Got %d files in package.", len(files))
 	var metadata hbxml.Meta
 
 	for filename, beatmap := range beatmapObjects {
@@ -608,7 +630,7 @@ func BeatmapUploadHandler(ctx *Context) {
 		err = UpdateBeatmapMetadata(
 			beatmapMap[filename],
 			beatmapObjects[filename],
-			beatmapFiles[filename],
+			files[filename],
 			filename,
 			ctx.Server,
 		)
@@ -637,7 +659,7 @@ func BeatmapUploadHandler(ctx *Context) {
 	beatmapIdMap := make(map[int][]byte, 0)
 
 	for _, beatmap := range beatmapset.Beatmaps {
-		beatmapIdMap[beatmap.Id] = beatmapFiles[beatmap.Filename]
+		beatmapIdMap[beatmap.Id] = files[beatmap.Filename]
 	}
 
 	err = UploadBeatmapFiles(beatmapIdMap, ctx.Server)
@@ -648,7 +670,7 @@ func BeatmapUploadHandler(ctx *Context) {
 		return
 	}
 
-	err = UploadBeatmapPackage(request, ctx.Server)
+	err = UploadBeatmapPackage(beatmapset.Id, files, ctx.Server)
 	if err != nil {
 		response.Success = false
 		ctx.Server.Logger.Warningf("[Beatmap Submission] Failed to upload beatmap package: %s", err)
@@ -746,7 +768,6 @@ func NewBeatmapUploadRequest(request *http.Request) (*BeatmapUploadRequest, erro
 	password := GetMultipartFormValue(request, "p")
 	clientVersion := GetMultipartFormValue(request, "x")
 	setId := GetMultipartFormValue(request, "s")
-	zipBytes := GetMultipartFormFile(request, "d")
 
 	clientVersionInt, err := strconv.Atoi(clientVersion)
 	if err != nil {
@@ -769,7 +790,6 @@ func NewBeatmapUploadRequest(request *http.Request) (*BeatmapUploadRequest, erro
 		ClientVersion: clientVersionInt,
 		SetId:         setIdInt,
 		Package:       zip,
-		PackageBytes:  zipBytes,
 	}, nil
 }
 
