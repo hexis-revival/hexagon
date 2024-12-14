@@ -201,6 +201,16 @@ func FetchBeatmapsetsByStatus(userId int, status BeatmapStatus, state *State, pr
 	return beatmapsets, nil
 }
 
+func UpdateBeatmapset(beatmapset *Beatmapset, state *State) error {
+	result := state.Database.Save(beatmapset)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
 func CreateBeatmap(beatmap *Beatmap, state *State) error {
 	result := state.Database.Create(beatmap)
 
@@ -242,6 +252,16 @@ func FetchBeatmapsBySetId(setId int, state *State, preload ...string) ([]Beatmap
 	}
 
 	return beatmaps, nil
+}
+
+func UpdateBeatmap(beatmap *Beatmap, state *State) error {
+	result := state.Database.Save(beatmap)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
 }
 
 func RemoveBeatmap(beatmap *Beatmap, state *State) error {
