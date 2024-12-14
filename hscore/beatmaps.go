@@ -397,9 +397,46 @@ func BeatmapUploadHandler(ctx *Context) {
 
 	ctx.Server.Logger.Debugf("[Beatmap Submission] Upload request: %s", request)
 	ctx.Response.WriteHeader(http.StatusOK)
-
-	// TODO: Implement beatmap upload logic
 	response := &BeatmapUploadResponse{Success: true}
+
+	user, success := AuthenticateUser(
+		request.Username,
+		request.Password,
+		ctx.Server,
+	)
+
+	if !success {
+		response.Success = false
+		ctx.Response.Write([]byte(response.Write()))
+		return
+	}
+
+	beatmapset, err := common.FetchBeatmapsetById(
+		request.SetId,
+		ctx.Server.State,
+		"Beatmaps",
+	)
+
+	if err != nil {
+		ctx.Server.Logger.Warningf("[Beatmap Submission] Beatmapset fetch error: %s", err)
+		response.Success = false
+		ctx.Response.Write([]byte(response.Write()))
+		return
+	}
+
+	statusCode := ValidateBeatmapset(
+		beatmapset,
+		user,
+		ctx.Server,
+	)
+
+	if statusCode != BssSuccess {
+		response.Success = false
+		ctx.Response.Write([]byte(response.Write()))
+		return
+	}
+
+	// TODO: ...
 	ctx.Response.Write([]byte(response.Write()))
 }
 
