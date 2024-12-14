@@ -2,6 +2,7 @@ package hscore
 
 import (
 	"archive/zip"
+	"fmt"
 	"math"
 	"strconv"
 	"strings"
@@ -71,11 +72,15 @@ type BeatmapUploadRequest struct {
 	Password      string
 	SetId         int
 	ClientVersion int
+	PackageBytes  []byte
 	Package       *zip.Reader
 }
 
 func (req *BeatmapUploadRequest) String() string {
-	return common.FormatStruct(req)
+	return fmt.Sprintf(
+		"BeatmapUploadRequest{Username: %s, Password: %s, SetId: %d, ClientVersion: %d, PackageBytes: %d bytes}",
+		req.Username, req.Password, req.SetId, req.ClientVersion, len(req.PackageBytes),
+	)
 }
 
 type BeatmapUploadResponse struct {

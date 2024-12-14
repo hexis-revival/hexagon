@@ -1,7 +1,6 @@
 package hscore
 
 import (
-	"archive/zip"
 	"bytes"
 	"crypto/md5"
 	"encoding/hex"
@@ -379,43 +378,11 @@ func UpdateBeatmapMetadata(beatmap *common.Beatmap, beatmapObject *hbxml.Beatmap
 }
 
 func UploadBeatmapPackage(request *BeatmapUploadRequest, server *ScoreServer) error {
-	buffer := new(bytes.Buffer)
-	zipWriter := zip.NewWriter(buffer)
-
-	for _, file := range request.Package.File {
-		if !strings.HasSuffix(file.Name, ".hbxml") {
-			continue
-		}
-
-		beatmapFile, err := request.Package.Open(file.Name)
-		if err != nil {
-			return fmt.Errorf("failed to open file: %s", err)
-		}
-
-		beatmap, err := io.ReadAll(beatmapFile)
-		if err != nil {
-			return fmt.Errorf("failed to read file: %s", err)
-		}
-
-		zipFile, err := zipWriter.Create(file.Name)
-		if err != nil {
-			return fmt.Errorf("failed to create zip file: %s", err)
-		}
-
-		_, err = zipFile.Write(beatmap)
-		if err != nil {
-			return fmt.Errorf("failed to write zip file: %s", err)
-		}
-
-		beatmapFile.Close()
-	}
-
 	// TODO: Validate package files
 	// TODO: Limit package size
-
 	return server.State.Storage.SaveBeatmapPackage(
 		request.SetId,
-		buffer.Bytes(),
+		request.PackageBytes,
 	)
 }
 
@@ -779,6 +746,7 @@ func NewBeatmapUploadRequest(request *http.Request) (*BeatmapUploadRequest, erro
 	password := GetMultipartFormValue(request, "p")
 	clientVersion := GetMultipartFormValue(request, "x")
 	setId := GetMultipartFormValue(request, "s")
+	zipBytes := GetMultipartFormFile(request, "d")
 
 	clientVersionInt, err := strconv.Atoi(clientVersion)
 	if err != nil {
@@ -801,6 +769,7 @@ func NewBeatmapUploadRequest(request *http.Request) (*BeatmapUploadRequest, erro
 		ClientVersion: clientVersionInt,
 		SetId:         setIdInt,
 		Package:       zip,
+		PackageBytes:  zipBytes,
 	}, nil
 }
 
