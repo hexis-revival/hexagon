@@ -419,6 +419,34 @@ func UploadBeatmapFiles(beatmapFiles map[int][]byte, server *ScoreServer) error 
 	return nil
 }
 
+func UploadAudioPreview(setId int, files map[string][]byte, general hbxml.General, server *ScoreServer) error {
+	offset := general.PreviewOffset / 1000
+	audioFilename := general.AudioFilename
+
+	if offset < 0 {
+		return errors.New("invalid preview offset")
+	}
+
+	audio, ok := files[audioFilename]
+	if !ok {
+		return errors.New("audio file not found")
+	}
+
+	audioSnippet, err := common.ExtractAudioSnippet(
+		audio,
+		offset,
+		10,
+		64,
+		server.State.Storage,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return server.State.Storage.SaveBeatmapPreview(setId, audioSnippet)
+}
+
 func BeatmapGenIdHandler(ctx *Context) {
 	request, err := NewBeatmapSubmissionRequest(ctx.Request)
 
@@ -622,9 +650,12 @@ func BeatmapUploadHandler(ctx *Context) {
 	}
 
 	ctx.Server.Logger.Debugf("[Beatmap Submission] Got %d files in package.", len(files))
+
+	var general hbxml.General
 	var metadata hbxml.Meta
 
 	for filename, beatmap := range beatmapObjects {
+		general = beatmap.General
 		metadata = beatmap.Meta
 
 		err = UpdateBeatmapMetadata(
@@ -674,6 +705,14 @@ func BeatmapUploadHandler(ctx *Context) {
 	if err != nil {
 		response.Success = false
 		ctx.Server.Logger.Warningf("[Beatmap Submission] Failed to upload beatmap package: %s", err)
+		ctx.Response.Write([]byte(response.Write()))
+		return
+	}
+
+	err = UploadAudioPreview(beatmapset.Id, files, general, ctx.Server)
+	if err != nil {
+		response.Success = false
+		ctx.Server.Logger.Warningf("[Beatmap Submission] Failed to upload audio preview: %s", err)
 		ctx.Response.Write([]byte(response.Write()))
 		return
 	}
