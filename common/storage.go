@@ -16,6 +16,7 @@ type Storage interface {
 	Read(key string, bucket string) ([]byte, error)
 	Remove(key string, bucket string) error
 	Download(url string, key string, bucket string) error
+	CreateTempFile() (*os.File, error)
 
 	// Avatars
 	GetAvatar(userId int) ([]byte, error)
@@ -79,6 +80,10 @@ func (storage *FileStorage) Download(url string, key string, folder string) erro
 	}
 
 	return storage.Save(key, folder, data)
+}
+
+func (storage *FileStorage) CreateTempFile() (*os.File, error) {
+	return os.CreateTemp(storage.dataPath, "temp")
 }
 
 func (storage *FileStorage) GetAvatar(userId int) ([]byte, error) {
