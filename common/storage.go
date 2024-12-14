@@ -27,10 +27,16 @@ type Storage interface {
 	// Beatmaps
 	GetBeatmapFile(beatmapId int) ([]byte, error)
 	GetBeatmapPackage(beatmapsetId int) ([]byte, error)
+	GetBeatmapThumbnail(beatmapId int) ([]byte, error)
+	GetBeatmapPreview(beatmapId int) ([]byte, error)
 	SaveBeatmapFile(beatmapId int, data []byte) error
 	SaveBeatmapPackage(beatmapsetId int, data []byte) error
+	SaveBeatmapThumbnail(beatmapId int, data []byte) error
+	SaveBeatmapPreview(beatmapId int, data []byte) error
 	RemoveBeatmapFile(beatmapId int) error
 	RemoveBeatmapPackage(beatmapsetId int) error
+	RemoveBeatmapThumbnail(beatmapId int) error
+	RemoveBeatmapPreview(beatmapId int) error
 }
 
 type FileStorage struct {
@@ -129,6 +135,14 @@ func (storage *FileStorage) GetBeatmapPackage(beatmapsetId int) ([]byte, error) 
 	return storage.Read(fmt.Sprintf("%d", beatmapsetId), "packages")
 }
 
+func (storage *FileStorage) GetBeatmapThumbnail(beatmapId int) ([]byte, error) {
+	return storage.Read(fmt.Sprintf("%d", beatmapId), "thumbnails")
+}
+
+func (storage *FileStorage) GetBeatmapPreview(beatmapId int) ([]byte, error) {
+	return storage.Read(fmt.Sprintf("%d", beatmapId), "previews")
+}
+
 func (storage *FileStorage) SaveBeatmapFile(beatmapId int, data []byte) error {
 	return storage.Save(strconv.Itoa(beatmapId), "beatmaps", data)
 }
@@ -137,10 +151,26 @@ func (storage *FileStorage) SaveBeatmapPackage(beatmapsetId int, data []byte) er
 	return storage.Save(strconv.Itoa(beatmapsetId), "packages", data)
 }
 
+func (storage *FileStorage) SaveBeatmapThumbnail(beatmapId int, data []byte) error {
+	return storage.Save(strconv.Itoa(beatmapId), "thumbnails", data)
+}
+
+func (storage *FileStorage) SaveBeatmapPreview(beatmapId int, data []byte) error {
+	return storage.Save(strconv.Itoa(beatmapId), "previews", data)
+}
+
 func (storage *FileStorage) RemoveBeatmapFile(beatmapId int) error {
 	return storage.Remove(strconv.Itoa(beatmapId), "beatmaps")
 }
 
 func (storage *FileStorage) RemoveBeatmapPackage(beatmapsetId int) error {
 	return storage.Remove(strconv.Itoa(beatmapsetId), "packages")
+}
+
+func (storage *FileStorage) RemoveBeatmapThumbnail(beatmapId int) error {
+	return storage.Remove(strconv.Itoa(beatmapId), "thumbnails")
+}
+
+func (storage *FileStorage) RemoveBeatmapPreview(beatmapId int) error {
+	return storage.Remove(strconv.Itoa(beatmapId), "previews")
 }
