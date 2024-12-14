@@ -168,7 +168,11 @@ func (storage *FileStorage) RemoveBeatmapPackage(beatmapsetId int) error {
 }
 
 func (storage *FileStorage) RemoveBeatmapThumbnail(beatmapId int) error {
-	return storage.Remove(strconv.Itoa(beatmapId), "thumbnails")
+	err := storage.Remove(formatThumbnailName(beatmapId, true), "thumbnails")
+	if err != nil {
+		return err
+	}
+	return storage.Remove(formatThumbnailName(beatmapId, false), "thumbnails")
 }
 
 func (storage *FileStorage) RemoveBeatmapPreview(beatmapId int) error {
