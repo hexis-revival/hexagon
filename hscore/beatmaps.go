@@ -242,7 +242,7 @@ func RemoveInactiveBeatmaps(user *common.User, server *ScoreServer) error {
 	return nil
 }
 
-func RemainingBeatmapUpdloads(user *common.User, server *ScoreServer) (int, error) {
+func RemainingBeatmapUploads(user *common.User, server *ScoreServer) (int, error) {
 	unrankedBeatmaps, err := common.FetchBeatmapsetUnrankedCountByCreatorId(
 		user.Id,
 		server.State,
@@ -579,7 +579,7 @@ func BeatmapGenIdHandler(ctx *Context) {
 			return
 		}
 
-		remainingUploads, err := RemainingBeatmapUpdloads(user, ctx.Server)
+		remainingUploads, err := RemainingBeatmapUploads(user, ctx.Server)
 		if err != nil {
 			ctx.Server.Logger.Warningf("[Beatmap Submission] Failed to fetch remaining uploads: %s", err)
 			response.StatusCode = BssNotAvailable
