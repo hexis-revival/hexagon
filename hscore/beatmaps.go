@@ -1,12 +1,15 @@
 package hscore
 
 import (
+	"crypto/md5"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/hexis-revival/hbxml"
 	"github.com/hexis-revival/hexagon/common"
@@ -290,6 +293,91 @@ func ProcessUploadPackage(request *BeatmapUploadRequest, server *ScoreServer) (m
 	return beatmapFiles, beatmapObjects, nil
 }
 
+func ResolveBeatmaps(beatmapObjects map[string]*hbxml.Beatmap, beatmaps []common.Beatmap) (map[string]*common.Beatmap, error) {
+	if len(beatmapObjects) != len(beatmaps) {
+		return nil, errors.New("beatmap count mismatch")
+	}
+
+	beatmapMap := make(map[string]*common.Beatmap, 0)
+	foundBeatmaps := make(map[string]bool, len(beatmaps))
+
+	// Find existing beatmaps and map them
+	for filename, _ := range beatmapObjects {
+		for _, beatmap := range beatmaps {
+			if beatmap.Filename == filename {
+				beatmapMap[filename] = &beatmap
+				foundBeatmaps[filename] = true
+				break
+			}
+		}
+	}
+
+	missingBeatmaps := make([]string, 0)
+
+	for filename, _ := range beatmapObjects {
+		if foundBeatmaps[filename] {
+			continue
+		}
+
+		missingBeatmaps = append(missingBeatmaps, filename)
+	}
+
+	// Assign missing beatmaps
+	for _, beatmap := range beatmaps {
+		if foundBeatmaps[beatmap.Filename] {
+			continue
+		}
+
+		if len(missingBeatmaps) <= 0 {
+			return nil, errors.New("missing beatmaps")
+		}
+
+		beatmapMap[missingBeatmaps[0]] = &beatmap
+		missingBeatmaps = missingBeatmaps[1:]
+	}
+
+	return beatmapMap, nil
+}
+
+func UpdateBeatmapsetMetadata(beatmapset *common.Beatmapset, metadata hbxml.Meta, server *ScoreServer) error {
+	beatmapset.Title = metadata.Title
+	beatmapset.Artist = metadata.Artist
+	beatmapset.Source = metadata.Source
+	beatmapset.Tags = metadata.Tags
+	beatmapset.LastUpdated = time.Now()
+	beatmapset.Status = common.StatusPending
+
+	if beatmapset.Tags == nil {
+		beatmapset.Tags = []string{}
+	}
+
+	return common.UpdateBeatmapset(beatmapset, server.State)
+}
+
+func UpdateBeatmapMetadata(beatmap *common.Beatmap, beatmapObject *hbxml.Beatmap, file []byte, filename string, server *ScoreServer) error {
+	beatmapChecksumBytes := md5.Sum(file)
+	beatmap.Filename = filename
+	beatmap.Status = common.StatusPending
+	beatmap.Checksum = hex.EncodeToString(beatmapChecksumBytes[:])
+	beatmap.Version = beatmapObject.Meta.Version
+	beatmap.TotalLength = int(beatmapObject.TotalLength())
+	beatmap.DrainLength = int(beatmapObject.DrainLength())
+	beatmap.TotalCircles = beatmapObject.TotalCircles()
+	beatmap.TotalSliders = beatmapObject.TotalSliders()
+	beatmap.TotalSpinners = beatmapObject.TotalSpinners()
+	beatmap.TotalHolds = beatmapObject.TotalHolds()
+	beatmap.MedianBpm = beatmapObject.MedianBPM()
+	beatmap.HighestBpm = beatmapObject.HighestBPM()
+	beatmap.LowestBpm = beatmapObject.LowestBPM()
+	beatmap.CS = beatmapObject.Difficulty.CircleSize
+	beatmap.HP = beatmapObject.Difficulty.HPDrainRate
+	beatmap.OD = beatmapObject.Difficulty.OverallDifficulty
+	beatmap.AR = beatmapObject.Difficulty.ApproachRate
+	beatmap.LastUpdated = time.Now()
+	// TODO: Update MaxCombo & Star Rating
+	return common.UpdateBeatmap(beatmap, server.State)
+}
+
 func BeatmapGenIdHandler(ctx *Context) {
 	request, err := NewBeatmapSubmissionRequest(ctx.Request)
 
@@ -468,7 +556,7 @@ func BeatmapUploadHandler(ctx *Context) {
 		return
 	}
 
-	_, _, err = ProcessUploadPackage(
+	beatmapFiles, beatmapObjects, err := ProcessUploadPackage(
 		request,
 		ctx.Server,
 	)
@@ -476,6 +564,53 @@ func BeatmapUploadHandler(ctx *Context) {
 	if err != nil {
 		response.Success = false
 		ctx.Server.Logger.Warningf("[Beatmap Submission] %s", err)
+		ctx.Response.Write([]byte(response.Write()))
+		return
+	}
+
+	beatmapMap, err := ResolveBeatmaps(
+		beatmapObjects,
+		beatmapset.Beatmaps,
+	)
+
+	if err != nil {
+		response.Success = false
+		ctx.Server.Logger.Warningf("[Beatmap Submission] %s", err)
+		ctx.Response.Write([]byte(response.Write()))
+		return
+	}
+
+	ctx.Server.Logger.Debugf("[Beatmap Submission] Got %d beatmap files.", len(beatmapFiles))
+	var metadata hbxml.Meta
+
+	for filename, beatmap := range beatmapObjects {
+		metadata = beatmap.Meta
+
+		err = UpdateBeatmapMetadata(
+			beatmapMap[filename],
+			beatmapObjects[filename],
+			beatmapFiles[filename],
+			filename,
+			ctx.Server,
+		)
+
+		if err != nil {
+			response.Success = false
+			ctx.Server.Logger.Warningf("[Beatmap Submission] Failed to update beatmap metadata: %s", err)
+			ctx.Response.Write([]byte(response.Write()))
+			return
+		}
+	}
+
+	err = UpdateBeatmapsetMetadata(
+		beatmapset,
+		metadata,
+		ctx.Server,
+	)
+
+	if err != nil {
+		response.Success = false
+		ctx.Server.Logger.Warningf("[Beatmap Submission] Failed to update beatmapset metadata: %s", err)
 		ctx.Response.Write([]byte(response.Write()))
 		return
 	}
