@@ -372,6 +372,16 @@ func GetMaximumDrainLength(beatmapObjects map[string]*hbxml.Beatmap) int {
 	return maxDrainLength
 }
 
+func HasExtension(filename string, extensions []string) bool {
+	for _, extension := range extensions {
+		if strings.HasSuffix(filename, extension) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func UpdateBeatmapsetMetadata(beatmapset *common.Beatmapset, metadata hbxml.Meta, server *ScoreServer) error {
 	beatmapset.Title = metadata.Title
 	beatmapset.Artist = metadata.Artist
@@ -412,10 +422,20 @@ func UpdateBeatmapMetadata(beatmap *common.Beatmap, beatmapObject *hbxml.Beatmap
 }
 
 func UploadBeatmapPackage(setId int, files map[string][]byte, server *ScoreServer) error {
+	allowedFileExtensions := []string{
+		".hbxml", ".hxz", ".png", ".jpg", ".jpeg", ".mp3",
+		".ogg", ".wav", ".flac", ".wmv", ".flv", ".mp4",
+		".avi", ".mkv", ".webm", ".txt", ".ini",
+	}
+
 	buffer := bytes.Buffer{}
 	zipWriter := zip.NewWriter(&buffer)
 
 	for filename, file := range files {
+		if !HasExtension(filename, allowedFileExtensions) {
+			continue
+		}
+
 		fileWriter, err := zipWriter.Create(filename)
 		if err != nil {
 			return err
