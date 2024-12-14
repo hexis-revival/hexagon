@@ -277,16 +277,14 @@ func ProcessUploadPackage(request *BeatmapUploadRequest, server *ScoreServer) (m
 			return nil, nil, fmt.Errorf("failed to open file: %s", err)
 		}
 
-		beatmap, err := hbxml.NewBeatmap(beatmapFile)
-		if err != nil {
-			return nil, nil, fmt.Errorf("failed to parse beatmap: %s", err)
-		}
-
-		beatmapObjects[file.Name] = beatmap
 		beatmapFiles[file.Name], err = io.ReadAll(beatmapFile)
-
 		if err != nil {
 			return nil, nil, fmt.Errorf("failed to read file: %s", err)
+		}
+
+		beatmapObjects[file.Name], err = hbxml.NewBeatmap(bytes.NewReader(beatmapFiles[file.Name]))
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to parse beatmap: %s", err)
 		}
 	}
 
