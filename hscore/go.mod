@@ -15,6 +15,7 @@ require (
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/u2takey/ffmpeg-go v0.5.0 // indirect
 	github.com/u2takey/go-utils v0.3.1 // indirect
+	golang.org/x/image v0.23.0 // indirect
 )
 
 require (
