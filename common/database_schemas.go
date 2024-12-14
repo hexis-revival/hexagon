@@ -68,8 +68,8 @@ type Beatmapset struct {
 	CreatorId          int                 `gorm:"not null"`
 	CreatedAt          time.Time           `gorm:"not null;default:now()"`
 	LastUpdated        time.Time           `gorm:"not null;default:now()"`
-	ApprovedAt         time.Time           `gorm:"default:null"`
-	ApprovedBy         int                 `gorm:"default:null"`
+	ApprovedAt         *time.Time          `gorm:"default:null"`
+	ApprovedBy         *int                `gorm:"default:null"`
 	Status             BeatmapStatus       `gorm:"not null;default:1"`
 	Description        string              `gorm:"type:text;not null"`
 	HasVideo           bool                `gorm:"not null;default:false"`
