@@ -459,8 +459,6 @@ func UploadBeatmapPackage(setId int, files map[string][]byte, server *ScoreServe
 		return err
 	}
 
-	// TODO: Validate package files
-	// TODO: Limit package size
 	return server.State.Storage.SaveBeatmapPackage(
 		setId,
 		buffer.Bytes(),
