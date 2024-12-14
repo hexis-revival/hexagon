@@ -3,10 +3,12 @@ package hscore
 import (
 	"encoding/hex"
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
 
+	"github.com/hexis-revival/hbxml"
 	"github.com/hexis-revival/hexagon/common"
 )
 
@@ -418,8 +420,8 @@ func BeatmapUploadHandler(ctx *Context) {
 	)
 
 	if err != nil {
-		ctx.Server.Logger.Warningf("[Beatmap Submission] Beatmapset fetch error: %s", err)
 		response.Success = false
+		ctx.Server.Logger.Warningf("[Beatmap Submission] Beatmapset fetch error: %s", err)
 		ctx.Response.Write([]byte(response.Write()))
 		return
 	}
@@ -436,7 +438,42 @@ func BeatmapUploadHandler(ctx *Context) {
 		return
 	}
 
-	// TODO: ...
+	beatmapFiles := make(map[string][]byte, 0)
+	beatmapObjects := make(map[string]*hbxml.Beatmap, 0)
+
+	for _, file := range request.Package.File {
+		if !strings.HasSuffix(file.Name, ".hbxml") {
+			continue
+		}
+
+		beatmapFile, err := request.Package.Open(file.Name)
+		if err != nil {
+			response.Success = false
+			ctx.Server.Logger.Warningf("[Beatmap Submission] Failed to open beatmap file: %s", err)
+			ctx.Response.Write([]byte(response.Write()))
+			return
+		}
+
+		beatmap, err := hbxml.NewBeatmap(beatmapFile)
+		if err != nil {
+			response.Success = false
+			ctx.Server.Logger.Warningf("[Beatmap Submission] Failed to parse beatmap file: %s", err)
+			ctx.Response.Write([]byte(response.Write()))
+			return
+		}
+
+		beatmapObjects[file.Name] = beatmap
+		beatmapFiles[file.Name], err = io.ReadAll(beatmapFile)
+
+		if err != nil {
+			response.Success = false
+			ctx.Server.Logger.Warningf("[Beatmap Submission] Failed to read beatmap file: %s", err)
+			ctx.Response.Write([]byte(response.Write()))
+			return
+		}
+	}
+
+	ctx.Server.Logger.Debugf("[Beatmap Submission] Got %d beatmap files.", len(beatmapFiles))
 	ctx.Response.Write([]byte(response.Write()))
 }
 
