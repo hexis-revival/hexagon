@@ -226,7 +226,6 @@ func RemoveInactiveBeatmaps(user *common.User, server *ScoreServer) error {
 		"Found %d inactive beatmapsets for '%s'",
 		len(beatmapsets), user.Name,
 	)
-	// TODO: Remove beatmap assets from storage
 
 	for _, beatmapset := range beatmapsets {
 		err := common.RemoveBeatmapsBySetId(beatmapset.Id, server.State)
@@ -237,6 +236,14 @@ func RemoveInactiveBeatmaps(user *common.User, server *ScoreServer) error {
 		err = common.RemoveBeatmapset(&beatmapset, server.State)
 		if err != nil {
 			return err
+		}
+
+		server.State.Storage.RemoveBeatmapPreview(beatmapset.Id)
+		server.State.Storage.RemoveBeatmapThumbnail(beatmapset.Id)
+		server.State.Storage.RemoveBeatmapPackage(beatmapset.Id)
+
+		for _, beatmap := range beatmapset.Beatmaps {
+			server.State.Storage.RemoveBeatmapFile(beatmap.Id)
 		}
 	}
 	return nil
