@@ -11,8 +11,8 @@ github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f h1:lO4WD4F/r
 github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f/go.mod h1:cuUVRXasLTGF7a8hSLbxyZXjz+1KgoB3wDUb6vlszIc=
 github.com/gorilla/mux v1.8.1 h1:TuBL49tXwgrFYWhqrNgrUNEY92u81SPhu7sTdzQEiWY=
 github.com/gorilla/mux v1.8.1/go.mod h1:AKf9I4AEqPTmMytcMc0KkNouC66V3BtZ4qD5fmWSiMQ=
-github.com/hexis-revival/hbxml v0.0.0-20241214154937-6aa6232935cf h1:3wVcCCfMp2I+dgbyWpK77lrc0qfIqSZK1TH7t65NGdQ=
-github.com/hexis-revival/hbxml v0.0.0-20241214154937-6aa6232935cf/go.mod h1:L+W97JuGwQ8Q3FBw/uLR0xfpTscSJFrcwNixvU8c86A=
+github.com/hexis-revival/hbxml v0.0.0-20241214164354-f2359f629874 h1:C3IiAc+Hme76MWCEdxb77s6PTHViy7Prad4QQB30oEc=
+github.com/hexis-revival/hbxml v0.0.0-20241214164354-f2359f629874/go.mod h1:L+W97JuGwQ8Q3FBw/uLR0xfpTscSJFrcwNixvU8c86A=
 github.com/jackc/pgpassfile v1.0.0 h1:/6Hmqy13Ss2zCq62VdNG8tM1wchn8zjSGOBJ6icpsIM=
 github.com/jackc/pgpassfile v1.0.0/go.mod h1:CEx0iS5ambNFdcRtxPj5JhEz+xB6uRky5eyVu/W2HEg=
 github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 h1:iCEnooe7UlwOQYpKFhBabPMi4aNAfoODPEFNiAnClxo=
