@@ -447,6 +447,51 @@ func UploadAudioPreview(setId int, files map[string][]byte, general hbxml.Genera
 	return server.State.Storage.SaveBeatmapPreview(setId, audioSnippet)
 }
 
+func UploadBeatmapThumbnail(setId int, files map[string][]byte, events hbxml.Events, server *ScoreServer) error {
+	if events.Backgrounds == nil {
+		// No background found
+		return nil
+	}
+
+	background := events.Backgrounds[0]
+	backgroundFilename := background.Filename
+
+	image, ok := files[backgroundFilename]
+	if !ok {
+		return errors.New("background file not found")
+	}
+
+	generator := common.NewImageGenerator(common.ImageGenerator{})
+	generator.Scaler = "CatmullRom"
+	generator.Width = 160
+	generator.Height = 120
+
+	largeImage, err := generator.NewImageFromByteArray(image)
+	if err != nil {
+		return err
+	}
+
+	generator.Width = 80
+	generator.Height = 64
+
+	smallImage, err := generator.NewImageFromByteArray(image)
+	if err != nil {
+		return err
+	}
+
+	err = server.State.Storage.SaveBeatmapThumbnail(setId, largeImage.Data, true)
+	if err != nil {
+		return err
+	}
+
+	err = server.State.Storage.SaveBeatmapThumbnail(setId, smallImage.Data, false)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func BeatmapGenIdHandler(ctx *Context) {
 	request, err := NewBeatmapSubmissionRequest(ctx.Request)
 
@@ -653,10 +698,12 @@ func BeatmapUploadHandler(ctx *Context) {
 
 	var general hbxml.General
 	var metadata hbxml.Meta
+	var events hbxml.Events
 
 	for filename, beatmap := range beatmapObjects {
 		general = beatmap.General
 		metadata = beatmap.Meta
+		events = beatmap.Events
 
 		err = UpdateBeatmapMetadata(
 			beatmapMap[filename],
@@ -674,6 +721,12 @@ func BeatmapUploadHandler(ctx *Context) {
 		}
 	}
 
+	beatmapIdMap := make(map[int][]byte, 0)
+
+	for _, beatmap := range beatmapset.Beatmaps {
+		beatmapIdMap[beatmap.Id] = files[beatmap.Filename]
+	}
+
 	err = UpdateBeatmapsetMetadata(
 		beatmapset,
 		metadata,
@@ -685,12 +738,6 @@ func BeatmapUploadHandler(ctx *Context) {
 		ctx.Server.Logger.Warningf("[Beatmap Submission] Failed to update beatmapset metadata: %s", err)
 		ctx.Response.Write([]byte(response.Write()))
 		return
-	}
-
-	beatmapIdMap := make(map[int][]byte, 0)
-
-	for _, beatmap := range beatmapset.Beatmaps {
-		beatmapIdMap[beatmap.Id] = files[beatmap.Filename]
 	}
 
 	err = UploadBeatmapFiles(beatmapIdMap, ctx.Server)
@@ -716,6 +763,20 @@ func BeatmapUploadHandler(ctx *Context) {
 		ctx.Response.Write([]byte(response.Write()))
 		return
 	}
+
+	err = UploadBeatmapThumbnail(beatmapset.Id, files, events, ctx.Server)
+	if err != nil {
+		response.Success = false
+		ctx.Server.Logger.Warningf("[Beatmap Submission] Failed to upload beatmap thumbnail: %s", err)
+		ctx.Response.Write([]byte(response.Write()))
+		return
+	}
+
+	ctx.Server.Logger.Infof(
+		"[Beatmap Submission] Beatmapset '%s' updated by '%s'",
+		FormatBeatmapsetName(beatmapset),
+		user.Name,
+	)
 
 	ctx.Response.Write([]byte(response.Write()))
 }
