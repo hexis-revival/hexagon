@@ -456,7 +456,7 @@ func UploadBeatmapThumbnail(setId int, files map[string][]byte, events hbxml.Eve
 	background := events.Backgrounds[0]
 	backgroundFilename := background.Filename
 
-	image, ok := files[backgroundFilename]
+	imageData, ok := files[backgroundFilename]
 	if !ok {
 		return errors.New("background file not found")
 	}
@@ -466,25 +466,30 @@ func UploadBeatmapThumbnail(setId int, files map[string][]byte, events hbxml.Eve
 	generator.Width = 160
 	generator.Height = 120
 
-	largeImage, err := generator.NewImageFromByteArray(image)
+	image, err := generator.NewImageFromByteArray(imageData)
+	if err != nil {
+		return err
+	}
+
+	largeImage, err := generator.CreateThumbnail(image)
 	if err != nil {
 		return err
 	}
 
 	generator.Width = 80
-	generator.Height = 64
+	generator.Height = 60
 
-	smallImage, err := generator.NewImageFromByteArray(image)
+	smallImage, err := generator.CreateThumbnail(image)
 	if err != nil {
 		return err
 	}
 
-	err = server.State.Storage.SaveBeatmapThumbnail(setId, largeImage.Data, true)
+	err = server.State.Storage.SaveBeatmapThumbnail(setId, largeImage, true)
 	if err != nil {
 		return err
 	}
 
-	err = server.State.Storage.SaveBeatmapThumbnail(setId, smallImage.Data, false)
+	err = server.State.Storage.SaveBeatmapThumbnail(setId, smallImage, false)
 	if err != nil {
 		return err
 	}
