@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -291,6 +292,18 @@ func ProcessUploadPackage(request *BeatmapUploadRequest, server *ScoreServer) (m
 		}
 	}
 
+	drainLength := GetMaximumDrainLength(beatmaps)
+	maximumSize := CalculatePackageSizeLimit(drainLength)
+	packageSize := 0
+
+	for _, file := range files {
+		packageSize += len(file)
+	}
+
+	if packageSize > int(maximumSize) {
+		return nil, nil, errors.New("package size limit exceeded")
+	}
+
 	return files, beatmaps, nil
 }
 
@@ -338,6 +351,25 @@ func ResolveBeatmaps(beatmapObjects map[string]*hbxml.Beatmap, beatmaps []common
 	}
 
 	return beatmapMap, nil
+}
+
+func CalculatePackageSizeLimit(beatmapLength int) float64 {
+	// The file size limit is 10MB plus an additional 10MB for
+	// every minute of beatmap length, and it caps at 100MB.
+	return math.Min(
+		float64(10_000_000+(10_000_000*(beatmapLength/60))),
+		100_000_000,
+	)
+}
+
+func GetMaximumDrainLength(beatmapObjects map[string]*hbxml.Beatmap) int {
+	maxDrainLength := 0
+
+	for _, beatmap := range beatmapObjects {
+		maxDrainLength = max(maxDrainLength, int(beatmap.DrainLength()))
+	}
+
+	return maxDrainLength
 }
 
 func UpdateBeatmapsetMetadata(beatmapset *common.Beatmapset, metadata hbxml.Meta, server *ScoreServer) error {
