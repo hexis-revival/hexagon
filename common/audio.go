@@ -8,7 +8,7 @@ import (
 )
 
 // ExtractAudioSnippet extracts a snippet from the audio byte slice, compresses it, and saves it into an MP3 file
-func ExtractAudioSnippet(audioData []byte, offsetMs int, durationMs int, bitrate int, storage Storage) ([]byte, error) {
+func ExtractAudioSnippet(audioData []byte, offset int, duration int, bitrate int, storage Storage) ([]byte, error) {
 	beatmapAudio, err := storage.CreateTempFile()
 	if err != nil {
 		return nil, err
@@ -19,8 +19,8 @@ func ExtractAudioSnippet(audioData []byte, offsetMs int, durationMs int, bitrate
 		return nil, err
 	}
 
-	inputArgs := ffmpeg.KwArgs{"ss": offsetMs}
-	outputArgs := ffmpeg.KwArgs{"t": durationMs, "ab": bitrate}
+	inputArgs := ffmpeg.KwArgs{"ss": offset}
+	outputArgs := ffmpeg.KwArgs{"t": duration, "ab": bitrate}
 	ffmpeg.LogCompiledCommand = false
 
 	err = ffmpeg.Input(beatmapAudio.Name(), inputArgs).
