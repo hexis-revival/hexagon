@@ -6,6 +6,9 @@ WORKDIR /app
 RUN apt install -y ca-certificates
 RUN update-ca-certificates
 
+# Install ffmpeg
+RUN apt-get update && apt-get install -y ffmpeg
+
 # Copy module files
 COPY ./go.mod .
 COPY ./go.sum .
@@ -25,12 +28,5 @@ COPY . .
 # Build
 RUN CGO_ENABLED=0 GOOS=linux go build -o ./hexagon
 
-# Create a minimal image
-FROM scratch AS run
-COPY --from=build /app/hexagon /hexagon
-
-# Copy certificates
-COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-
 # Run the compiled binary
-ENTRYPOINT ["/hexagon"]
+ENTRYPOINT ["./hexagon"]
