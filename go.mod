@@ -13,7 +13,7 @@ require (
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/hexis-revival/go-raknet v0.0.0-20241211210029-9be624b59d55 // indirect
-	github.com/hexis-revival/hbxml v0.0.0-20241215004315-2f38ef74364e // indirect
+	github.com/hexis-revival/hbxml v0.0.0-20241215135203-d953473452ef // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/pgx/v5 v5.7.1 // indirect

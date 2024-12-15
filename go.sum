@@ -22,8 +22,8 @@ github.com/gorilla/mux v1.8.1/go.mod h1:AKf9I4AEqPTmMytcMc0KkNouC66V3BtZ4qD5fmWS
 github.com/hashicorp/golang-lru v0.5.4/go.mod h1:iADmTwqILo4mZ8BN3D2Q6+9jd8WM5uGBxy+E8yxSoD4=
 github.com/hexis-revival/go-raknet v0.0.0-20241211210029-9be624b59d55 h1:AG6Lh8sRVfDyItHenGPfMofqu+FKsbhHV9yc771xZFg=
 github.com/hexis-revival/go-raknet v0.0.0-20241211210029-9be624b59d55/go.mod h1:imEXd0R70VCaSM/YpPT4JjQLukX/mTW0mXCZ3C5Ag6A=
-github.com/hexis-revival/hbxml v0.0.0-20241215004315-2f38ef74364e h1:xnOrspeYQ1g2Tey9kiGeLj1EThMtT3Q6l8iQBzBzLiE=
-github.com/hexis-revival/hbxml v0.0.0-20241215004315-2f38ef74364e/go.mod h1:L+W97JuGwQ8Q3FBw/uLR0xfpTscSJFrcwNixvU8c86A=
+github.com/hexis-revival/hbxml v0.0.0-20241215135203-d953473452ef h1:bnMEerDgR9rmM7L4NN5UduwziE6D3OPhCy/LwchB2E0=
+github.com/hexis-revival/hbxml v0.0.0-20241215135203-d953473452ef/go.mod h1:L+W97JuGwQ8Q3FBw/uLR0xfpTscSJFrcwNixvU8c86A=
 github.com/jackc/pgpassfile v1.0.0 h1:/6Hmqy13Ss2zCq62VdNG8tM1wchn8zjSGOBJ6icpsIM=
 github.com/jackc/pgpassfile v1.0.0/go.mod h1:CEx0iS5ambNFdcRtxPj5JhEz+xB6uRky5eyVu/W2HEg=
 github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 h1:iCEnooe7UlwOQYpKFhBabPMi4aNAfoODPEFNiAnClxo=
