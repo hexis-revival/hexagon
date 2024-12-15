@@ -419,12 +419,12 @@ func UpdateBeatmapMetadata(beatmap *common.Beatmap, beatmapObject *hbxml.Beatmap
 	beatmap.MedianBpm = beatmapObject.MedianBPM()
 	beatmap.HighestBpm = beatmapObject.HighestBPM()
 	beatmap.LowestBpm = beatmapObject.LowestBPM()
+	beatmap.MaxCombo = beatmapObject.ComputeMaxCombo()
 	beatmap.CS = beatmapObject.Difficulty.CircleSize
 	beatmap.HP = beatmapObject.Difficulty.HPDrainRate
 	beatmap.OD = beatmapObject.Difficulty.OverallDifficulty
 	beatmap.AR = beatmapObject.Difficulty.ApproachRate
 	beatmap.LastUpdated = time.Now()
-	// TODO: Update MaxCombo & Star Rating
 	return common.UpdateBeatmap(beatmap, server.State)
 }
 
