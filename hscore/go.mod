@@ -5,7 +5,7 @@ go 1.22.7
 replace github.com/hexis-revival/hexagon/common => ../common
 
 require (
-	github.com/hexis-revival/hbxml v0.0.0-20241214164354-f2359f629874
+	github.com/hexis-revival/hbxml v0.0.0-20241215004315-2f38ef74364e
 	github.com/hexis-revival/hexagon/common v0.0.0-20241211210340-e2ac98d49581
 )
 
