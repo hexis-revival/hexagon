@@ -904,9 +904,57 @@ func BeatmapPostHandler(ctx *Context) {
 		return
 	}
 
+	if !strings.Contains(request.Content, "----------------") {
+		ctx.Server.Logger.Warningf("[Beatmap Submission] Invalid post content")
+		ctx.Response.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	user, success := AuthenticateUser(
+		request.Username,
+		request.Password,
+		ctx.Server,
+	)
+
+	if !success {
+		ctx.Response.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	beatmapset, err := common.FetchBeatmapsetById(
+		request.SetId,
+		ctx.Server.State,
+	)
+
+	if err != nil {
+		ctx.Server.Logger.Warningf("[Beatmap Submission] Beatmapset fetch error: %s", err)
+		ctx.Response.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	status := ValidateBeatmapset(
+		beatmapset,
+		user,
+		ctx.Server,
+	)
+
+	if status != BssSuccess {
+		ctx.Response.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	descriptionParts := strings.SplitN(request.Content, "----------------", 2)
+	beatmapset.Description = strings.TrimSpace(descriptionParts[1])
+
+	err = common.UpdateBeatmapset(beatmapset, ctx.Server.State)
+	if err != nil {
+		ctx.Server.Logger.Warningf("[Beatmap Submission] Failed to update beatmapset: %s", err)
+		ctx.Response.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	ctx.Server.Logger.Debugf("[Beatmap Submission] Post request: %s", request)
 	ctx.Response.WriteHeader(http.StatusOK)
-	// TODO: Implement beatmap post logic
 }
 
 func NewBeatmapSubmissionRequest(request *http.Request) (*BeatmapSubmissionRequest, error) {
