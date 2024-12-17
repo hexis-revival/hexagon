@@ -852,15 +852,46 @@ func BeatmapGenTopicHandler(ctx *Context) {
 		return
 	}
 
-	ctx.Server.Logger.Debugf("[Beatmap Submission] Description request: %s", request)
-	ctx.Response.WriteHeader(http.StatusOK)
+	user, success := AuthenticateUser(
+		request.Username,
+		request.Password,
+		ctx.Server,
+	)
 
-	response := &BeatmapDescriptionResponse{
-		TopicId: 1,
-		Content: "The quick brown fox jumps over the lazy dog.",
+	if !success {
+		ctx.Response.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 
-	// TODO: Implement beatmap description logic
+	beatmapset, err := common.FetchBeatmapsetById(
+		request.SetId,
+		ctx.Server.State,
+	)
+
+	if err != nil {
+		ctx.Server.Logger.Warningf("[Beatmap Submission] Beatmapset fetch error: %s", err)
+		ctx.Response.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	status := ValidateBeatmapset(
+		beatmapset,
+		user,
+		ctx.Server,
+	)
+
+	if status != BssSuccess {
+		ctx.Response.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	response := &BeatmapDescriptionResponse{
+		TopicId: beatmapset.Id, // TODO: Implement forums
+		Content: beatmapset.Description,
+	}
+
+	ctx.Server.Logger.Debugf("[Beatmap Submission] Description request: %s", request)
+	ctx.Response.WriteHeader(http.StatusOK)
 	ctx.Response.Write([]byte(response.Write()))
 }
 
