@@ -276,26 +276,30 @@ func handleLeaderboardRequest(stream *common.IOStream, player *Player) error {
 
 	response := &LeaderboardResponse{
 		BeatmapChecksum: request.BeatmapChecksum,
-		Unknown:         request.Unknown,
-		NeedsUpdate:     false,
-		Status:          common.StatusNotSubmitted,
 		ShowScores:      request.ShowScores,
+		Unknown:         request.Unknown,
+		Status:          common.StatusNotSubmitted,
+		NeedsUpdate:     false,
 	}
 
-	beatmap, err := common.FetchBeatmapById(int(request.BeatmapId), player.Server.State)
+	beatmap, err := common.FetchBeatmapById(
+		int(request.BeatmapId),
+		player.Server.State,
+	)
+
 	if err != nil {
-		if err.Error() == "record not found" {
-			player.SendPacket(SERVER_LEADERBOARD_RESPONSE, response)
+		if err.Error() != "record not found" {
+			return err
 		}
 
-		return err
+		// Beatmap was not found, send empty response
+		player.SendPacket(SERVER_LEADERBOARD_RESPONSE, response)
+		return nil
 	}
 
 	response.NeedsUpdate = request.BeatmapChecksum != beatmap.Checksum
 	response.Status = beatmap.Status
-
-	player.SendPacket(SERVER_LEADERBOARD_RESPONSE, response)
-	return nil
+	return player.SendPacket(SERVER_LEADERBOARD_RESPONSE, response)
 }
 
 func init() {
