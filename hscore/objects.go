@@ -135,6 +135,16 @@ func (req *BeatmapPostRequest) String() string {
 	return common.FormatStruct(req)
 }
 
+type BeatmapUpdateRequest struct {
+	UserId    int
+	SetId     int
+	BeatmapId int
+}
+
+func (req *BeatmapUpdateRequest) String() string {
+	return common.FormatStruct(req)
+}
+
 type ScoreData struct {
 	BeatmapChecksum string
 	ScoreChecksum   string
