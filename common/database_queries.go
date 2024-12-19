@@ -284,6 +284,129 @@ func RemoveBeatmapsBySetId(setId int, state *State) error {
 	return nil
 }
 
+func CreateForum(forum *Forum, state *State) error {
+	result := state.Database.Create(forum)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func FetchForumById(id int, state *State, preload ...string) (*Forum, error) {
+	forum := &Forum{}
+	result := preloadQuery(state, preload).First(forum, id)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return forum, nil
+}
+
+func UpdateForum(forum *Forum, state *State) error {
+	result := state.Database.Save(forum)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func DeleteForum(forum *Forum, state *State) error {
+	result := state.Database.Delete(forum)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func CreateTopic(topic *ForumTopic, state *State) error {
+	result := state.Database.Create(topic)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func FetchTopicById(id int, state *State, preload ...string) (*ForumTopic, error) {
+	topic := &ForumTopic{}
+	result := preloadQuery(state, preload).First(topic, id)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return topic, nil
+}
+
+func UpdateTopic(topic *ForumTopic, state *State) error {
+	result := state.Database.Save(topic)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func DeleteTopic(topic *ForumTopic, state *State) error {
+	result := state.Database.Delete(topic)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func CreatePost(post *ForumPost, state *State) error {
+	result := state.Database.Create(post)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func FetchPostById(id int, state *State, preload ...string) (*ForumPost, error) {
+	post := &ForumPost{}
+	result := preloadQuery(state, preload).First(post, id)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return post, nil
+}
+
+func UpdatePost(post *ForumPost, state *State) error {
+	result := state.Database.Save(post)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func DeletePost(post *ForumPost, state *State) error {
+	result := state.Database.Delete(post)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
 func preloadQuery(state *State, preload []string) *gorm.DB {
 	result := state.Database
 
