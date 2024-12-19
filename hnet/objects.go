@@ -269,3 +269,27 @@ type Mods struct {
 func (mods *Mods) String() string {
 	return common.FormatStruct(mods)
 }
+
+type LeaderboardRequest struct {
+	BeatmapChecksum string
+	Unknown         uint64
+	SetId           uint32
+	BeatmapId       uint32
+	ShowScores      bool
+}
+
+func (request *LeaderboardRequest) String() string {
+	return common.FormatStruct(request)
+}
+
+type LeaderboardResponse struct {
+	BeatmapChecksum string
+	Unknown         uint64
+	NeedsUpdate     bool
+	Status          common.BeatmapStatus
+	ShowScores      bool
+}
+
+func (request *LeaderboardResponse) String() string {
+	return common.FormatStruct(request)
+}

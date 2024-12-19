@@ -265,6 +265,33 @@ func handleUserRelationshipRemove(stream *common.IOStream, player *Player) error
 	return nil
 }
 
+func handleLeaderboardRequest(stream *common.IOStream, player *Player) error {
+	request := ReadLeaderboardRequest(stream)
+	player.LogIncomingPacket(CLIENT_LEADERBOARD_REQUEST, request)
+
+	response := &LeaderboardResponse{
+		BeatmapChecksum: request.BeatmapChecksum,
+		Unknown:         request.Unknown,
+		NeedsUpdate:     false,
+		Status:          common.StatusNotSubmitted,
+		ShowScores:      request.ShowScores,
+	}
+
+	beatmap, err := common.FetchBeatmapById(int(request.BeatmapId), player.Server.State)
+	if err != nil {
+		if err.Error() == "record not found" {
+			player.SendPacket(SERVER_LEADERBOARD_RESPONSE, response)
+			return err
+		}
+	}
+
+	response.NeedsUpdate = request.BeatmapChecksum != beatmap.Checksum
+	response.Status = beatmap.Status
+
+	player.SendPacket(SERVER_LEADERBOARD_RESPONSE, response)
+	return nil
+}
+
 func init() {
 	Handlers[CLIENT_LOGIN] = ensureUnauthenticated(handleLogin)
 	Handlers[CLIENT_LOGIN_RECONNECT] = ensureUnauthenticated(handleReconnect)
@@ -276,4 +303,5 @@ func init() {
 	Handlers[CLIENT_SPECTATE_FRAMES] = ensureAuthentication(handleSpectateFrames)
 	Handlers[CLIENT_RELATIONSHIP_ADD] = ensureAuthentication(handleUserRelationshipAdd)
 	Handlers[CLIENT_RELATIONSHIP_REMOVE] = ensureAuthentication(handleUserRelationshipRemove)
+	Handlers[CLIENT_LEADERBOARD_REQUEST] = ensureAuthentication(handleLeaderboardRequest)
 }
