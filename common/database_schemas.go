@@ -75,9 +75,11 @@ type Beatmapset struct {
 	HasVideo           bool                `gorm:"not null;default:false"`
 	AvailabilityStatus BeatmapAvailability `gorm:"not null;default:0"`
 	AvailabilityInfo   string              `gorm:"type:text;not null;default:''"`
+	TopicId            *int                `gorm:"default:null"`
 
-	Beatmaps []Beatmap `gorm:"foreignKey:SetId"`
-	Creator  User      `gorm:"foreignKey:CreatorId"`
+	Beatmaps []Beatmap  `gorm:"foreignKey:SetId"`
+	Topic    ForumTopic `gorm:"foreignKey:TopicId"`
+	Creator  User       `gorm:"foreignKey:CreatorId"`
 }
 
 type Beatmap struct {
