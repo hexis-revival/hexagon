@@ -31,6 +31,7 @@ func (server *ScoreServer) Serve() {
 	r.HandleFunc("/web/bss-upload.php", server.contextMiddleware(BeatmapUploadHandler)).Methods("POST")
 	r.HandleFunc("/web/bss-genid.php", server.contextMiddleware(BeatmapGenIdHandler)).Methods("POST")
 	r.HandleFunc("/web/bss-post.php", server.contextMiddleware(BeatmapPostHandler)).Methods("POST")
+	r.HandleFunc("/web/hxs-bup.php", server.contextMiddleware(BeatmapUpdateHandler)).Methods("GET")
 	r.HandleFunc("/score/submit", server.contextMiddleware(ScoreSubmissionHandler)).Methods("POST")
 	r.HandleFunc("/a/{id}", server.contextMiddleware(AvatarHandler)).Methods("GET")
 
