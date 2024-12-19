@@ -267,6 +267,11 @@ func handleUserRelationshipRemove(stream *common.IOStream, player *Player) error
 
 func handleLeaderboardRequest(stream *common.IOStream, player *Player) error {
 	request := ReadLeaderboardRequest(stream)
+
+	if request == nil {
+		return fmt.Errorf("failed to read leaderboard request")
+	}
+
 	player.LogIncomingPacket(CLIENT_LEADERBOARD_REQUEST, request)
 
 	response := &LeaderboardResponse{
@@ -281,8 +286,9 @@ func handleLeaderboardRequest(stream *common.IOStream, player *Player) error {
 	if err != nil {
 		if err.Error() == "record not found" {
 			player.SendPacket(SERVER_LEADERBOARD_RESPONSE, response)
-			return err
 		}
+
+		return err
 	}
 
 	response.NeedsUpdate = request.BeatmapChecksum != beatmap.Checksum
