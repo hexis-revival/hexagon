@@ -40,15 +40,6 @@ type Stats struct {
 	DCount      int     `gorm:"not null;default:0"`
 }
 
-type Relationship struct {
-	UserId   int                `gorm:"primaryKey;not null"`
-	TargetId int                `gorm:"primaryKey;not null"`
-	Status   RelationshipStatus `gorm:"type:relationship_status;not null"`
-
-	User   User `gorm:"foreignKey:UserId"`
-	Target User `gorm:"foreignKey:TargetId"`
-}
-
 func (user *User) EnsureStats(state *State) error {
 	if user.Stats.UserId != 0 {
 		return nil
@@ -57,6 +48,15 @@ func (user *User) EnsureStats(state *State) error {
 	// Create new stats object
 	user.Stats = Stats{UserId: user.Id}
 	return CreateStats(&user.Stats, state)
+}
+
+type Relationship struct {
+	UserId   int                `gorm:"primaryKey;not null"`
+	TargetId int                `gorm:"primaryKey;not null"`
+	Status   RelationshipStatus `gorm:"type:relationship_status;not null"`
+
+	User   User `gorm:"foreignKey:UserId"`
+	Target User `gorm:"foreignKey:TargetId"`
 }
 
 type Beatmapset struct {
