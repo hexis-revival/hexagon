@@ -125,3 +125,24 @@ func (pack ScorePack) Serialize(stream *common.IOStream) {
 		frame.Serialize(stream)
 	}
 }
+
+func (request LeaderboardRequest) Serialize(stream *common.IOStream) {
+	stream.WriteString(request.BeatmapChecksum)
+	stream.WriteU64(request.Unknown)
+	stream.WriteU32(request.SetId)
+	stream.WriteU32(request.BeatmapId)
+	stream.WriteBool(request.ShowScores)
+}
+
+func (response LeaderboardResponse) Serialize(stream *common.IOStream) {
+	stream.WriteString(response.BeatmapChecksum)
+	stream.WriteU64(response.Unknown)
+	stream.WriteBool(response.NeedsUpdate)
+	stream.WriteU8(uint8(response.Status))
+
+	if !response.ShowScores {
+		return
+	}
+
+	// TODO: write scores
+}
