@@ -180,3 +180,15 @@ func ReadScorePack(stream *common.IOStream) *ScorePack {
 		Frames: frames,
 	}
 }
+
+func ReadLeaderboardRequest(stream *common.IOStream) *LeaderboardRequest {
+	defer recover()
+
+	return &LeaderboardRequest{
+		BeatmapChecksum: stream.ReadString(),
+		Unknown:         stream.ReadU64(),
+		SetId:           stream.ReadU32(),
+		BeatmapId:       stream.ReadU32(),
+		ShowScores:      stream.ReadBool(),
+	}
+}
