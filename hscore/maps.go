@@ -13,6 +13,7 @@ func BeatmapUpdateHandler(ctx *Context) {
 	if err != nil {
 		ctx.Server.Logger.Errorf("Failed to parse beatmap update request: %s", err)
 		ctx.Response.WriteHeader(400)
+		return
 	}
 
 	user, err := common.FetchUserById(
@@ -23,6 +24,7 @@ func BeatmapUpdateHandler(ctx *Context) {
 	if err != nil {
 		ctx.Server.Logger.Errorf("Failed to fetch user: %s", err)
 		ctx.Response.WriteHeader(401)
+		return
 	}
 
 	ctx.Server.Logger.Infof(
@@ -34,6 +36,7 @@ func BeatmapUpdateHandler(ctx *Context) {
 	if err != nil {
 		ctx.Server.Logger.Errorf("Failed to fetch beatmap data: %s", err)
 		ctx.Response.WriteHeader(404)
+		return
 	}
 
 	ctx.Response.WriteHeader(200)
