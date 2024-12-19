@@ -25,7 +25,7 @@ func BeatmapUpdateHandler(ctx *Context) {
 		ctx.Response.WriteHeader(401)
 	}
 
-	ctx.Server.Logger.Debugf(
+	ctx.Server.Logger.Infof(
 		"Beatmap update request from '%s' (%d)",
 		user.Name, request.BeatmapId,
 	)
