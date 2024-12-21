@@ -40,15 +40,6 @@ type Stats struct {
 	DCount      int     `gorm:"not null;default:0"`
 }
 
-type Relationship struct {
-	UserId   int                `gorm:"primaryKey;not null"`
-	TargetId int                `gorm:"primaryKey;not null"`
-	Status   RelationshipStatus `gorm:"type:relationship_status;not null"`
-
-	User   User `gorm:"foreignKey:UserId"`
-	Target User `gorm:"foreignKey:TargetId"`
-}
-
 func (user *User) EnsureStats(state *State) error {
 	if user.Stats.UserId != 0 {
 		return nil
@@ -57,6 +48,15 @@ func (user *User) EnsureStats(state *State) error {
 	// Create new stats object
 	user.Stats = Stats{UserId: user.Id}
 	return CreateStats(&user.Stats, state)
+}
+
+type Relationship struct {
+	UserId   int                `gorm:"primaryKey;not null"`
+	TargetId int                `gorm:"primaryKey;not null"`
+	Status   RelationshipStatus `gorm:"type:relationship_status;not null"`
+
+	User   User `gorm:"foreignKey:UserId"`
+	Target User `gorm:"foreignKey:TargetId"`
 }
 
 type Beatmapset struct {
@@ -75,9 +75,11 @@ type Beatmapset struct {
 	HasVideo           bool                `gorm:"not null;default:false"`
 	AvailabilityStatus BeatmapAvailability `gorm:"not null;default:0"`
 	AvailabilityInfo   string              `gorm:"type:text;not null;default:''"`
+	TopicId            *int                `gorm:"default:null"`
 
-	Beatmaps []Beatmap `gorm:"foreignKey:SetId"`
-	Creator  User      `gorm:"foreignKey:CreatorId"`
+	Beatmaps []Beatmap  `gorm:"foreignKey:SetId"`
+	Topic    ForumTopic `gorm:"foreignKey:TopicId"`
+	Creator  User       `gorm:"foreignKey:CreatorId"`
 }
 
 type Beatmap struct {
@@ -108,4 +110,51 @@ type Beatmap struct {
 
 	Set     Beatmapset `gorm:"foreignKey:SetId"`
 	Creator User       `gorm:"foreignKey:CreatorId"`
+}
+
+type Forum struct {
+	Id          int       `gorm:"primaryKey;autoIncrement;not null"`
+	ParentId    *int      `gorm:"default:null"`
+	CreatedAt   time.Time `gorm:"not null;default:now()"`
+	Name        string    `gorm:"size:32;not null"`
+	Description string    `gorm:"size:255;not null;default:''"`
+	Hidden      bool      `gorm:"not null;default:false"`
+
+	Parent *Forum `gorm:"foreignKey:ParentId"`
+}
+
+type ForumTopic struct {
+	Id           int       `gorm:"primaryKey;autoIncrement;not null"`
+	ForumId      int       `gorm:"not null"`
+	CreatorId    int       `gorm:"not null"`
+	Title        string    `gorm:"size:255;not null"`
+	StatusText   *string   `gorm:"size:255;default:null"`
+	CreatedAt    time.Time `gorm:"not null;default:now()"`
+	LastPostAt   time.Time `gorm:"not null;default:now()"`
+	LockedAt     *time.Time
+	Views        int  `gorm:"not null;default:0"`
+	Announcement bool `gorm:"not null;default:false"`
+	Hidden       bool `gorm:"not null;default:false"`
+	Pinned       bool `gorm:"not null;default:false"`
+
+	Forum   Forum `gorm:"foreignKey:ForumId"`
+	Creator User  `gorm:"foreignKey:CreatorId"`
+}
+
+type ForumPost struct {
+	Id         int       `gorm:"primaryKey;autoIncrement;not null"`
+	TopicId    int       `gorm:"not null"`
+	ForumId    int       `gorm:"not null"`
+	UserId     int       `gorm:"not null"`
+	Content    string    `gorm:"type:text;not null"`
+	CreatedAt  time.Time `gorm:"not null;default:now()"`
+	EditTime   time.Time `gorm:"not null;default:now()"`
+	EditCount  int       `gorm:"not null;default:0"`
+	EditLocked bool      `gorm:"not null;default:false"`
+	Hidden     bool      `gorm:"not null;default:false"`
+	Deleted    bool      `gorm:"not null;default:false"`
+
+	Topic ForumTopic `gorm:"foreignKey:TopicId"`
+	Forum Forum      `gorm:"foreignKey:ForumId"`
+	User  User       `gorm:"foreignKey:UserId"`
 }
