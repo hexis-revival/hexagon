@@ -305,6 +305,17 @@ func FetchForumById(id int, state *State, preload ...string) (*Forum, error) {
 	return forum, nil
 }
 
+func FetchForumByName(name string, state *State, preload ...string) (*Forum, error) {
+	forum := &Forum{}
+	result := preloadQuery(state, preload).First(forum, "name = ?", name)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return forum, nil
+}
+
 func UpdateForum(forum *Forum, state *State) error {
 	result := state.Database.Save(forum)
 
