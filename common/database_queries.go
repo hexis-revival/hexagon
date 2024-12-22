@@ -429,6 +429,47 @@ func DeletePost(post *ForumPost, state *State) error {
 	return nil
 }
 
+func CreateScore(score *Score, state *State) error {
+	result := state.Database.Create(score)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func FetchScoreById(id int, state *State, preload ...string) (*Score, error) {
+	score := &Score{}
+	result := preloadQuery(state, preload).First(score, id)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return score, nil
+}
+
+func UpdateScore(score *Score, state *State) error {
+	result := state.Database.Save(score)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func DeleteScore(score *Score, state *State) error {
+	result := state.Database.Delete(score)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
 func preloadQuery(state *State, preload []string) *gorm.DB {
 	result := state.Database
 

@@ -26,8 +26,8 @@ func ScoreSubmissionHandler(ctx *Context) {
 	ctx.Response.Header().Set("Content-Type", "application/json")
 
 	// Write response
-	resp := ScoreSubmissionResponse{Success: true}
-	json.NewEncoder(ctx.Response).Encode(resp)
+	response := ScoreSubmissionResponse{Success: true}
+	json.NewEncoder(ctx.Response).Encode(response)
 }
 
 func NewScoreSubmissionRequest(request *http.Request) (*ScoreSubmissionRequest, error) {

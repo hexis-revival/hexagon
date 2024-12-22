@@ -158,3 +158,38 @@ type ForumPost struct {
 	Forum Forum      `gorm:"foreignKey:ForumId"`
 	User  User       `gorm:"foreignKey:UserId"`
 }
+
+type Score struct {
+	Id            int         `gorm:"primaryKey;autoIncrement;not null"`
+	BeatmapId     int         `gorm:"not null"`
+	UserId        int         `gorm:"not null"`
+	Checksum      string      `gorm:"size:32;not null"`
+	Status        ScoreStatus `gorm:"not null"`
+	CreatedAt     time.Time   `gorm:"not null;default:now()"`
+	ClientVersion int         `gorm:"not null"`
+	TotalScore    int64       `gorm:"not null"`
+	MaxCombo      int         `gorm:"not null"`
+	Accuracy      float64     `gorm:"not null"`
+	FullCombo     bool        `gorm:"not null"`
+	Passed        bool        `gorm:"not null"`
+	Grade         Grade       `gorm:"type:grade;not null"`
+	Count300      int         `gorm:"not null"`
+	Count100      int         `gorm:"not null"`
+	Count50       int         `gorm:"not null"`
+	CountGeki     int         `gorm:"not null"`
+	CountKatu     int         `gorm:"not null"`
+	CountGood     int         `gorm:"not null"`
+	CountMiss     int         `gorm:"not null"`
+	AROffset      int         `gorm:"not null"`
+	ODOffset      int         `gorm:"not null"`
+	CSOffset      int         `gorm:"not null"`
+	HPOffset      int         `gorm:"not null"`
+	PSOffset      int         `gorm:"not null"`
+	ModHidden     bool        `gorm:"not null"`
+	ModNoFail     bool        `gorm:"not null"`
+	Visible       bool        `gorm:"not null;default:true"`
+	Pinned        bool        `gorm:"not null;default:false"`
+
+	Beatmap Beatmap `gorm:"foreignKey:BeatmapId"`
+	User    User    `gorm:"foreignKey:UserId"`
+}
