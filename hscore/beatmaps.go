@@ -32,11 +32,9 @@ const (
 
 func FormatBeatmapsetName(beatmapset *common.Beatmapset) string {
 	return fmt.Sprintf(
-		"%d %s - %s (%s)",
-		beatmapset.Id,
+		"%s - %s",
 		beatmapset.Artist,
 		beatmapset.Title,
-		beatmapset.Creator.Name,
 	)
 }
 
@@ -835,7 +833,8 @@ func BeatmapUploadHandler(ctx *Context) {
 	}
 
 	ctx.Server.Logger.Infof(
-		"[Beatmap Submission] Beatmapset '%s' updated by '%s'",
+		"[Beatmap Submission] Beatmapset %d '%s' updated by '%s'",
+		beatmapset.Id,
 		FormatBeatmapsetName(beatmapset),
 		user.Name,
 	)
@@ -885,8 +884,57 @@ func BeatmapGenTopicHandler(ctx *Context) {
 		return
 	}
 
+	if beatmapset.TopicId == nil {
+		pendingForum, err := common.FetchForumByName(
+			"Pending Beatmaps",
+			ctx.Server.State,
+		)
+
+		if err != nil {
+			ctx.Server.Logger.Errorf("[Beatmap Submission] Could not find pending forum: %s", err)
+			ctx.Response.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		topic := common.ForumTopic{
+			ForumId:   pendingForum.Id,
+			CreatorId: user.Id,
+			Hidden:    true,
+			Title:     FormatBeatmapsetName(beatmapset),
+		}
+
+		err = common.CreateTopic(&topic, ctx.Server.State)
+		if err != nil {
+			ctx.Server.Logger.Errorf("[Beatmap Submission] Failed to create topic: %s", err)
+			ctx.Response.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		post := common.ForumPost{
+			TopicId: topic.Id,
+			ForumId: pendingForum.Id,
+			UserId:  user.Id,
+			Content: "",
+		}
+
+		err = common.CreatePost(&post, ctx.Server.State)
+		if err != nil {
+			ctx.Server.Logger.Errorf("[Beatmap Submission] Failed to create post: %s", err)
+			ctx.Response.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		beatmapset.TopicId = &topic.Id
+		err = common.UpdateBeatmapset(beatmapset, ctx.Server.State)
+		if err != nil {
+			ctx.Server.Logger.Errorf("[Beatmap Submission] Failed to update beatmapset: %s", err)
+			ctx.Response.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
+
 	response := &BeatmapDescriptionResponse{
-		TopicId: beatmapset.Id, // TODO: Implement forums
+		TopicId: *beatmapset.TopicId,
 		Content: beatmapset.Description,
 	}
 
@@ -943,10 +991,68 @@ func BeatmapPostHandler(ctx *Context) {
 		return
 	}
 
+	if beatmapset.TopicId == nil {
+		ctx.Server.Logger.Warningf("[Beatmap Submission] Topic not found for beatmapset '%d'", beatmapset.Id)
+		ctx.Response.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	topic, err := common.FetchTopicById(
+		*beatmapset.TopicId,
+		ctx.Server.State,
+	)
+
+	if err != nil {
+		ctx.Server.Logger.Warningf("[Beatmap Submission] Failed to fetch topic: %s", err)
+		ctx.Response.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	if topic.Hidden {
+		topic.Hidden = false
+		err = common.UpdateTopic(
+			topic,
+			ctx.Server.State,
+		)
+
+		if err != nil {
+			ctx.Server.Logger.Warningf("[Beatmap Submission] Failed to unhide topic: %s", err)
+			ctx.Response.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
+
+	post, err := common.FetchInitialPost(
+		topic.Id,
+		ctx.Server.State,
+	)
+
+	if err != nil {
+		ctx.Server.Logger.Warningf("[Beatmap Submission] Failed to fetch post: %s", err)
+		ctx.Response.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	post.Content = request.Content
+	err = common.UpdatePost(
+		post,
+		ctx.Server.State,
+	)
+
+	if err != nil {
+		ctx.Server.Logger.Warningf("[Beatmap Submission] Failed to update post: %s", err)
+		ctx.Response.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	descriptionParts := strings.SplitN(request.Content, "----------------", 2)
 	beatmapset.Description = strings.TrimSpace(descriptionParts[1])
 
-	err = common.UpdateBeatmapset(beatmapset, ctx.Server.State)
+	err = common.UpdateBeatmapset(
+		beatmapset,
+		ctx.Server.State,
+	)
+
 	if err != nil {
 		ctx.Server.Logger.Warningf("[Beatmap Submission] Failed to update beatmapset: %s", err)
 		ctx.Response.WriteHeader(http.StatusInternalServerError)
