@@ -115,7 +115,7 @@ func (header *ReplayHeader) Grade() Grade {
 		// if header.Mods.Hidden {
 		// 	  return GradeXH
 		// }
-		return GradeSS
+		return GradeX
 	}
 
 	if accuracyRatio <= 0.8 && header.CountGood == 0 {

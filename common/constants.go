@@ -10,7 +10,7 @@ const (
 	GradeA
 	GradeS
 	GradeSH
-	GradeSS
+	GradeX
 	GradeXH
 )
 

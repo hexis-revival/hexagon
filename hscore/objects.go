@@ -196,7 +196,7 @@ func (scoreData *ScoreData) Grade() common.Grade {
 		if scoreData.Mods.Hidden {
 			return common.GradeXH
 		} else {
-			return common.GradeSS
+			return common.GradeX
 		}
 	}
 
