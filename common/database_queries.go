@@ -170,7 +170,7 @@ func FetchBeatmapsetCountByCreatorId(userId int, state *State) (int, error) {
 
 func FetchBeatmapsetRankedCountByCreatorId(userId int, state *State) (int, error) {
 	var count int64
-	result := state.Database.Model(&Beatmapset{}).Where("creator_id = ? AND status >= ?", userId, StatusRanked).Count(&count)
+	result := state.Database.Model(&Beatmapset{}).Where("creator_id = ? AND status >= ?", userId, BeatmapStatusRanked).Count(&count)
 
 	if result.Error != nil {
 		return 0, result.Error
@@ -181,7 +181,7 @@ func FetchBeatmapsetRankedCountByCreatorId(userId int, state *State) (int, error
 
 func FetchBeatmapsetUnrankedCountByCreatorId(userId int, state *State) (int, error) {
 	var count int64
-	result := state.Database.Model(&Beatmapset{}).Where("creator_id = ? AND status < ?", userId, StatusRanked).Count(&count)
+	result := state.Database.Model(&Beatmapset{}).Where("creator_id = ? AND status < ?", userId, BeatmapStatusRanked).Count(&count)
 
 	if result.Error != nil {
 		return 0, result.Error

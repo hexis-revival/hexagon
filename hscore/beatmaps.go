@@ -115,7 +115,7 @@ func ValidateBeatmapset(beatmapset *common.Beatmapset, user *common.User, server
 		return BssInvalidOwner
 	}
 
-	if beatmapset.Status > common.StatusPending {
+	if beatmapset.Status > common.BeatmapStatusPending {
 		server.Logger.Warningf("[Beatmap Submission] Beatmapset already ranked (%d)", beatmapset.Id)
 		return BssAlreadyRanked
 	}
@@ -212,7 +212,7 @@ func UpdateBeatmapIds(beatmapset *common.Beatmapset, beatmapIds []int, server *S
 func RemoveInactiveBeatmaps(user *common.User, server *ScoreServer) error {
 	beatmapsets, err := common.FetchBeatmapsetsByStatus(
 		user.Id,
-		common.StatusNotSubmitted,
+		common.BeatmapStatusNotSubmitted,
 		server.State,
 	)
 
@@ -393,7 +393,7 @@ func UpdateBeatmapsetMetadata(beatmapset *common.Beatmapset, metadata hbxml.Meta
 	beatmapset.Source = metadata.Source
 	beatmapset.Tags = metadata.Tags
 	beatmapset.LastUpdated = time.Now()
-	beatmapset.Status = common.StatusPending
+	beatmapset.Status = common.BeatmapStatusPending
 
 	if beatmapset.Tags == nil {
 		beatmapset.Tags = []string{}
@@ -405,7 +405,7 @@ func UpdateBeatmapsetMetadata(beatmapset *common.Beatmapset, metadata hbxml.Meta
 func UpdateBeatmapMetadata(beatmap *common.Beatmap, beatmapObject *hbxml.Beatmap, file []byte, filename string, server *ScoreServer) error {
 	beatmapChecksumBytes := md5.Sum(file)
 	beatmap.Filename = filename
-	beatmap.Status = common.StatusPending
+	beatmap.Status = common.BeatmapStatusPending
 	beatmap.Checksum = hex.EncodeToString(beatmapChecksumBytes[:])
 	beatmap.Version = beatmapObject.Meta.Version
 	beatmap.TotalLength = int(beatmapObject.TotalLength())

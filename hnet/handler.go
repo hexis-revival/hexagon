@@ -278,7 +278,7 @@ func handleLeaderboardRequest(stream *common.IOStream, player *Player) error {
 		BeatmapChecksum: request.BeatmapChecksum,
 		ShowScores:      request.ShowScores,
 		Unknown:         request.Unknown,
-		Status:          common.StatusNotSubmitted,
+		Status:          common.BeatmapStatusNotSubmitted,
 		NeedsUpdate:     false,
 	}
 

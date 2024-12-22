@@ -24,11 +24,11 @@ const (
 type BeatmapStatus int
 
 const (
-	StatusUnknown      BeatmapStatus = iota
-	StatusNotSubmitted BeatmapStatus = iota
-	StatusPending      BeatmapStatus = iota
-	StatusRanked       BeatmapStatus = iota
-	StatusApproved     BeatmapStatus = iota
+	BeatmapStatusUnknown      BeatmapStatus = iota
+	BeatmapStatusNotSubmitted BeatmapStatus = iota
+	BeatmapStatusPending      BeatmapStatus = iota
+	BeatmapStatusRanked       BeatmapStatus = iota
+	BeatmapStatusApproved     BeatmapStatus = iota
 )
 
 type BeatmapAvailability int
