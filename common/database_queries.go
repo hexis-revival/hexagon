@@ -398,6 +398,17 @@ func FetchPostById(id int, state *State, preload ...string) (*ForumPost, error) 
 	return post, nil
 }
 
+func FetchInitialPost(topicId int, state *State, preload ...string) (*ForumPost, error) {
+	post := &ForumPost{}
+	result := preloadQuery(state, preload).Order("id asc").First(post, "topic_id = ?", topicId)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return post, nil
+}
+
 func UpdatePost(post *ForumPost, state *State) error {
 	result := state.Database.Save(post)
 

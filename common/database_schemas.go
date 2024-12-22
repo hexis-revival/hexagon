@@ -124,18 +124,18 @@ type Forum struct {
 }
 
 type ForumTopic struct {
-	Id           int       `gorm:"primaryKey;autoIncrement;not null"`
-	ForumId      int       `gorm:"not null"`
-	CreatorId    int       `gorm:"not null"`
-	Title        string    `gorm:"size:255;not null"`
-	StatusText   *string   `gorm:"size:255;default:null"`
-	CreatedAt    time.Time `gorm:"not null;default:now()"`
-	LastPostAt   time.Time `gorm:"not null;default:now()"`
-	LockedAt     *time.Time
-	Views        int  `gorm:"not null;default:0"`
-	Announcement bool `gorm:"not null;default:false"`
-	Hidden       bool `gorm:"not null;default:false"`
-	Pinned       bool `gorm:"not null;default:false"`
+	Id           int        `gorm:"primaryKey;autoIncrement;not null"`
+	ForumId      int        `gorm:"not null"`
+	CreatorId    int        `gorm:"not null"`
+	Title        string     `gorm:"size:255;not null"`
+	StatusText   *string    `gorm:"size:255;default:null"`
+	CreatedAt    time.Time  `gorm:"not null;default:now()"`
+	LastPostAt   time.Time  `gorm:"not null;default:now()"`
+	LockedAt     *time.Time `gorm:"default:null"`
+	Views        int        `gorm:"not null;default:0"`
+	Announcement bool       `gorm:"not null;default:false"`
+	Hidden       bool       `gorm:"not null;default:false"`
+	Pinned       bool       `gorm:"not null;default:false"`
 
 	Forum   Forum `gorm:"foreignKey:ForumId"`
 	Creator User  `gorm:"foreignKey:CreatorId"`
