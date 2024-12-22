@@ -38,3 +38,12 @@ const (
 	BeatmapHasDMCA                 BeatmapAvailability = iota
 	BeatmapHasInappropriateContent BeatmapAvailability = iota
 )
+
+type ScoreStatus int
+
+const (
+	ScoreStatusFailed    ScoreStatus = iota
+	ScoreStatusSubmitted ScoreStatus = iota
+	ScoreStatusPB        ScoreStatus = iota
+	ScoreStatusModsPB    ScoreStatus = iota
+)
