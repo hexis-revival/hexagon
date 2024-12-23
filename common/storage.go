@@ -18,6 +18,11 @@ type Storage interface {
 	Download(url string, key string, bucket string) error
 	CreateTempFile() (*os.File, error)
 
+	// Replays
+	GetReplayFile(replayId int) ([]byte, error)
+	SaveReplayFile(replayId int, data []byte) error
+	RemoveReplayFile(replayId int) error
+
 	// Avatars
 	GetAvatar(userId int) ([]byte, error)
 	SaveAvatar(userId int, data []byte) error
@@ -90,6 +95,18 @@ func (storage *FileStorage) Download(url string, key string, folder string) erro
 
 func (storage *FileStorage) CreateTempFile() (*os.File, error) {
 	return os.CreateTemp(storage.dataPath, "temp")
+}
+
+func (storage *FileStorage) GetReplayFile(scoreId int) ([]byte, error) {
+	return storage.Read(fmt.Sprintf("%d", scoreId), "replays")
+}
+
+func (storage *FileStorage) SaveReplayFile(scoreId int, data []byte) error {
+	return storage.Save(strconv.Itoa(scoreId), "replays", data)
+}
+
+func (storage *FileStorage) RemoveReplayFile(scoreId int) error {
+	return storage.Remove(strconv.Itoa(scoreId), "replays")
 }
 
 func (storage *FileStorage) GetAvatar(userId int) ([]byte, error) {
