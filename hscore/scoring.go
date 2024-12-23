@@ -34,8 +34,77 @@ func ValidateScore(user *common.User, request *ScoreSubmissionRequest) error {
 	return nil // TODO
 }
 
-func InsertScore(user *common.User, beatmap *common.Beatmap, score *ScoreData, server *ScoreServer) (*common.Score, error) {
-	return nil, nil // TODO
+func InsertScore(user *common.User, beatmap *common.Beatmap, scoreData *ScoreData, server *ScoreServer) (*common.Score, error) {
+	score := &common.Score{
+		BeatmapId:     beatmap.Id,
+		UserId:        user.Id,
+		Checksum:      scoreData.ScoreChecksum,
+		Status:        common.ScoreStatusUnranked,
+		ClientVersion: scoreData.ClientVersion,
+		TotalScore:    int64(scoreData.TotalScore),
+		MaxCombo:      scoreData.MaxCombo,
+		Accuracy:      scoreData.Accuracy(),
+		Grade:         scoreData.Grade(),
+		FullCombo:     scoreData.Perfect,
+		Passed:        scoreData.Passed,
+		Count300:      scoreData.Count300,
+		Count100:      scoreData.Count100,
+		Count50:       scoreData.Count50,
+		CountGeki:     scoreData.CountGeki,
+		CountKatu:     scoreData.CountKatu,
+		CountGood:     scoreData.CountGood,
+		CountMiss:     scoreData.CountMiss,
+		AROffset:      scoreData.Mods.ArOffset,
+		ODOffset:      scoreData.Mods.OdOffset,
+		CSOffset:      scoreData.Mods.CsOffset,
+		HPOffset:      scoreData.Mods.HpOffset,
+		PSOffset:      scoreData.Mods.PsOffset,
+		ModHidden:     scoreData.Mods.Hidden,
+		ModNoFail:     scoreData.Mods.NoFail,
+	}
+
+	if beatmap.Status < common.BeatmapStatusRanked {
+		// Beatmap is unranked, insert unranked score
+		return score, common.CreateScore(score, server.State)
+	}
+
+	if !score.Passed {
+		// User did not pass this map, insert failed score
+		score.Status = common.ScoreStatusFailed
+		return score, common.CreateScore(score, server.State)
+	}
+
+	personalBest, err := common.FetchPersonalBest(
+		user.Id,
+		beatmap.Id,
+		server.State,
+	)
+
+	if err != nil && err.Error() != "record not found" {
+		return nil, err
+	}
+
+	if personalBest == nil {
+		// No personal best, insert score as PB
+		score.Status = common.ScoreStatusPB
+		return score, common.CreateScore(score, server.State)
+	}
+
+	if personalBest.TotalScore > score.TotalScore {
+		// New score is lower than PB, insert as submitted
+		score.Status = common.ScoreStatusSubmitted
+		return score, common.CreateScore(score, server.State)
+	}
+
+	// A new personal best has been achieved
+	score.Status = common.ScoreStatusPB
+	personalBest.Status = common.ScoreStatusSubmitted
+
+	if err = common.UpdateScore(personalBest, server.State); err != nil {
+		return nil, err
+	}
+
+	return score, common.CreateScore(score, server.State)
 }
 
 func UploadReplay(scoreId int, replay *common.ReplayData, storage *common.Storage) error {
