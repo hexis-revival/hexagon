@@ -123,10 +123,6 @@ func UpdateUserStatistics(user *common.User, server *ScoreServer) error {
 	return nil // TODO
 }
 
-func UpdateBeatmapStatistics(beatmap *common.Beatmap, server *ScoreServer) error {
-	return nil // TODO
-}
-
 func WriteError(statusCode int, errorMessage string, ctx *Context) error {
 	ctx.Response.WriteHeader(statusCode)
 	encoder := json.NewEncoder(ctx.Response)
@@ -201,12 +197,6 @@ func ScoreSubmissionHandler(ctx *Context) {
 
 	if err = UpdateUserStatistics(user, ctx.Server); err != nil {
 		ctx.Server.Logger.Warningf("Error updating user statistics: %v", err)
-		WriteError(http.StatusInternalServerError, ServerError, ctx)
-		return
-	}
-
-	if err = UpdateBeatmapStatistics(beatmap, ctx.Server); err != nil {
-		ctx.Server.Logger.Warningf("Error updating beatmap statistics: %v", err)
 		WriteError(http.StatusInternalServerError, ServerError, ctx)
 		return
 	}
