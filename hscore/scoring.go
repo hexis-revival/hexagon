@@ -9,23 +9,115 @@ import (
 	"github.com/hexis-revival/hexagon/common"
 )
 
+const (
+	ValidationError     = "Invalid score submission request."
+	AuthenticationError = "Could not submit your score. Please check your login credentials!"
+	BeatmapError        = "This beatmap is not available for score submission."
+	ServerError         = "Could not submit your score due to an internal server error."
+)
+
+func ResolveBeatmap(score *ScoreData, server *ScoreServer) (*common.Beatmap, error) {
+	return nil, nil // TODO
+}
+
+func ValidateScore(user *common.User, request *ScoreSubmissionRequest) error {
+	return nil // TODO
+}
+
+func InsertScore(user *common.User, beatmap *common.Beatmap, score *ScoreData) error {
+	return nil // TODO
+}
+
+func UploadReplay(scoreId int, replay *common.ReplayData) error {
+	return nil // TODO
+}
+
+func UpdateUserStatistics(user *common.User) error {
+	return nil // TODO
+}
+
+func UpdateBeatmapStatistics(beatmap *common.Beatmap) error {
+	return nil // TODO
+}
+
+func WriteError(statusCode int, errorMessage string, ctx *Context) error {
+	ctx.Response.WriteHeader(statusCode)
+	encoder := json.NewEncoder(ctx.Response)
+	response := ScoreSubmissionResponse{Success: false, Error: errorMessage}
+	return encoder.Encode(response)
+}
+
 func ScoreSubmissionHandler(ctx *Context) {
 	// Parse score submission request
-	req, err := NewScoreSubmissionRequest(ctx.Request)
-
-	if err != nil {
-		ctx.Server.Logger.Errorf("Error parsing score submission request: %v", err)
-		ctx.Response.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	ctx.Server.Logger.Debugf("Score submission request: %s", req.String())
-	// TODO: Process data & update player stats
+	request, err := NewScoreSubmissionRequest(ctx.Request)
 
 	ctx.Response.WriteHeader(http.StatusOK)
 	ctx.Response.Header().Set("Content-Type", "application/json")
 
-	// Write response
+	if err != nil {
+		ctx.Server.Logger.Errorf("Error parsing score submission request: %v", err)
+		WriteError(http.StatusBadRequest, ValidationError, ctx)
+		return
+	}
+
+	ctx.Server.Logger.Debugf(
+		"Score submission request: %s",
+		request.String(),
+	)
+
+	user, success := AuthenticateUser(
+		request.ScoreData.Username,
+		request.Password,
+		ctx.Server,
+	)
+
+	if !success {
+		ctx.Server.Logger.Warningf("Failed to authenticate user '%s'", request.ScoreData.Username)
+		WriteError(http.StatusUnauthorized, AuthenticationError, ctx)
+		return
+	}
+
+	beatmap, err := ResolveBeatmap(
+		request.ScoreData,
+		ctx.Server,
+	)
+
+	if err != nil {
+		ctx.Server.Logger.Warningf("Error resolving beatmap: %v", err)
+		WriteError(http.StatusNotFound, BeatmapError, ctx)
+		return
+	}
+
+	if err = ValidateScore(user, request); err != nil {
+		ctx.Server.Logger.Warningf("Error validating score: %v", err)
+		WriteError(http.StatusBadRequest, ValidationError, ctx)
+		return
+	}
+
+	if err = InsertScore(user, beatmap, request.ScoreData); err != nil {
+		ctx.Server.Logger.Warningf("Error inserting score: %v", err)
+		WriteError(http.StatusInternalServerError, ServerError, ctx)
+		return
+	}
+
+	if err = UploadReplay(0, request.Replay); err != nil {
+		ctx.Server.Logger.Warningf("Error uploading replay: %v", err)
+		WriteError(http.StatusInternalServerError, ServerError, ctx)
+		return
+	}
+
+	if err = UpdateUserStatistics(user); err != nil {
+		ctx.Server.Logger.Warningf("Error updating user statistics: %v", err)
+		WriteError(http.StatusInternalServerError, ServerError, ctx)
+		return
+	}
+
+	if err = UpdateBeatmapStatistics(beatmap); err != nil {
+		ctx.Server.Logger.Warningf("Error updating beatmap statistics: %v", err)
+		WriteError(http.StatusInternalServerError, ServerError, ctx)
+		return
+	}
+
 	response := ScoreSubmissionResponse{Success: true}
 	json.NewEncoder(ctx.Response).Encode(response)
 }
