@@ -1,34 +1,9 @@
 package common
 
-type Grade int
-
-const (
-	GradeF Grade = iota + 1
-	GradeD
-	GradeC
-	GradeB
-	GradeA
-	GradeS
-	GradeSH
-	GradeX
-	GradeXH
+import (
+	"database/sql/driver"
+	"fmt"
 )
-
-var GradeStrings = map[Grade]string{
-	GradeF:  "F",
-	GradeD:  "D",
-	GradeC:  "C",
-	GradeB:  "B",
-	GradeA:  "A",
-	GradeS:  "S",
-	GradeSH: "SH",
-	GradeX:  "X",
-	GradeXH: "XH",
-}
-
-func (g Grade) String() string {
-	return GradeStrings[g]
-}
 
 type RelationshipStatus string
 
@@ -63,3 +38,58 @@ const (
 	ScoreStatusSubmitted ScoreStatus = iota
 	ScoreStatusPB        ScoreStatus = iota
 )
+
+type Grade int
+
+const (
+	GradeF Grade = iota + 1
+	GradeD
+	GradeC
+	GradeB
+	GradeA
+	GradeS
+	GradeSH
+	GradeX
+	GradeXH
+)
+
+var GradeStrings = map[Grade]string{
+	GradeF:  "F",
+	GradeD:  "D",
+	GradeC:  "C",
+	GradeB:  "B",
+	GradeA:  "A",
+	GradeS:  "S",
+	GradeSH: "SH",
+	GradeX:  "X",
+	GradeXH: "XH",
+}
+
+func (g Grade) String() string {
+	return GradeStrings[g]
+}
+
+func (g *Grade) Scan(value interface{}) error {
+	str, ok := value.(string)
+	if !ok {
+		return fmt.Errorf("failed to scan Grade: %v", value)
+	}
+
+	// Convert the string to the corresponding Grade
+	for grade, gradeString := range GradeStrings {
+		if gradeString == str {
+			*g = grade
+			return nil
+		}
+	}
+
+	return fmt.Errorf("invalid Grade: %s", str)
+}
+
+func (g Grade) Value() (driver.Value, error) {
+	gradeStr, ok := GradeStrings[g]
+	if !ok {
+		return nil, fmt.Errorf("invalid Grade: %d", g)
+	}
+	return gradeStr, nil
+}
