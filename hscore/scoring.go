@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/hexis-revival/hexagon/common"
@@ -31,7 +32,12 @@ func ResolveBeatmap(score *ScoreData, server *ScoreServer) (*common.Beatmap, err
 }
 
 func ValidateScore(user *common.User, request *ScoreSubmissionRequest) error {
-	return nil // TODO
+	if request.ScoreData.Mods.Auto {
+		return errors.New("submitted score with auto mod")
+	}
+
+	// TODO: Implement more score validation checks
+	return nil
 }
 
 func InsertScore(user *common.User, beatmap *common.Beatmap, scoreData *ScoreData, server *ScoreServer) (*common.Score, error) {
