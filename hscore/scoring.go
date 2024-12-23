@@ -34,19 +34,19 @@ func ValidateScore(user *common.User, request *ScoreSubmissionRequest) error {
 	return nil // TODO
 }
 
-func InsertScore(user *common.User, beatmap *common.Beatmap, score *ScoreData) error {
+func InsertScore(user *common.User, beatmap *common.Beatmap, score *ScoreData, server *ScoreServer) (*common.Score, error) {
+	return nil, nil // TODO
+}
+
+func UploadReplay(scoreId int, replay *common.ReplayData, storage *common.Storage) error {
 	return nil // TODO
 }
 
-func UploadReplay(scoreId int, replay *common.ReplayData) error {
+func UpdateUserStatistics(user *common.User, server *ScoreServer) error {
 	return nil // TODO
 }
 
-func UpdateUserStatistics(user *common.User) error {
-	return nil // TODO
-}
-
-func UpdateBeatmapStatistics(beatmap *common.Beatmap) error {
+func UpdateBeatmapStatistics(beatmap *common.Beatmap, server *ScoreServer) error {
 	return nil // TODO
 }
 
@@ -104,25 +104,31 @@ func ScoreSubmissionHandler(ctx *Context) {
 		return
 	}
 
-	if err = InsertScore(user, beatmap, request.ScoreData); err != nil {
+	score, err := InsertScore(
+		user, beatmap,
+		request.ScoreData,
+		ctx.Server,
+	)
+
+	if err != nil {
 		ctx.Server.Logger.Warningf("Error inserting score: %v", err)
 		WriteError(http.StatusInternalServerError, ServerError, ctx)
 		return
 	}
 
-	if err = UploadReplay(0, request.Replay); err != nil {
+	if err = UploadReplay(score.Id, request.Replay, &ctx.Server.State.Storage); err != nil {
 		ctx.Server.Logger.Warningf("Error uploading replay: %v", err)
 		WriteError(http.StatusInternalServerError, ServerError, ctx)
 		return
 	}
 
-	if err = UpdateUserStatistics(user); err != nil {
+	if err = UpdateUserStatistics(user, ctx.Server); err != nil {
 		ctx.Server.Logger.Warningf("Error updating user statistics: %v", err)
 		WriteError(http.StatusInternalServerError, ServerError, ctx)
 		return
 	}
 
-	if err = UpdateBeatmapStatistics(beatmap); err != nil {
+	if err = UpdateBeatmapStatistics(beatmap, ctx.Server); err != nil {
 		ctx.Server.Logger.Warningf("Error updating beatmap statistics: %v", err)
 		WriteError(http.StatusInternalServerError, ServerError, ctx)
 		return
