@@ -14,6 +14,22 @@ const (
 	GradeXH
 )
 
+var GradeStrings = map[Grade]string{
+	GradeF:  "F",
+	GradeD:  "D",
+	GradeC:  "C",
+	GradeB:  "B",
+	GradeA:  "A",
+	GradeS:  "S",
+	GradeSH: "SH",
+	GradeX:  "X",
+	GradeXH: "XH",
+}
+
+func (g Grade) String() string {
+	return GradeStrings[g]
+}
+
 type RelationshipStatus string
 
 const (
