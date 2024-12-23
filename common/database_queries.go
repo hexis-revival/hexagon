@@ -461,6 +461,22 @@ func FetchScoreById(id int, state *State, preload ...string) (*Score, error) {
 	return score, nil
 }
 
+func FetchPersonalBest(userId int, beatmapId int, state *State, preload ...string) (*Score, error) {
+	score := &Score{}
+	query := preloadQuery(state, preload)
+	query = query.Where(
+		"user_id = ? AND beatmap_id = ? AND status = ?",
+		userId, beatmapId, ScoreStatusPB,
+	)
+	result := query.First(score)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return score, nil
+}
+
 func UpdateScore(score *Score, state *State) error {
 	result := state.Database.Save(score)
 
