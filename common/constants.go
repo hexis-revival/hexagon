@@ -53,7 +53,7 @@ const (
 	GradeXH
 )
 
-var GradeStrings = map[Grade]string{
+var gradeStrings = map[Grade]string{
 	GradeF:  "F",
 	GradeD:  "D",
 	GradeC:  "C",
@@ -66,7 +66,7 @@ var GradeStrings = map[Grade]string{
 }
 
 func (g Grade) String() string {
-	return GradeStrings[g]
+	return gradeStrings[g]
 }
 
 func (g *Grade) Scan(value interface{}) error {
@@ -76,7 +76,7 @@ func (g *Grade) Scan(value interface{}) error {
 	}
 
 	// Convert the string to the corresponding Grade
-	for grade, gradeString := range GradeStrings {
+	for grade, gradeString := range gradeStrings {
 		if gradeString == str {
 			*g = grade
 			return nil
@@ -87,7 +87,7 @@ func (g *Grade) Scan(value interface{}) error {
 }
 
 func (g Grade) Value() (driver.Value, error) {
-	gradeStr, ok := GradeStrings[g]
+	gradeStr, ok := gradeStrings[g]
 	if !ok {
 		return nil, fmt.Errorf("invalid Grade: %d", g)
 	}
