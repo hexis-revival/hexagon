@@ -46,5 +46,4 @@ const (
 	ScoreStatusFailed    ScoreStatus = iota
 	ScoreStatusSubmitted ScoreStatus = iota
 	ScoreStatusPB        ScoreStatus = iota
-	ScoreStatusModsPB    ScoreStatus = iota
 )
