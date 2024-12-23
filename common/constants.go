@@ -42,6 +42,7 @@ const (
 type ScoreStatus int
 
 const (
+	ScoreStatusUnranked  ScoreStatus = iota
 	ScoreStatusFailed    ScoreStatus = iota
 	ScoreStatusSubmitted ScoreStatus = iota
 	ScoreStatusPB        ScoreStatus = iota
