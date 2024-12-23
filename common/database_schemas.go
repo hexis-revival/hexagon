@@ -172,21 +172,21 @@ type Score struct {
 	Accuracy      float64     `gorm:"not null"`
 	FullCombo     bool        `gorm:"not null"`
 	Passed        bool        `gorm:"not null"`
-	Grade         Grade       `gorm:"type:grade;not null"`
-	Count300      int         `gorm:"not null"`
-	Count100      int         `gorm:"not null"`
-	Count50       int         `gorm:"not null"`
-	CountGeki     int         `gorm:"not null"`
-	CountKatu     int         `gorm:"not null"`
-	CountGood     int         `gorm:"not null"`
-	CountMiss     int         `gorm:"not null"`
+	Grade         Grade       `gorm:"type:score_grade;not null"`
+	Count300      int         `gorm:"not null;column:count_300"`
+	Count100      int         `gorm:"not null;column:count_100"`
+	Count50       int         `gorm:"not null;column:count_50"`
+	CountGeki     int         `gorm:"not null;column:count_geki"`
+	CountKatu     int         `gorm:"not null;column:count_katu"`
+	CountGood     int         `gorm:"not null;column:count_good"`
+	CountMiss     int         `gorm:"not null;column:count_miss"`
 	AROffset      int         `gorm:"not null"`
 	ODOffset      int         `gorm:"not null"`
 	CSOffset      int         `gorm:"not null"`
 	HPOffset      int         `gorm:"not null"`
 	PSOffset      int         `gorm:"not null"`
 	ModHidden     bool        `gorm:"not null"`
-	ModNoFail     bool        `gorm:"not null"`
+	ModNoFail     bool        `gorm:"not null;column:mod_nofail"`
 	Visible       bool        `gorm:"not null;default:true"`
 	Pinned        bool        `gorm:"not null;default:false"`
 
