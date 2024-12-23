@@ -21,7 +21,7 @@ func ResolveBeatmap(score *ScoreData, server *ScoreServer) (*common.Beatmap, err
 	beatmap, err := common.FetchBeatmapByChecksum(
 		score.BeatmapChecksum,
 		server.State,
-		"Beatmapset",
+		"Set",
 	)
 
 	if err != nil {
