@@ -17,7 +17,17 @@ const (
 )
 
 func ResolveBeatmap(score *ScoreData, server *ScoreServer) (*common.Beatmap, error) {
-	return nil, nil // TODO
+	beatmap, err := common.FetchBeatmapByChecksum(
+		score.BeatmapChecksum,
+		server.State,
+		"Beatmapset",
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return beatmap, nil
 }
 
 func ValidateScore(user *common.User, request *ScoreSubmissionRequest) error {
