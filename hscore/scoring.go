@@ -113,8 +113,10 @@ func InsertScore(user *common.User, beatmap *common.Beatmap, scoreData *ScoreDat
 	return score, common.CreateScore(score, server.State)
 }
 
-func UploadReplay(scoreId int, replay *common.ReplayData, storage *common.Storage) error {
-	return nil // TODO
+func UploadReplay(scoreId int, replay *common.ReplayData, storage common.Storage) error {
+	stream := common.NewIOStream([]byte{}, binary.BigEndian)
+	replay.SerializeFrames(stream)
+	return storage.SaveReplayFile(scoreId, stream.Get())
 }
 
 func UpdateUserStatistics(user *common.User, server *ScoreServer) error {
@@ -191,7 +193,7 @@ func ScoreSubmissionHandler(ctx *Context) {
 		return
 	}
 
-	if err = UploadReplay(score.Id, request.Replay, &ctx.Server.State.Storage); err != nil {
+	if err = UploadReplay(score.Id, request.Replay, ctx.Server.State.Storage); err != nil {
 		ctx.Server.Logger.Warningf("Error uploading replay: %v", err)
 		WriteError(http.StatusInternalServerError, ServerError, ctx)
 		return
