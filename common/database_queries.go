@@ -243,6 +243,17 @@ func FetchBeatmapById(id int, state *State, preload ...string) (*Beatmap, error)
 	return beatmap, nil
 }
 
+func FetchBeatmapByChecksum(checksum string, state *State, preload ...string) (*Beatmap, error) {
+	beatmap := &Beatmap{}
+	result := preloadQuery(state, preload).First(beatmap, "checksum = ?", checksum)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return beatmap, nil
+}
+
 func FetchBeatmapsBySetId(setId int, state *State, preload ...string) ([]Beatmap, error) {
 	beatmaps := []Beatmap{}
 	result := preloadQuery(state, preload).Find(&beatmaps, "set_id = ?", setId)
@@ -442,6 +453,22 @@ func CreateScore(score *Score, state *State) error {
 func FetchScoreById(id int, state *State, preload ...string) (*Score, error) {
 	score := &Score{}
 	result := preloadQuery(state, preload).First(score, id)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return score, nil
+}
+
+func FetchPersonalBest(userId int, beatmapId int, state *State, preload ...string) (*Score, error) {
+	score := &Score{}
+	query := preloadQuery(state, preload)
+	query = query.Where(
+		"user_id = ? AND beatmap_id = ? AND status = ?",
+		userId, beatmapId, ScoreStatusPB,
+	)
+	result := query.First(score)
 
 	if result.Error != nil {
 		return nil, result.Error

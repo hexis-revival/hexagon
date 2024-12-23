@@ -112,27 +112,26 @@ func ParseModsData(modsString string) (*Mods, error) {
 	hpOffset, err := strconv.Atoi(modData[3])
 	collection.Add(err)
 
-	playSpeedMultiplier, err := strconv.Atoi(modData[4])
+	psOffset, err := strconv.Atoi(modData[4])
 	collection.Add(err)
 
 	if collection.HasErrors() {
 		return nil, collection.Pop(0)
 	}
 
-	playSpeed := 1 + (0.5 * float32(playSpeedMultiplier) / 10)
 	hidden := modData[5] == "1"
 	noFail := modData[6] == "1"
 	auto := modData[7] == "1"
 
 	return &Mods{
-		ArOffset:  arOffset,
-		OdOffset:  odOffset,
-		CsOffset:  csOffset,
-		HpOffset:  hpOffset,
-		PlaySpeed: playSpeed,
-		Hidden:    hidden,
-		NoFail:    noFail,
-		Auto:      auto,
+		ArOffset: arOffset,
+		OdOffset: odOffset,
+		CsOffset: csOffset,
+		HpOffset: hpOffset,
+		PsOffset: psOffset,
+		Hidden:   hidden,
+		NoFail:   noFail,
+		Auto:     auto,
 	}, nil
 }
 

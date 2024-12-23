@@ -215,14 +215,14 @@ func (scoreData *ScoreData) Grade() common.Grade {
 }
 
 type Mods struct {
-	ArOffset  int
-	OdOffset  int
-	CsOffset  int
-	HpOffset  int
-	PlaySpeed float32
-	Hidden    bool
-	NoFail    bool
-	Auto      bool
+	ArOffset int
+	OdOffset int
+	CsOffset int
+	HpOffset int
+	PsOffset int
+	Hidden   bool
+	NoFail   bool
+	Auto     bool
 }
 
 func (mods *Mods) String() string {
