@@ -243,6 +243,17 @@ func FetchBeatmapById(id int, state *State, preload ...string) (*Beatmap, error)
 	return beatmap, nil
 }
 
+func FetchBeatmapByChecksum(checksum string, state *State, preload ...string) (*Beatmap, error) {
+	beatmap := &Beatmap{}
+	result := preloadQuery(state, preload).First(beatmap, "checksum = ?", checksum)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return beatmap, nil
+}
+
 func FetchBeatmapsBySetId(setId int, state *State, preload ...string) ([]Beatmap, error) {
 	beatmaps := []Beatmap{}
 	result := preloadQuery(state, preload).Find(&beatmaps, "set_id = ?", setId)
