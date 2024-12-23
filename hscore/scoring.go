@@ -189,10 +189,16 @@ func ScoreSubmissionHandler(ctx *Context) {
 		return
 	}
 
-	if err = UploadReplay(score.Id, request.Replay, ctx.Server.State.Storage); err != nil {
-		ctx.Server.Logger.Warningf("Error uploading replay: %v", err)
-		WriteError(http.StatusInternalServerError, ServerError, ctx)
-		return
+	if score.Passed {
+		err = UploadReplay(
+			score.Id,
+			request.Replay,
+			ctx.Server.State.Storage,
+		)
+
+		if err != nil {
+			ctx.Server.Logger.Warningf("Error uploading replay: %v", err)
+		}
 	}
 
 	if err = UpdateUserStatistics(user, ctx.Server); err != nil {
