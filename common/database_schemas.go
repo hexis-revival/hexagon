@@ -40,6 +40,10 @@ type Stats struct {
 	DCount      int     `gorm:"not null;default:0"`
 }
 
+func (stats *Stats) Clears() int {
+	return stats.XHCount + stats.XCount + stats.SHCount + stats.SCount + stats.ACount + stats.BCount + stats.CCount + stats.DCount
+}
+
 func (user *User) EnsureStats(state *State) error {
 	if user.Stats.UserId != 0 {
 		return nil
