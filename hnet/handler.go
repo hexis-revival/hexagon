@@ -302,6 +302,17 @@ func handleLeaderboardRequest(stream *common.IOStream, player *Player) error {
 	return player.SendPacket(SERVER_LEADERBOARD_RESPONSE, response)
 }
 
+func handleStatsRefresh(stream *common.IOStream, player *Player) error {
+	player.LogIncomingPacket(CLIENT_STATS_REFRESH, nil)
+
+	if err := player.Refresh(); err != nil {
+		return err
+	}
+
+	player.SendPacket(SERVER_USER_STATS, player.Stats)
+	return nil
+}
+
 func init() {
 	Handlers[CLIENT_LOGIN] = ensureUnauthenticated(handleLogin)
 	Handlers[CLIENT_LOGIN_RECONNECT] = ensureUnauthenticated(handleReconnect)
@@ -314,4 +325,5 @@ func init() {
 	Handlers[CLIENT_RELATIONSHIP_ADD] = ensureAuthentication(handleUserRelationshipAdd)
 	Handlers[CLIENT_RELATIONSHIP_REMOVE] = ensureAuthentication(handleUserRelationshipRemove)
 	Handlers[CLIENT_LEADERBOARD_REQUEST] = ensureAuthentication(handleLeaderboardRequest)
+	Handlers[CLIENT_STATS_REFRESH] = ensureAuthentication(handleStatsRefresh)
 }
