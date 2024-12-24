@@ -102,6 +102,10 @@ func (status Status) HasBeatmapInfo() bool {
 	return status.Action > ACTION_AWAY
 }
 
+func (status Status) TimeSinceChanged() time.Duration {
+	return time.Since(status.LastChanged)
+}
+
 func (status Status) String() string {
 	return common.FormatStruct(status)
 }
