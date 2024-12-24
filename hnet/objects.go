@@ -279,6 +279,10 @@ func (mods *Mods) String() string {
 	return common.FormatStruct(mods)
 }
 
+func (mods *Mods) PlaySpeed() float32 {
+	return 1.0 + (0.5 * float32(mods.PsOffset) / 10.0)
+}
+
 type LeaderboardRequest struct {
 	BeatmapChecksum string
 	Unknown         uint64
