@@ -265,14 +265,14 @@ func (pack ScorePack) String() string {
 }
 
 type Mods struct {
-	ArOffset  int8
-	OdOffset  int8
-	CsOffset  int8
-	HpOffset  int8
-	PlaySpeed float32
-	Hidden    bool
-	NoFail    bool
-	Autoplay  bool
+	ArOffset int8
+	OdOffset int8
+	CsOffset int8
+	HpOffset int8
+	PsOffset int8
+	Hidden   bool
+	NoFail   bool
+	Autoplay bool
 }
 
 func (mods *Mods) String() string {

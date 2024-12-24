@@ -107,14 +107,14 @@ func ReadStatusChange(stream *common.IOStream) *Status {
 	status.Watching = stream.ReadString()
 
 	status.Mods = &Mods{
-		ArOffset:  stream.ReadI8(),
-		OdOffset:  stream.ReadI8(),
-		CsOffset:  stream.ReadI8(),
-		HpOffset:  stream.ReadI8(),
-		PlaySpeed: 1 + (0.5 * float32(stream.ReadI8()) / 10),
-		Hidden:    stream.ReadBool(),
-		NoFail:    stream.ReadBool(),
-		Autoplay:  stream.ReadBool(),
+		ArOffset: stream.ReadI8(),
+		OdOffset: stream.ReadI8(),
+		CsOffset: stream.ReadI8(),
+		HpOffset: stream.ReadI8(),
+		PsOffset: stream.ReadI8(),
+		Hidden:   stream.ReadBool(),
+		NoFail:   stream.ReadBool(),
+		Autoplay: stream.ReadBool(),
 	}
 
 	return status
