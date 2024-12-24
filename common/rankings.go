@@ -70,7 +70,7 @@ func GetScoreRank(userId int, state *State) (int, error) {
 		*state.RedisContext,
 		"rankings:rscore", strconv.Itoa(userId),
 	)
-	return int(result.Val()), result.Err()
+	return int(result.Val()) + 1, result.Err()
 }
 
 func GetCountryScoreRank(userId int, country string, state *State) (int, error) {
@@ -78,7 +78,7 @@ func GetCountryScoreRank(userId int, country string, state *State) (int, error) 
 		*state.RedisContext,
 		"rankings:rscore:"+strings.ToLower(country), strconv.Itoa(userId),
 	)
-	return int(result.Val()), result.Err()
+	return int(result.Val()) + 1, result.Err()
 }
 
 func GetTotalScoreRank(userId int, state *State) (int, error) {
@@ -86,7 +86,7 @@ func GetTotalScoreRank(userId int, state *State) (int, error) {
 		*state.RedisContext,
 		"rankings:tscore", strconv.Itoa(userId),
 	)
-	return int(result.Val()), result.Err()
+	return int(result.Val()) + 1, result.Err()
 }
 
 func GetCountryTotalScoreRank(userId int, country string, state *State) (int, error) {
@@ -94,7 +94,7 @@ func GetCountryTotalScoreRank(userId int, country string, state *State) (int, er
 		*state.RedisContext,
 		"rankings:tscore:"+strings.ToLower(country), strconv.Itoa(userId),
 	)
-	return int(result.Val()), result.Err()
+	return int(result.Val()) + 1, result.Err()
 }
 
 func GetClearsRank(userId int, state *State) (int, error) {
@@ -102,7 +102,7 @@ func GetClearsRank(userId int, state *State) (int, error) {
 		*state.RedisContext,
 		"rankings:clears", strconv.Itoa(userId),
 	)
-	return int(result.Val()), result.Err()
+	return int(result.Val()) + 1, result.Err()
 }
 
 func GetCountryClearsRank(userId int, countryCode string, state *State) (int, error) {
@@ -110,5 +110,5 @@ func GetCountryClearsRank(userId int, countryCode string, state *State) (int, er
 		*state.RedisContext,
 		"rankings:clears:"+strings.ToLower(countryCode), strconv.Itoa(userId),
 	)
-	return int(result.Val()), result.Err()
+	return int(result.Val()) + 1, result.Err()
 }
