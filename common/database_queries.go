@@ -72,6 +72,16 @@ func FetchStatsByUserId(userId int, state *State) (*Stats, error) {
 	return stats, nil
 }
 
+func UpdateStats(stats *Stats, state *State) error {
+	result := state.Database.Save(stats)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
 func CreateUserRelationship(relationship *Relationship, state *State) error {
 	result := state.Database.Create(relationship)
 
