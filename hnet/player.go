@@ -164,6 +164,7 @@ func (player *Player) Refresh() error {
 	user, err := common.FetchUserById(
 		int(player.Info.Id),
 		player.Server.State,
+		"Stats",
 	)
 
 	if err != nil {
