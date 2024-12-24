@@ -82,6 +82,19 @@ func UpdateStats(stats *Stats, state *State) error {
 	return nil
 }
 
+func UpdatePlaytime(userId int, secondsToAdd int, state *State) error {
+	result := state.Database.Exec(
+		"UPDATE stats SET playtime = playtime + ? WHERE user_id = ?",
+		secondsToAdd, userId,
+	)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
 func CreateUserRelationship(relationship *Relationship, state *State) error {
 	result := state.Database.Create(relationship)
 
