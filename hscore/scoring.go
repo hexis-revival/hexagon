@@ -145,6 +145,13 @@ func UpdateUserStatistics(scoreData *ScoreData, user *common.User, server *Score
 		return err
 	}
 
+	totalScores := len(bestScoresRanked) + len(bestScoresApproved)
+
+	if totalScores <= 0 {
+		// User has not set any scores yet
+		return nil
+	}
+
 	user.Stats.RankedScore = 0
 
 	for _, score := range bestScoresRanked {
@@ -162,7 +169,6 @@ func UpdateUserStatistics(scoreData *ScoreData, user *common.User, server *Score
 		common.GradeXH: 0,
 	}
 
-	totalScores := len(bestScoresRanked) + len(bestScoresApproved)
 	accuracySum := 0.0
 	maxCombo := 0
 
