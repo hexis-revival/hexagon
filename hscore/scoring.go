@@ -201,7 +201,16 @@ func UpdateUserStatistics(scoreData *ScoreData, user *common.User, server *Score
 	user.Stats.CCount = gradeMap[common.GradeC]
 	user.Stats.DCount = gradeMap[common.GradeD]
 
-	// TODO: Update user rank
+	err = common.UpdateRankingsEntry(&user.Stats, user.Country, server.State)
+	if err != nil {
+		server.Logger.Errorf("Failed to update rankings entry: %v", err)
+	}
+
+	user.Stats.Rank, err = common.GetScoreRank(user.Id, server.State)
+	if err != nil {
+		server.Logger.Errorf("Failed to get user rank: %v", err)
+	}
+
 	return common.UpdateStats(&user.Stats, server.State)
 }
 
