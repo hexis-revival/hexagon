@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/hexis-revival/hexagon/common"
 )
@@ -89,15 +90,20 @@ func (info VersionInfo) String() string {
 }
 
 type Status struct {
-	UserId   uint32
-	Action   uint32
-	Beatmap  *BeatmapInfo
-	Watching string
-	Mods     *Mods
+	UserId      uint32
+	Action      uint32
+	Beatmap     *BeatmapInfo
+	Watching    string
+	Mods        *Mods
+	LastChanged time.Time
 }
 
 func (status Status) HasBeatmapInfo() bool {
 	return status.Action > ACTION_AWAY
+}
+
+func (status Status) TimeSinceChanged() time.Duration {
+	return time.Since(status.LastChanged)
 }
 
 func (status Status) String() string {
@@ -106,9 +112,12 @@ func (status Status) String() string {
 
 func NewStatus() *Status {
 	return &Status{
-		UserId:  0,
-		Action:  1,
-		Beatmap: nil,
+		UserId:      0,
+		Action:      1,
+		Beatmap:     nil,
+		Watching:    "",
+		Mods:        nil,
+		LastChanged: time.Now(),
 	}
 }
 
