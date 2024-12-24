@@ -119,8 +119,86 @@ func UploadReplay(scoreId int, replay *common.ReplayData, storage common.Storage
 	return storage.SaveReplayFile(scoreId, stream.Get())
 }
 
-func UpdateUserStatistics(user *common.User, server *ScoreServer) error {
-	return nil // TODO
+func UpdateUserStatistics(scoreData *ScoreData, beatmap *common.Beatmap, user *common.User, server *ScoreServer) (err error) {
+	user.Stats.TotalHits += int64(scoreData.Count300 + scoreData.Count100 + scoreData.Count50 + scoreData.CountGood + scoreData.CountKatu)
+	user.Stats.TotalScore += int64(scoreData.TotalScore)
+	user.Stats.Playcount += 1
+
+	if beatmap.Status < common.BeatmapStatusRanked {
+		return nil
+	}
+
+	bestScoresRanked, err := common.FetchBestScores(
+		user.Id,
+		int(common.BeatmapStatusRanked),
+		server.State,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	bestScoresApproved, err := common.FetchBestScores(
+		user.Id,
+		int(common.BeatmapStatusApproved),
+		server.State,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	user.Stats.RankedScore = 0
+
+	for _, score := range bestScoresRanked {
+		user.Stats.RankedScore += score.TotalScore
+	}
+
+	gradeMap := map[common.Grade]int{
+		common.GradeD:  0,
+		common.GradeC:  0,
+		common.GradeB:  0,
+		common.GradeA:  0,
+		common.GradeS:  0,
+		common.GradeSH: 0,
+		common.GradeX:  0,
+		common.GradeXH: 0,
+	}
+
+	accuracySum := 0.0
+	maxCombo := 0
+
+	for _, score := range bestScoresRanked {
+		accuracySum += score.Accuracy
+		gradeMap[score.Grade]++
+
+		if score.MaxCombo > maxCombo {
+			maxCombo = score.MaxCombo
+		}
+	}
+
+	for _, score := range bestScoresApproved {
+		accuracySum += score.Accuracy
+		gradeMap[score.Grade]++
+
+		if score.MaxCombo > maxCombo {
+			maxCombo = score.MaxCombo
+		}
+	}
+
+	user.Stats.Accuracy = accuracySum / float64(len(bestScoresRanked)+len(bestScoresApproved))
+	user.Stats.MaxCombo = maxCombo
+	user.Stats.XHCount = gradeMap[common.GradeXH]
+	user.Stats.XCount = gradeMap[common.GradeX]
+	user.Stats.SHCount = gradeMap[common.GradeSH]
+	user.Stats.SCount = gradeMap[common.GradeS]
+	user.Stats.ACount = gradeMap[common.GradeA]
+	user.Stats.BCount = gradeMap[common.GradeB]
+	user.Stats.CCount = gradeMap[common.GradeC]
+	user.Stats.DCount = gradeMap[common.GradeD]
+
+	// TODO: Update user rank
+	return common.UpdateStats(&user.Stats, server.State)
 }
 
 func WriteError(statusCode int, errorMessage string, ctx *Context) error {
@@ -201,7 +279,7 @@ func ScoreSubmissionHandler(ctx *Context) {
 		}
 	}
 
-	if err = UpdateUserStatistics(user, ctx.Server); err != nil {
+	if err = UpdateUserStatistics(request.ScoreData, beatmap, user, ctx.Server); err != nil {
 		ctx.Server.Logger.Warningf("Error updating user statistics: %v", err)
 		WriteError(http.StatusInternalServerError, ServerError, ctx)
 		return

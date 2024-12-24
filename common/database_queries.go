@@ -72,6 +72,16 @@ func FetchStatsByUserId(userId int, state *State) (*Stats, error) {
 	return stats, nil
 }
 
+func UpdateStats(stats *Stats, state *State) error {
+	result := state.Database.Save(stats)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
 func CreateUserRelationship(relationship *Relationship, state *State) error {
 	result := state.Database.Create(relationship)
 
@@ -475,6 +485,19 @@ func FetchPersonalBest(userId int, beatmapId int, state *State, preload ...strin
 	}
 
 	return score, nil
+}
+
+func FetchBestScores(userId int, beatmapStatus int, state *State) ([]Score, error) {
+	scores := []Score{}
+	query := state.Database.Joins("JOIN beatmaps ON scores.beatmap_id = beatmaps.id")
+	query = query.Where("scores.user_id = ? AND scores.status = ? AND beatmaps.status = ?", userId, ScoreStatusPB, beatmapStatus)
+	result := query.Find(&scores)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return scores, nil
 }
 
 func UpdateScore(score *Score, state *State) error {
