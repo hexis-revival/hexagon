@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"errors"
+	"math"
 	"net/http"
 
 	"github.com/hexis-revival/hexagon/common"
@@ -165,6 +166,7 @@ func UpdateUserStatistics(scoreData *ScoreData, beatmap *common.Beatmap, user *c
 		common.GradeXH: 0,
 	}
 
+	totalScores := len(bestScoresRanked) + len(bestScoresApproved)
 	accuracySum := 0.0
 	maxCombo := 0
 
@@ -186,8 +188,8 @@ func UpdateUserStatistics(scoreData *ScoreData, beatmap *common.Beatmap, user *c
 		}
 	}
 
-	user.Stats.Accuracy = accuracySum / float64(len(bestScoresRanked)+len(bestScoresApproved))
 	user.Stats.MaxCombo = maxCombo
+	user.Stats.Accuracy = math.Round(accuracySum/float64(totalScores)*1e6) / 1e6
 	user.Stats.XHCount = gradeMap[common.GradeXH]
 	user.Stats.XCount = gradeMap[common.GradeX]
 	user.Stats.SHCount = gradeMap[common.GradeSH]
