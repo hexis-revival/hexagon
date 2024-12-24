@@ -55,10 +55,20 @@ func (player *Player) CloseConnection() {
 }
 
 func (player *Player) LogIncomingPacket(packetId uint32, packet Serializable) {
+	if packet == nil {
+		player.Logger.Debugf("-> %d: nil", packetId)
+		return
+	}
+
 	player.Logger.Debugf("-> %d: %s", packetId, packet.String())
 }
 
 func (player *Player) LogOutgoingPacket(packetId uint32, packet Serializable) {
+	if packet == nil {
+		player.Logger.Debugf("<- %d: nil", packetId)
+		return
+	}
+
 	player.Logger.Debugf("<- %d: %s", packetId, packet.String())
 }
 
@@ -148,6 +158,20 @@ func (player *Player) OnLoginFailed(reason string) {
 
 func (player *Player) RevokeLogin() error {
 	return player.SendPacketData(SERVER_LOGIN_REVOKED, []byte{})
+}
+
+func (player *Player) Refresh() error {
+	user, err := common.FetchUserById(
+		int(player.Info.Id),
+		player.Server.State,
+		"Stats",
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return player.ApplyUserData(user)
 }
 
 func (player *Player) AddRelationship(targetId uint32, status common.RelationshipStatus) error {
