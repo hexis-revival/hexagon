@@ -120,14 +120,10 @@ func UploadReplay(scoreId int, replay *common.ReplayData, storage common.Storage
 	return storage.SaveReplayFile(scoreId, stream.Get())
 }
 
-func UpdateUserStatistics(scoreData *ScoreData, beatmap *common.Beatmap, user *common.User, server *ScoreServer) (err error) {
+func UpdateUserStatistics(scoreData *ScoreData, user *common.User, server *ScoreServer) (err error) {
 	user.Stats.TotalHits += int64(scoreData.Count300 + scoreData.Count100 + scoreData.Count50 + scoreData.CountGood + scoreData.CountKatu)
 	user.Stats.TotalScore += int64(scoreData.TotalScore)
 	user.Stats.Playcount += 1
-
-	if beatmap.Status < common.BeatmapStatusRanked {
-		return nil
-	}
 
 	bestScoresRanked, err := common.FetchBestScores(
 		user.Id,
@@ -281,7 +277,7 @@ func ScoreSubmissionHandler(ctx *Context) {
 		}
 	}
 
-	if err = UpdateUserStatistics(request.ScoreData, beatmap, user, ctx.Server); err != nil {
+	if err = UpdateUserStatistics(request.ScoreData, user, ctx.Server); err != nil {
 		ctx.Server.Logger.Warningf("Error updating user statistics: %v", err)
 		WriteError(http.StatusInternalServerError, ServerError, ctx)
 		return
