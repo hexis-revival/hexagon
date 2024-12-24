@@ -2,6 +2,7 @@ package hnet
 
 import (
 	"strings"
+	"time"
 
 	"github.com/hexis-revival/hexagon/common"
 )
@@ -85,9 +86,10 @@ func ReadStatusChange(stream *common.IOStream) *Status {
 	defer recover()
 
 	status := &Status{
-		UserId:  stream.ReadU32(),
-		Action:  stream.ReadU32(),
-		Beatmap: nil,
+		UserId:      stream.ReadU32(),
+		Action:      stream.ReadU32(),
+		LastChanged: time.Now(),
+		Beatmap:     nil,
 	}
 
 	if !status.HasBeatmapInfo() {
