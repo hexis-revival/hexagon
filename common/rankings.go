@@ -38,3 +38,28 @@ func UpdateRankingsEntry(stats *Stats, country string, state *State) error {
 
 	return errors.Next()
 }
+
+func RemoveRankingsEntry(stats *Stats, country string, state *State) error {
+	country = strings.ToLower(country)
+	errors := NewErrorCollection()
+
+	entries := []string{
+		"rankings:rscore",
+		"rankings:tscore",
+		"rankings:clears",
+	}
+
+	for _, key := range entries {
+		result := state.Redis.ZRem(
+			*state.RedisContext, key, stats.UserId,
+		)
+		errors.Add(result.Err())
+
+		result = state.Redis.ZRem(
+			*state.RedisContext, key+":"+country, stats.UserId,
+		)
+		errors.Add(result.Err())
+	}
+
+	return errors.Next()
+}
