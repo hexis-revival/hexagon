@@ -119,6 +119,21 @@ func handleStatusChange(stream *common.IOStream, player *Player) error {
 		return fmt.Errorf("failed to read status change")
 	}
 
+	if player.Stats.Status.Action == ACTION_PLAYING {
+		time := player.Stats.Status.TimeSinceChanged()
+
+		// Update user's playtime
+		err := common.UpdatePlaytime(
+			int(player.Info.Id),
+			int(time.Seconds()),
+			player.Server.State,
+		)
+
+		if err != nil {
+			player.Logger.Errorf("Failed to update playtime: %s", err)
+		}
+	}
+
 	player.LogIncomingPacket(CLIENT_CHANGE_STATUS, status)
 	player.Stats.Status = status
 
