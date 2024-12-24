@@ -119,9 +119,9 @@ func UploadReplay(scoreId int, replay *common.ReplayData, storage common.Storage
 	return storage.SaveReplayFile(scoreId, stream.Get())
 }
 
-func UpdateUserStatistics(score *ScoreData, beatmap *common.Beatmap, user *common.User, server *ScoreServer) (err error) {
-	user.Stats.TotalHits += int64(score.Count300 + score.Count100 + score.Count50 + score.CountGood + score.CountKatu)
-	user.Stats.TotalScore += int64(score.TotalScore)
+func UpdateUserStatistics(scoreData *ScoreData, beatmap *common.Beatmap, user *common.User, server *ScoreServer) (err error) {
+	user.Stats.TotalHits += int64(scoreData.Count300 + scoreData.Count100 + scoreData.Count50 + scoreData.CountGood + scoreData.CountKatu)
+	user.Stats.TotalScore += int64(scoreData.TotalScore)
 	user.Stats.Playcount += 1
 
 	if beatmap.Status < common.BeatmapStatusRanked {
