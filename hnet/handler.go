@@ -3,6 +3,7 @@ package hnet
 import (
 	"encoding/hex"
 	"fmt"
+	"math"
 
 	"github.com/hexis-revival/hexagon/common"
 )
@@ -121,11 +122,12 @@ func handleStatusChange(stream *common.IOStream, player *Player) error {
 
 	if player.Stats.Status.Action == ACTION_PLAYING {
 		time := player.Stats.Status.TimeSinceChanged()
+		seconds := math.Min(time.Seconds(), 3600*5)
 
 		// Update user's playtime
 		err := common.UpdatePlaytime(
 			int(player.Info.Id),
-			int(time.Seconds()),
+			int(seconds),
 			player.Server.State,
 		)
 
