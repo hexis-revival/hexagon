@@ -196,6 +196,8 @@ func UpdateUserStatistics(score *ScoreData, beatmap *common.Beatmap, user *commo
 	user.Stats.BCount = gradeMap[common.GradeB]
 	user.Stats.CCount = gradeMap[common.GradeC]
 	user.Stats.DCount = gradeMap[common.GradeD]
+
+	// TODO: Update user rank
 	return common.UpdateStats(&user.Stats, server.State)
 }
 
