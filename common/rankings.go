@@ -1,6 +1,7 @@
 package common
 
 import (
+	"strconv"
 	"strings"
 
 	"github.com/redis/go-redis/v9"
@@ -62,4 +63,52 @@ func RemoveRankingsEntry(stats *Stats, country string, state *State) error {
 	}
 
 	return errors.Next()
+}
+
+func GetScoreRank(userId int, state *State) (int, error) {
+	result := state.Redis.ZRevRank(
+		*state.RedisContext,
+		"rankings:rscore", strconv.Itoa(userId),
+	)
+	return int(result.Val()), result.Err()
+}
+
+func GetCountryScoreRank(userId int, country string, state *State) (int, error) {
+	result := state.Redis.ZRevRank(
+		*state.RedisContext,
+		"rankings:rscore:"+strings.ToLower(country), strconv.Itoa(userId),
+	)
+	return int(result.Val()), result.Err()
+}
+
+func GetTotalScoreRank(userId int, state *State) (int, error) {
+	result := state.Redis.ZRevRank(
+		*state.RedisContext,
+		"rankings:tscore", strconv.Itoa(userId),
+	)
+	return int(result.Val()), result.Err()
+}
+
+func GetCountryTotalScoreRank(userId int, country string, state *State) (int, error) {
+	result := state.Redis.ZRevRank(
+		*state.RedisContext,
+		"rankings:tscore:"+strings.ToLower(country), strconv.Itoa(userId),
+	)
+	return int(result.Val()), result.Err()
+}
+
+func GetClearsRank(userId int, state *State) (int, error) {
+	result := state.Redis.ZRevRank(
+		*state.RedisContext,
+		"rankings:clears", strconv.Itoa(userId),
+	)
+	return int(result.Val()), result.Err()
+}
+
+func GetCountryClearsRank(userId int, countryCode string, state *State) (int, error) {
+	result := state.Redis.ZRevRank(
+		*state.RedisContext,
+		"rankings:clears:"+strings.ToLower(countryCode), strconv.Itoa(userId),
+	)
+	return int(result.Val()), result.Err()
 }
