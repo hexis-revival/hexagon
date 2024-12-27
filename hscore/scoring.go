@@ -54,7 +54,7 @@ func ValidateScore(user *common.User, beatmap *common.Beatmap, request *ScoreSub
 		return true, fmt.Errorf("submitted score with invalid total score '%d'", request.ScoreData.TotalScore)
 	}
 
-	if len(request.Replay.Frames) <= 100 {
+	if request.ScoreData.Passed && len(request.Replay.Frames) <= 100 {
 		return true, fmt.Errorf("submitted score with too few replay frames '%d'", len(request.Replay.Frames))
 	}
 
