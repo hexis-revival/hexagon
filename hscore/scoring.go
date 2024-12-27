@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math"
 	"net/http"
 
@@ -32,13 +33,36 @@ func ResolveBeatmap(score *ScoreData, server *ScoreServer) (*common.Beatmap, err
 	return beatmap, nil
 }
 
-func ValidateScore(user *common.User, request *ScoreSubmissionRequest) error {
+func ValidateScore(user *common.User, beatmap *common.Beatmap, request *ScoreSubmissionRequest) (bool, error) {
 	if request.ScoreData.Mods.Auto {
-		return errors.New("submitted score with auto mod")
+		return true, errors.New("submitted score with auto mod")
 	}
 
-	// TODO: Implement more score validation checks
-	return nil
+	if request.ScoreData.MaxCombo <= 0 {
+		return true, fmt.Errorf("submitted score with invalid max combo '%d'", request.ScoreData.MaxCombo)
+	}
+
+	if request.ScoreData.PassedObjects() <= 0 {
+		return true, errors.New("submitted score with no passed objects")
+	}
+
+	if request.ScoreData.TotalHits() < request.ScoreData.MaxCombo {
+		return true, errors.New("submitted score with passed objects less than max combo")
+	}
+
+	if request.ScoreData.TotalScore <= 0 {
+		return true, fmt.Errorf("submitted score with invalid total score '%d'", request.ScoreData.TotalScore)
+	}
+
+	if request.ScoreData.MaxCombo > beatmap.MaxCombo {
+		comboDifference := request.ScoreData.MaxCombo - beatmap.MaxCombo
+
+		if comboDifference > 5 {
+			return false, fmt.Errorf("submitted score with invalid max combo '%d'", request.ScoreData.MaxCombo)
+		}
+	}
+
+	return false, nil
 }
 
 func InsertScore(user *common.User, beatmap *common.Beatmap, scoreData *ScoreData, server *ScoreServer) (*common.Score, error) {
@@ -262,10 +286,17 @@ func ScoreSubmissionHandler(ctx *Context) {
 		return
 	}
 
-	if err = ValidateScore(user, request); err != nil {
-		ctx.Server.Logger.Anomalyf("Error validating score: %v", err)
-		WriteError(http.StatusBadRequest, ValidationError, ctx)
-		return
+	if reject, err := ValidateScore(user, beatmap, request); err != nil {
+		ctx.Server.Logger.Anomalyf(
+			"(%s) Score validation error: %v",
+			user.Name, err,
+		)
+
+		if reject {
+			WriteError(http.StatusBadRequest, ValidationError, ctx)
+			ctx.Server.Logger.Warningf("Rejected score submission from '%s'.", user.Name)
+			return
+		}
 	}
 
 	score, err := InsertScore(
