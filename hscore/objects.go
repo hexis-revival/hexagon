@@ -170,6 +170,10 @@ func (scoreData *ScoreData) String() string {
 	return common.FormatStruct(scoreData)
 }
 
+func (scoreData *ScoreData) PassedObjects() int {
+	return scoreData.Count300 + scoreData.Count100 + scoreData.Count50 + scoreData.CountGeki + scoreData.CountKatu + scoreData.CountGood + scoreData.CountMiss
+}
+
 func (scoreData *ScoreData) TotalHits() int {
 	return scoreData.Count300 + scoreData.Count100 + scoreData.Count50
 }
