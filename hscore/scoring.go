@@ -229,7 +229,7 @@ func ScoreSubmissionHandler(ctx *Context) {
 	ctx.Response.Header().Set("Content-Type", "application/json")
 
 	if err != nil {
-		ctx.Server.Logger.Errorf("Error parsing score submission request: %v", err)
+		ctx.Server.Logger.Anomalyf("Error parsing score submission request: %v", err)
 		WriteError(http.StatusBadRequest, ValidationError, ctx)
 		return
 	}
@@ -263,7 +263,7 @@ func ScoreSubmissionHandler(ctx *Context) {
 	}
 
 	if err = ValidateScore(user, request); err != nil {
-		ctx.Server.Logger.Warningf("Error validating score: %v", err)
+		ctx.Server.Logger.Anomalyf("Error validating score: %v", err)
 		WriteError(http.StatusBadRequest, ValidationError, ctx)
 		return
 	}
