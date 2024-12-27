@@ -8,9 +8,13 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"regexp"
 
 	"github.com/hexis-revival/hexagon/common"
 )
+
+var processRegexString = `^(?P<process_name>[\w\s\[\]._-]+)(?:\s\((?P<details>[^\)]*)\))?.*$`
+var processRegex = regexp.MustCompile(processRegexString)
 
 const (
 	ValidationError     = "Invalid score submission request."
@@ -74,7 +78,25 @@ func ValidateScore(user *common.User, beatmap *common.Beatmap, request *ScoreSub
 		return false, fmt.Errorf("submitted score with unknown client version '%d'", request.ScoreData.ClientVersion)
 	}
 
-	return false, nil
+	if !request.ScoreData.Passed {
+		return false, nil
+	}
+
+	for _, process := range request.ProcessList {
+		match := processRegex.FindStringSubmatch(process)
+
+		if match == nil {
+			return false, fmt.Errorf("submitted score with invalid process list '%s'", request.ProcessList)
+		}
+
+		if match[0] != "Hexis.exe" && match[1] != "Hexis" {
+			continue
+		}
+
+		return false, nil
+	}
+
+	return true, errors.New("could not find hexis inside process list")
 }
 
 func InsertScore(user *common.User, beatmap *common.Beatmap, scoreData *ScoreData, server *ScoreServer) (*common.Score, error) {
