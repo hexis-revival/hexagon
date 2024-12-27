@@ -149,8 +149,8 @@ func UploadReplay(scoreId int, replay *common.ReplayData, storage common.Storage
 }
 
 func UpdateUserStatistics(scoreData *ScoreData, user *common.User, server *ScoreServer) (err error) {
-	user.Stats.TotalHits += int64(scoreData.Count300 + scoreData.Count100 + scoreData.Count50 + scoreData.CountGood + scoreData.CountKatu)
 	user.Stats.TotalScore += int64(scoreData.TotalScore)
+	user.Stats.TotalHits += int64(scoreData.TotalHits())
 	user.Stats.Playcount += 1
 
 	bestScoresRanked, err := common.FetchBestScores(
