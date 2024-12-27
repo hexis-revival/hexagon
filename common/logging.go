@@ -144,11 +144,18 @@ func (c *Logger) Verbosef(format string, msg ...any) {
 	c.logger.Println(c.formatLogMessage("VERBOSE", fmt.Sprintf(format, msg...)))
 }
 
-func (c *Logger) LogAnomaly(msg ...any) {
+func (c *Logger) Anomaly(msg ...any) {
 	if c.level > ANOMALY {
 		return
 	}
 	c.logger.Println(c.formatLogMessage("ANOMALY", concatMessage(msg...)))
+}
+
+func (c *Logger) Anomalyf(format string, msg ...any) {
+	if c.level > ANOMALY {
+		return
+	}
+	c.logger.Println(c.formatLogMessage("ANOMALY", fmt.Sprintf(format, msg...)))
 }
 
 func (c *Logger) formatLogMessage(level string, msg string) string {
