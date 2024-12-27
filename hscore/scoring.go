@@ -66,6 +66,14 @@ func ValidateScore(user *common.User, beatmap *common.Beatmap, request *ScoreSub
 		}
 	}
 
+	if request.ScoreData.ClientBuildDate != 20140304 {
+		return false, fmt.Errorf("submitted score with unknown client build date '%d'", request.ScoreData.ClientBuildDate)
+	}
+
+	if request.ScoreData.ClientVersion != 105 {
+		return false, fmt.Errorf("submitted score with unknown client version '%d'", request.ScoreData.ClientVersion)
+	}
+
 	return false, nil
 }
 
