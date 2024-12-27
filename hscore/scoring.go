@@ -46,8 +46,8 @@ func ValidateScore(user *common.User, beatmap *common.Beatmap, request *ScoreSub
 		return true, errors.New("submitted score with no passed objects")
 	}
 
-	if request.ScoreData.TotalHits() > request.ScoreData.MaxCombo {
-		return true, errors.New("submitted score with passed objects less than max combo")
+	if request.ScoreData.PassedObjects() < request.ScoreData.MaxCombo {
+		return true, errors.New("submitted score with max combo greater than passed objects")
 	}
 
 	if request.ScoreData.TotalScore <= 0 {
