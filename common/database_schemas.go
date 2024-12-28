@@ -116,6 +116,10 @@ type Beatmap struct {
 	Creator User       `gorm:"foreignKey:CreatorId"`
 }
 
+func (beatmap *Beatmap) TotalObjects() int {
+	return beatmap.TotalCircles + beatmap.TotalSliders + beatmap.TotalSpinners + beatmap.TotalHolds
+}
+
 type Forum struct {
 	Id          int       `gorm:"primaryKey;autoIncrement;not null"`
 	ParentId    *int      `gorm:"default:null"`
