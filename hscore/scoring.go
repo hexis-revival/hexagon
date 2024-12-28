@@ -13,7 +13,7 @@ import (
 	"github.com/hexis-revival/hexagon/common"
 )
 
-var processRegexString = `^(?P<process_name>[\w\s\[\]._-]+)(?:\s\((?P<details>[^\)]*)\))?.*$`
+var processRegexString = `^(.*?)(?: \((.*?)\))?;$`
 var processRegex = regexp.MustCompile(processRegexString)
 
 const (
@@ -89,7 +89,7 @@ func ValidateScore(user *common.User, beatmap *common.Beatmap, request *ScoreSub
 			return false, fmt.Errorf("submitted score with invalid process list '%s'", request.ProcessList)
 		}
 
-		if match[0] != "Hexis.exe" && match[1] != "Hexis" {
+		if match[1] != "Hexis.exe" && match[2] != "Hexis" {
 			continue
 		}
 

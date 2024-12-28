@@ -136,9 +136,9 @@ func ParseModsData(modsString string) (*Mods, error) {
 }
 
 func ParseProcessList(processListBytes []byte) []string {
-	processListStr := strings.ReplaceAll(string(processListBytes), "\n", "")
-	processListStr = strings.ReplaceAll(processListStr, "0  | ", "")
-	processListStr = strings.ReplaceAll(processListStr, "; ", "")
-	processList := strings.Split(processListStr, "| ")
+	processListStr := strings.ReplaceAll(string(processListBytes), "0  | ", "")
+	processListStr = strings.ReplaceAll(processListStr, "\n | ", "\n")
+	processListStr = strings.TrimRight(processListStr, "\n")
+	processList := strings.Split(processListStr, "\n")
 	return processList
 }
