@@ -5,11 +5,16 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math"
 	"net/http"
+	"regexp"
 
 	"github.com/hexis-revival/hexagon/common"
 )
+
+var processRegexString = `^(.*?)(?: \((.*?)\))?;$`
+var processRegex = regexp.MustCompile(processRegexString)
 
 const (
 	ValidationError     = "Invalid score submission request."
@@ -32,13 +37,66 @@ func ResolveBeatmap(score *ScoreData, server *ScoreServer) (*common.Beatmap, err
 	return beatmap, nil
 }
 
-func ValidateScore(user *common.User, request *ScoreSubmissionRequest) error {
+func ValidateScore(user *common.User, beatmap *common.Beatmap, request *ScoreSubmissionRequest) (bool, error) {
 	if request.ScoreData.Mods.Auto {
-		return errors.New("submitted score with auto mod")
+		return true, errors.New("submitted score with auto mod")
 	}
 
-	// TODO: Implement more score validation checks
-	return nil
+	if request.ScoreData.MaxCombo <= 0 {
+		return true, fmt.Errorf("submitted score with invalid max combo '%d'", request.ScoreData.MaxCombo)
+	}
+
+	if request.ScoreData.PassedObjects() <= 0 {
+		return true, errors.New("submitted score with no passed objects")
+	}
+
+	if request.ScoreData.PassedObjects() > beatmap.TotalObjects() {
+		return true, fmt.Errorf("submitted score with too many passed objects '%d'", request.ScoreData.PassedObjects())
+	}
+
+	if request.ScoreData.TotalScore <= 0 {
+		return true, fmt.Errorf("submitted score with invalid total score '%d'", request.ScoreData.TotalScore)
+	}
+
+	if request.ScoreData.Passed && len(request.Replay.Frames) <= 100 {
+		return true, fmt.Errorf("submitted score with too few replay frames '%d'", len(request.Replay.Frames))
+	}
+
+	if request.ScoreData.MaxCombo > beatmap.MaxCombo {
+		comboDifference := request.ScoreData.MaxCombo - beatmap.MaxCombo
+
+		if comboDifference > 5 {
+			return false, fmt.Errorf("submitted score with invalid max combo '%d'", request.ScoreData.MaxCombo)
+		}
+	}
+
+	if request.ScoreData.ClientBuildDate != 20140304 {
+		return false, fmt.Errorf("submitted score with unknown client build date '%d'", request.ScoreData.ClientBuildDate)
+	}
+
+	if request.ScoreData.ClientVersion != 105 {
+		return false, fmt.Errorf("submitted score with unknown client version '%d'", request.ScoreData.ClientVersion)
+	}
+
+	if !request.ScoreData.Passed {
+		return false, nil
+	}
+
+	for _, process := range request.ProcessList {
+		match := processRegex.FindStringSubmatch(process)
+
+		if match == nil {
+			return false, fmt.Errorf("submitted score with invalid process list '%s'", request.ProcessList)
+		}
+
+		if match[1] != "Hexis.exe" && match[2] != "Hexis" {
+			continue
+		}
+
+		return false, nil
+	}
+
+	return true, errors.New("could not find hexis inside process list")
 }
 
 func InsertScore(user *common.User, beatmap *common.Beatmap, scoreData *ScoreData, server *ScoreServer) (*common.Score, error) {
@@ -121,8 +179,8 @@ func UploadReplay(scoreId int, replay *common.ReplayData, storage common.Storage
 }
 
 func UpdateUserStatistics(scoreData *ScoreData, user *common.User, server *ScoreServer) (err error) {
-	user.Stats.TotalHits += int64(scoreData.Count300 + scoreData.Count100 + scoreData.Count50 + scoreData.CountGood + scoreData.CountKatu)
 	user.Stats.TotalScore += int64(scoreData.TotalScore)
+	user.Stats.TotalHits += int64(scoreData.TotalHits())
 	user.Stats.Playcount += 1
 
 	bestScoresRanked, err := common.FetchBestScores(
@@ -229,7 +287,7 @@ func ScoreSubmissionHandler(ctx *Context) {
 	ctx.Response.Header().Set("Content-Type", "application/json")
 
 	if err != nil {
-		ctx.Server.Logger.Errorf("Error parsing score submission request: %v", err)
+		ctx.Server.Logger.Anomalyf("Error parsing score submission request: %v", err)
 		WriteError(http.StatusBadRequest, ValidationError, ctx)
 		return
 	}
@@ -262,10 +320,17 @@ func ScoreSubmissionHandler(ctx *Context) {
 		return
 	}
 
-	if err = ValidateScore(user, request); err != nil {
-		ctx.Server.Logger.Warningf("Error validating score: %v", err)
-		WriteError(http.StatusBadRequest, ValidationError, ctx)
-		return
+	if reject, err := ValidateScore(user, beatmap, request); err != nil {
+		ctx.Server.Logger.Anomalyf(
+			"(%s) Score validation error: %v",
+			user.Name, err,
+		)
+
+		if reject {
+			WriteError(http.StatusBadRequest, ValidationError, ctx)
+			ctx.Server.Logger.Warningf("Rejected score submission from '%s'.", user.Name)
+			return
+		}
 	}
 
 	score, err := InsertScore(
