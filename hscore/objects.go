@@ -171,7 +171,7 @@ func (scoreData *ScoreData) String() string {
 }
 
 func (scoreData *ScoreData) PassedObjects() int {
-	return scoreData.Count300 + scoreData.Count100 + scoreData.Count50 + scoreData.CountGeki + scoreData.CountKatu + scoreData.CountGood + scoreData.CountMiss
+	return scoreData.Count300 + scoreData.Count100 + scoreData.Count50 + scoreData.CountMiss
 }
 
 func (scoreData *ScoreData) TotalHits() int {
