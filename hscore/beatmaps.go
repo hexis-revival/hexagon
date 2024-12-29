@@ -279,9 +279,9 @@ func ResolveBeatmaps(beatmapObjects map[string]*hbxml.Beatmap, beatmaps []common
 	foundBeatmaps := make(map[string]bool, len(beatmaps))
 
 	// Find existing beatmaps and map them
-	for filename, _ := range beatmapObjects {
+	for filename, beatmapFile := range beatmapObjects {
 		for _, beatmap := range beatmaps {
-			if beatmap.Filename == filename {
+			if beatmapFile.Meta.MapVersionID == beatmap.Id {
 				beatmapMap[filename] = &beatmap
 				foundBeatmaps[filename] = true
 				break
