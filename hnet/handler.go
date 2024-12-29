@@ -291,6 +291,9 @@ func handleLeaderboardRequest(stream *common.IOStream, player *Player) error {
 
 	player.LogIncomingPacket(CLIENT_LEADERBOARD_REQUEST, request)
 
+	var beatmap *common.Beatmap
+	var err error
+
 	response := &LeaderboardResponse{
 		BeatmapChecksum: request.BeatmapChecksum,
 		ShowScores:      request.ShowScores,
@@ -299,7 +302,7 @@ func handleLeaderboardRequest(stream *common.IOStream, player *Player) error {
 		NeedsUpdate:     false,
 	}
 
-	beatmap, err := common.FetchBeatmapById(
+	beatmap, err = common.FetchBeatmapById(
 		int(request.BeatmapId),
 		player.Server.State,
 	)
@@ -309,9 +312,15 @@ func handleLeaderboardRequest(stream *common.IOStream, player *Player) error {
 			return err
 		}
 
-		// Beatmap was not found, send empty response
-		player.SendPacket(SERVER_LEADERBOARD_RESPONSE, response)
-		return nil
+		beatmap, err = common.FetchBeatmapByChecksum(
+			request.BeatmapChecksum,
+			player.Server.State,
+		)
+
+		if err != nil {
+			player.SendPacket(SERVER_LEADERBOARD_RESPONSE, response)
+			return nil
+		}
 	}
 
 	response.NeedsUpdate = request.BeatmapChecksum != beatmap.Checksum
