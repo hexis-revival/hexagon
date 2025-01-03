@@ -139,6 +139,7 @@ func (response LeaderboardResponse) Serialize(stream *common.IOStream) {
 	stream.WriteU64(response.Unknown)
 	stream.WriteBool(response.NeedsUpdate)
 	stream.WriteU8(uint8(response.Status))
+	stream.WriteBool(response.ShowScores)
 
 	if !response.ShowScores {
 		return
