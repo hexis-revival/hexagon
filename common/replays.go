@@ -3,10 +3,14 @@ package common
 import (
 	"bytes"
 	"compress/zlib"
+	"crypto/md5"
 	"encoding/binary"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"math"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -130,6 +134,30 @@ func (header *ReplayHeader) Grade() Grade {
 	}
 
 	return GradeA
+}
+
+func (header *ReplayHeader) Checksum() string {
+	identifier := strings.Join(
+		[]string{
+			header.PlayerName,
+			header.BeatmapChecksum,
+			strconv.Itoa(1), // Very likely "Passed" boolean
+			strconv.Itoa(int(header.Count300 + header.Count100)),
+			strconv.Itoa(int(header.Count50)),
+			strconv.Itoa(int(header.CountGeki)),
+			strconv.Itoa(int(header.CountGood)),
+			strconv.Itoa(int(header.CountMiss)),
+			strconv.Itoa(int(header.MaxCombo)),
+			strconv.Itoa(int(BooleanToInteger(header.FullCombo))),
+			strconv.Itoa(int(math.Round(header.TotalScore))),
+			strconv.Itoa(int(header.Grade())),
+			"461305314151797007301", // Some random constant
+		},
+		"|",
+	)
+
+	hash := md5.Sum([]byte(identifier))
+	return hex.EncodeToString(hash[:])
 }
 
 type ReplayFrame struct {
