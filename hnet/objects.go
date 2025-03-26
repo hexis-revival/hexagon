@@ -301,6 +301,8 @@ type LeaderboardResponse struct {
 	NeedsUpdate     bool
 	Status          common.BeatmapStatus
 	ShowScores      bool
+	PersonalBest    *common.Score
+	Scores          []*common.Score
 }
 
 func (request *LeaderboardResponse) String() string {

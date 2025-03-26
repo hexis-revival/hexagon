@@ -299,6 +299,8 @@ func handleLeaderboardRequest(stream *common.IOStream, player *Player) error {
 		ShowScores:      request.ShowScores,
 		Unknown:         request.Unknown,
 		Status:          common.BeatmapStatusNotSubmitted,
+		Scores:          make([]*common.Score, 0),
+		PersonalBest:    nil,
 		NeedsUpdate:     false,
 	}
 
@@ -324,7 +326,20 @@ func handleLeaderboardRequest(stream *common.IOStream, player *Player) error {
 	}
 
 	response.NeedsUpdate = request.BeatmapChecksum != beatmap.Checksum
-	response.Status = beatmap.Status
+	response.Status = common.BeatmapStatus(BEATMAP_STATUS_RANKED)
+
+	response.Scores, _ = common.FetchRangeScores(
+		beatmap.Id,
+		player.Server.State,
+		"User",
+	)
+	response.PersonalBest, _ = common.FetchPersonalBest(
+		int(player.Info.Id),
+		int(request.BeatmapId),
+		player.Server.State,
+		"User",
+	)
+
 	return player.SendPacket(SERVER_LEADERBOARD_RESPONSE, response)
 }
 
