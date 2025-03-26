@@ -2,6 +2,7 @@ package hnet
 
 import (
 	"strings"
+	"time"
 
 	"github.com/hexis-revival/hexagon/common"
 )
@@ -145,5 +146,48 @@ func (response LeaderboardResponse) Serialize(stream *common.IOStream) {
 		return
 	}
 
-	// TODO: write scores
+	if response.PersonalBest == nil {
+		return
+	}
+
+	WriteScore(stream, response.PersonalBest)
+
+	stream.WriteU8(uint8(len(response.Scores)))
+
+	for _, score := range response.Scores {
+		WriteScore(stream, score)
+	}
+}
+
+func WriteScore(stream *common.IOStream, score *common.Score) {
+	stream.WriteString(score.User.Name)
+	stream.WriteU32(1)            // TODO
+	stream.WriteU32(2)            // TODO
+	stream.WriteString("unknown") // TODO
+	stream.WriteU32(uint32(score.MaxCombo))
+	stream.WriteU32(uint32(score.TotalScore))
+	stream.WriteBool(true) // TODO
+	stream.WriteU32(uint32(score.Count300))
+	stream.WriteU32(uint32(score.Count100))
+	stream.WriteU32(uint32(score.Count50))
+	stream.WriteU32(uint32(score.CountMiss))
+	stream.WriteU32(uint32(score.CountGeki))
+	stream.WriteU32(uint32(score.CountGood))
+	WriteMods(stream, score)
+
+	stream.WriteU32(3) // TODO
+	stream.WriteDateTime(time.Now())
+}
+
+func WriteMods(stream *common.IOStream, score *common.Score) {
+	stream.WriteI8(int8(score.AROffset))
+	stream.WriteI8(int8(score.ODOffset))
+	stream.WriteI8(int8(score.CSOffset))
+	stream.WriteI8(int8(score.HPOffset))
+	stream.WriteI8(int8(score.PSOffset))
+	stream.WriteBool(score.ModNoFail)
+	stream.WriteBool(score.ModHidden)
+	stream.WriteBool(false) // TODO
+	stream.WriteBool(true)  // TODO
+	stream.WriteBool(true)  // TODO
 }

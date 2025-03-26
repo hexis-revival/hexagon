@@ -500,11 +500,23 @@ func FetchPersonalBest(userId int, beatmapId int, state *State, preload ...strin
 	return score, nil
 }
 
-func FetchBestScores(userId int, beatmapStatus int, state *State) ([]Score, error) {
-	scores := []Score{}
+func FetchBestScores(userId int, beatmapStatus int, state *State) ([]*Score, error) {
+	scores := []*Score{}
 	query := state.Database.Joins("JOIN beatmaps ON scores.beatmap_id = beatmaps.id")
 	query = query.Where("scores.user_id = ? AND scores.status = ? AND beatmaps.status = ?", userId, ScoreStatusPB, beatmapStatus)
 	result := query.Find(&scores)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return scores, nil
+}
+
+func FetchRangeScores(beatmapId int, state *State, preload ...string) ([]*Score, error) {
+	scores := []*Score{}
+	query := state.Database.Where("scores.beatmap_id = ? AND scores.status = ?", beatmapId, ScoreStatusPB)
+	result := query.Order("total_score DESC").Find(&scores)
 
 	if result.Error != nil {
 		return nil, result.Error
