@@ -161,9 +161,9 @@ func (response LeaderboardResponse) Serialize(stream *common.IOStream) {
 
 func WriteScore(stream *common.IOStream, score *common.Score) {
 	stream.WriteString(score.User.Name)
-	stream.WriteU32(1)            // TODO
-	stream.WriteU32(2)            // TODO
-	stream.WriteString("unknown") // TODO
+	stream.WriteU32(1)            		// TODO
+	stream.WriteU32(2)            		// TODO
+	stream.WriteString(score.User.Name) // TODO
 	stream.WriteU32(uint32(score.MaxCombo))
 	stream.WriteU32(uint32(score.TotalScore))
 	stream.WriteBool(true) // TODO
@@ -176,7 +176,7 @@ func WriteScore(stream *common.IOStream, score *common.Score) {
 	WriteMods(stream, score)
 
 	stream.WriteU32(3) // TODO
-	stream.WriteDateTime(time.Now())
+	stream.WriteDateTime(score.CreatedAt)
 }
 
 func WriteMods(stream *common.IOStream, score *common.Score) {
