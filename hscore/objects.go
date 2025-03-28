@@ -30,6 +30,16 @@ func (resp *ScoreSubmissionResponse) String() string {
 	return common.FormatStruct(resp)
 }
 
+type ReplayDownloadRequest struct {
+	Username string
+	Password string
+	ScoreId int
+}
+
+func (req *ReplayDownloadRequest) String() string {
+	return common.FormatStruct(req)
+}
+
 type BeatmapSubmissionRequest struct {
 	Username      string
 	Password      string
