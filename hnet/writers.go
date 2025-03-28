@@ -2,7 +2,6 @@ package hnet
 
 import (
 	"strings"
-	"time"
 
 	"github.com/hexis-revival/hexagon/common"
 )
