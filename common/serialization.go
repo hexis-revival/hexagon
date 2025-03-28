@@ -84,3 +84,10 @@ func ReadU16(data []byte) uint16 {
 func ReadU8(data []byte) uint8 {
 	return uint8(data[0])
 }
+
+func BooleanToInteger(value bool) uint8 {
+	if value {
+		return 1
+	}
+	return 0
+}
