@@ -38,6 +38,10 @@ func ResolveBeatmap(score *ScoreData, server *ScoreServer) (*common.Beatmap, err
 }
 
 func ValidateScore(user *common.User, beatmap *common.Beatmap, request *ScoreSubmissionRequest) (bool, error) {
+	if !request.ScoreData.CompareScoreChecksum() {
+		return true, fmt.Errorf("submitted score with invalid checksum '%s'", request.ScoreData.ScoreChecksum)
+	}
+
 	if request.ScoreData.Mods.Auto {
 		return true, errors.New("submitted score with auto mod")
 	}

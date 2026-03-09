@@ -2,6 +2,8 @@ package hscore
 
 import (
 	"archive/zip"
+	"crypto/md5"
+	"encoding/hex"
 	"math"
 	"strconv"
 	"strings"
@@ -33,7 +35,7 @@ func (resp *ScoreSubmissionResponse) String() string {
 type ReplayDownloadRequest struct {
 	Username string
 	Password string
-	ScoreId int
+	ScoreId  int
 }
 
 func (req *ReplayDownloadRequest) String() string {
@@ -178,6 +180,47 @@ type ScoreData struct {
 
 func (scoreData *ScoreData) String() string {
 	return common.FormatStruct(scoreData)
+}
+
+func (scoreData *ScoreData) CompareScoreChecksum() bool {
+	expectedChecksum := scoreData.CreateScoreChecksum()
+
+	if expectedChecksum == "" {
+		return true
+	}
+
+	return strings.EqualFold(expectedChecksum, scoreData.ScoreChecksum)
+}
+
+func (scoreData *ScoreData) CreateScoreChecksum() string {
+	grade := int(scoreData.Grade())
+	totalScoreRounded := int(math.Round(float64(scoreData.TotalScore)))
+
+	payload := strings.Join([]string{
+		strconv.Itoa(scoreData.ClientVersion),
+		scoreData.BeatmapChecksum,
+		scoreData.Username,
+		strconv.Itoa(scoreData.Count300 + scoreData.Count100),
+		strconv.Itoa(scoreData.Count50),
+		strconv.Itoa(scoreData.CountGeki),
+		strconv.Itoa(scoreData.CountGood),
+		strconv.Itoa(scoreData.CountMiss),
+		strconv.Itoa(scoreData.MaxCombo),
+		strconv.Itoa(boolToInt(scoreData.Perfect)),
+		strconv.Itoa(totalScoreRounded),
+		strconv.Itoa(grade),
+		"",
+	}, "|")
+
+	checksum := md5.Sum([]byte(payload))
+	return hex.EncodeToString(checksum[:])
+}
+
+func boolToInt(value bool) int {
+	if value {
+		return 1
+	}
+	return 0
 }
 
 func (scoreData *ScoreData) PassedObjects() int {
