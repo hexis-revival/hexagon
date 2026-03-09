@@ -1,6 +1,6 @@
 module github.com/hexis-revival/hexagon
 
-go 1.22.7
+go 1.25.8
 
 require (
 	github.com/aws/aws-sdk-go v1.38.20 // indirect
