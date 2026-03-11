@@ -16,6 +16,8 @@ func (response LoginResponse) Serialize(stream *common.IOStream) {
 	stream.WriteString(response.Username)
 	stream.WriteString(response.Password)
 	stream.WriteU32(response.UserId)
+	response.Client.Serialize(stream)
+	stream.WriteString(response.IRCToken)
 }
 
 func (version VersionInfo) Serialize(stream *common.IOStream) {
@@ -34,6 +36,7 @@ func (info ClientInfo) Serialize(stream *common.IOStream) {
 		info.DiskSignature,
 	}
 	stream.WriteString(strings.Join(parts, ";"))
+	stream.WriteBool(info.DisplayCity)
 }
 
 func (info UserInfo) Serialize(stream *common.IOStream) {
@@ -160,8 +163,8 @@ func (response LeaderboardResponse) Serialize(stream *common.IOStream) {
 
 func WriteScore(stream *common.IOStream, score *common.Score) {
 	stream.WriteString(score.User.Name)
-	stream.WriteU32(1)            		// TODO
-	stream.WriteU32(2)            		// TODO
+	stream.WriteU32(1)                  // TODO
+	stream.WriteU32(2)                  // TODO
 	stream.WriteString(score.User.Name) // TODO
 	stream.WriteU32(uint32(score.MaxCombo))
 	stream.WriteU32(uint32(score.TotalScore))
