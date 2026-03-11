@@ -32,6 +32,7 @@ type ClientInfo struct {
 	AdaptersHash   string
 	UninstallId    string
 	DiskSignature  string
+	DisplayCity    bool
 }
 
 func (info ClientInfo) String() string {
@@ -137,6 +138,8 @@ type LoginResponse struct {
 	Username string
 	Password string
 	UserId   uint32
+	Client   *ClientInfo
+	IRCToken string
 }
 
 func (response LoginResponse) String() string {

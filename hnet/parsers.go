@@ -16,7 +16,7 @@ func ReadLoginRequest(stream *common.IOStream) *LoginRequest {
 	minorVersion := stream.ReadU32()
 	patchVersion := stream.ReadU32()
 	clientInfo := stream.ReadString()
-	_ = stream.ReadU8() // TODO
+	displayCity := stream.ReadBool()
 
 	version := &VersionInfo{
 		Major: majorVersion,
@@ -26,6 +26,7 @@ func ReadLoginRequest(stream *common.IOStream) *LoginRequest {
 
 	client := ParseClientInfo(clientInfo)
 	client.Version = version
+	client.DisplayCity = displayCity
 
 	return &LoginRequest{
 		Username: username,
@@ -40,18 +41,17 @@ func ReadLoginRequestReconnect(stream *common.IOStream) *LoginRequest {
 	username := stream.ReadString()
 	password := stream.ReadString()
 
-	// Reconnect packet contains extra 4 bytes of null bytes
+	// Reconnect packet is just a login response, this is where the user id would be
 	_ = stream.ReadU32()
 
 	majorVersion := stream.ReadU32()
 	minorVersion := stream.ReadU32()
 	patchVersion := stream.ReadU32()
 	clientInfo := stream.ReadString()
-	_ = stream.ReadU8() // TODO
+	displayCity := stream.ReadBool()
 
-	// At the end there are an extra 4 bytes
-	// {0xFF, 0xFF, 0xFF, 0xFF}
-	_ = stream.ReadU32()
+	// IRC token from login response
+	_ = stream.ReadString()
 
 	version := &VersionInfo{
 		Major: majorVersion,
@@ -61,6 +61,7 @@ func ReadLoginRequestReconnect(stream *common.IOStream) *LoginRequest {
 
 	client := ParseClientInfo(clientInfo)
 	client.Version = version
+	client.DisplayCity = displayCity
 
 	return &LoginRequest{
 		Username: username,
