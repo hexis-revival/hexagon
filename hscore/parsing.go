@@ -98,6 +98,10 @@ func ParseScoreData(scoreDataBytes []byte) (*ScoreData, error) {
 
 func ParseModsData(modsString string) (*Mods, error) {
 	modData := strings.Split(modsString, ":")
+	if len(modData) != 8 {
+		return nil, fmt.Errorf("invalid mods data: %d fields", len(modData))
+	}
+
 	collection := common.NewErrorCollection()
 
 	arOffset, err := strconv.Atoi(modData[0])

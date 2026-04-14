@@ -51,8 +51,10 @@ func AESDecrypt(key string, iv []byte, encryptedData []byte) (decrypted []byte, 
 	decrypted = make([]byte, len(encryptedData))
 	mode.CryptBlocks(decrypted, encryptedData)
 
-	// Unpad the decrypted data
-	decrypted, err = UnpadPKCS7(decrypted)
+	// Hexis base64-encodes an output buffer that contains the encrypted
+	// ciphertext plus one extra zero'd 16-byte block at the end.
+	// We'll have to remove that padding after decryption.
+	decrypted, err = UnpadScoreData(decrypted)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +62,7 @@ func AESDecrypt(key string, iv []byte, encryptedData []byte) (decrypted []byte, 
 	return decrypted, nil
 }
 
-func UnpadPKCS7(data []byte) ([]byte, error) {
+func UnpadScoreData(data []byte) ([]byte, error) {
 	if len(data) == 0 {
 		return nil, errors.New("data is empty")
 	}
@@ -74,11 +76,13 @@ func UnpadPKCS7(data []byte) ([]byte, error) {
 		return nil, errors.New("data length is not a multiple of the block size")
 	}
 
-	// NOTE: Score data seems to have always 16 bytes of padding
-	//       at the end of the data. I am not sure if this is
-	//       right, but it works.
-	data = data[:len(data)-16]
+	if len(data) < blockSize {
+		return nil, errors.New("data is too short")
+	}
 
-	// Sometimes we get trailing null bytes, for some reason...
+	// The client always appends one extra zero-filled ciphertext
+	// block to the serialized encrypted payload
+	data = data[:len(data)-blockSize]
+
 	return bytes.TrimRight(data, "\x00"), nil
 }

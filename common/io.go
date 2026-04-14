@@ -2,6 +2,7 @@ package common
 
 import (
 	"encoding/binary"
+	"fmt"
 	"math"
 	"time"
 )
@@ -159,11 +160,41 @@ func (stream *IOStream) ReadIntList() []uint32 {
 	return list
 }
 
+func (stream *IOStream) ReadQByteArray() ([]byte, error) {
+	if stream.Available() < 4 {
+		return nil, fmt.Errorf("byte array is too short")
+	}
+
+	length := stream.ReadU32()
+	if length == math.MaxUint32 {
+		return nil, nil
+	}
+
+	if stream.Available() < int(length) {
+		return nil, fmt.Errorf(
+			"byte array is truncated: expected %d bytes, got %d",
+			length,
+			stream.Available(),
+		)
+	}
+
+	return stream.Read(int(length)), nil
+}
+
 func (stream *IOStream) ReadDateTime() time.Time {
 	// Convert julian date to time.Time
 	jd := float64(stream.ReadI32())
 	time := JulianToTime(jd)
 	return time
+}
+
+func (stream *IOStream) ReadQDateTime() (time.Time, int8) {
+	julianDay := stream.ReadU32()
+	milliseconds := stream.ReadU32()
+	spec := stream.ReadI8()
+
+	dayStart := JulianToTime(float64(julianDay)).Add(-12 * time.Hour)
+	return dayStart.Add(time.Duration(milliseconds) * time.Millisecond), spec
 }
 
 func (stream *IOStream) Write(data []byte) {
@@ -255,8 +286,29 @@ func (stream *IOStream) WriteIntList(list []uint32) {
 	}
 }
 
+func (stream *IOStream) WriteQByteArray(data []byte) {
+	if data == nil {
+		stream.WriteU32(math.MaxUint32)
+		return
+	}
+
+	stream.WriteU32(uint32(len(data)))
+	stream.Write(data)
+}
+
 func (stream *IOStream) WriteDateTime(value time.Time) {
 	// Convert time.Time to julian date
 	jd := TimeToJulian(value)
 	stream.WriteI32(int32(jd))
+}
+
+func (stream *IOStream) WriteQDateTime(value time.Time, spec int8) {
+	value = value.UTC()
+	dayStart := time.Date(value.Year(), value.Month(), value.Day(), 0, 0, 0, 0, time.UTC)
+	julianDay := uint32(math.Floor(TimeToJulian(dayStart) + 0.5))
+	milliseconds := uint32(value.Sub(dayStart).Milliseconds())
+
+	stream.WriteU32(julianDay)
+	stream.WriteU32(milliseconds)
+	stream.WriteI8(spec)
 }

@@ -2,6 +2,9 @@ package hscore
 
 import (
 	"archive/zip"
+	"crypto/md5"
+	"encoding/base64"
+	"encoding/hex"
 	"math"
 	"strconv"
 	"strings"
@@ -10,15 +13,19 @@ import (
 )
 
 type ScoreSubmissionRequest struct {
-	Replay      *common.ReplayData
-	ProcessList []string
-	ScoreData   *ScoreData
-	Password    string
-	ClientData  string
+	ReplayFrames []*common.ReplayFrame
+	ProcessList  []string
+	ScoreData    *ScoreData
+	Password     string
+	ClientData   string
 }
 
 func (req *ScoreSubmissionRequest) String() string {
 	return common.FormatStruct(req)
+}
+
+func (req *ScoreSubmissionRequest) ClientDataBase64() string {
+	return base64.StdEncoding.EncodeToString([]byte(req.ClientData))
 }
 
 type ScoreSubmissionResponse struct {
@@ -33,7 +40,7 @@ func (resp *ScoreSubmissionResponse) String() string {
 type ReplayDownloadRequest struct {
 	Username string
 	Password string
-	ScoreId int
+	ScoreId  int
 }
 
 func (req *ReplayDownloadRequest) String() string {
@@ -180,6 +187,55 @@ func (scoreData *ScoreData) String() string {
 	return common.FormatStruct(scoreData)
 }
 
+func (scoreData *ScoreData) CompareScoreChecksum(clientDataBase64 string) bool {
+	expectedChecksum := scoreData.CreateScoreChecksum(clientDataBase64)
+	if expectedChecksum == "" {
+		return true
+	}
+
+	return strings.EqualFold(expectedChecksum, scoreData.ScoreChecksum)
+}
+
+func (scoreData *ScoreData) CreateScoreChecksum(clientDataBase64 string) string {
+	totalScoreRounded := int(math.Round(float64(scoreData.TotalScore)))
+
+	payload := strings.Join([]string{
+		scoreData.BeatmapChecksum,
+		"ngc",
+		scoreData.Username,
+		"dol",
+		strconv.Itoa(scoreData.Count300 + scoreData.Count100),
+		"w32",
+		strconv.Itoa(scoreData.CountMiss),
+		"ds",
+		strconv.Itoa(scoreData.CountGeki),
+		strconv.Itoa(scoreData.Count50),
+		"x",
+		strconv.Itoa(scoreData.MaxCombo),
+		strconv.Itoa(boolToInt(scoreData.Perfect)),
+		"rvl",
+		strconv.Itoa(totalScoreRounded),
+		strconv.Itoa(int(scoreData.Grade())),
+		scoreData.Mods.ChecksumToken(),
+		strconv.Itoa(boolToInt(scoreData.Passed)),
+		"0",
+		strconv.Itoa(scoreData.Time),
+		strconv.Itoa(scoreData.ClientBuildDate),
+		"snes",
+		clientDataBase64,
+	}, "")
+
+	checksum := md5.Sum([]byte(payload))
+	return hex.EncodeToString(checksum[:])
+}
+
+func boolToInt(value bool) int {
+	if value {
+		return 1
+	}
+	return 0
+}
+
 func (scoreData *ScoreData) PassedObjects() int {
 	return scoreData.Count300 + scoreData.Count100 + scoreData.Count50 + scoreData.CountMiss
 }
@@ -193,39 +249,14 @@ func (scoreData *ScoreData) Accuracy() float64 {
 }
 
 func (scoreData *ScoreData) Grade() common.Grade {
-	totalHits := scoreData.Count300 + scoreData.Count100 + scoreData.Count50 + scoreData.CountGood
-
-	if totalHits == 0 {
-		return common.GradeF
-	}
-
-	totalHitCount := float64(totalHits)
-	accuracyRatio := float64(scoreData.Count300) / totalHitCount
-
-	if !scoreData.Passed {
-		return common.GradeF
-	}
-
-	if math.IsNaN(accuracyRatio) || accuracyRatio == 1.0 {
-		if scoreData.Mods.Hidden {
-			return common.GradeXH
-		} else {
-			return common.GradeX
-		}
-	}
-
-	if accuracyRatio <= 0.8 && scoreData.CountGood == 0 {
-		if accuracyRatio > 0.6 {
-			return common.GradeC
-		}
-		return common.GradeD
-	}
-
-	if accuracyRatio <= 0.9 {
-		return common.GradeB
-	}
-
-	return common.GradeA
+	return common.CalculateGrade(
+		scoreData.Passed,
+		scoreData.Count300,
+		scoreData.Count100,
+		scoreData.Count50,
+		scoreData.CountMiss,
+		scoreData.Mods.Hidden,
+	)
 }
 
 type Mods struct {
@@ -241,4 +272,17 @@ type Mods struct {
 
 func (mods *Mods) String() string {
 	return common.FormatStruct(mods)
+}
+
+func (mods *Mods) ChecksumToken() string {
+	return common.CreateModsChecksumToken(
+		mods.ArOffset,
+		mods.OdOffset,
+		mods.CsOffset,
+		mods.HpOffset,
+		mods.PsOffset,
+		mods.Hidden,
+		mods.NoFail,
+		mods.Auto,
+	)
 }
