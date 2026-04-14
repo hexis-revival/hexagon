@@ -38,7 +38,7 @@ func ResolveBeatmap(score *ScoreData, server *ScoreServer) (*common.Beatmap, err
 }
 
 func ValidateScore(user *common.User, beatmap *common.Beatmap, request *ScoreSubmissionRequest) (bool, error) {
-	if !request.ScoreData.CompareScoreChecksum() {
+	if !request.ScoreData.CompareScoreChecksum(request.ClientDataBase64()) {
 		return true, fmt.Errorf("submitted score with invalid checksum '%s'", request.ScoreData.ScoreChecksum)
 	}
 

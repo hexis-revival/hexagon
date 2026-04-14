@@ -3,6 +3,7 @@ package hscore
 import (
 	"archive/zip"
 	"crypto/md5"
+	"encoding/base64"
 	"encoding/hex"
 	"math"
 	"strconv"
@@ -21,6 +22,10 @@ type ScoreSubmissionRequest struct {
 
 func (req *ScoreSubmissionRequest) String() string {
 	return common.FormatStruct(req)
+}
+
+func (req *ScoreSubmissionRequest) ClientDataBase64() string {
+	return base64.StdEncoding.EncodeToString([]byte(req.ClientData))
 }
 
 type ScoreSubmissionResponse struct {
@@ -182,9 +187,8 @@ func (scoreData *ScoreData) String() string {
 	return common.FormatStruct(scoreData)
 }
 
-func (scoreData *ScoreData) CompareScoreChecksum() bool {
-	expectedChecksum := scoreData.CreateScoreChecksum()
-
+func (scoreData *ScoreData) CompareScoreChecksum(clientDataBase64 string) bool {
+	expectedChecksum := scoreData.CreateScoreChecksum(clientDataBase64)
 	if expectedChecksum == "" {
 		return true
 	}
@@ -192,8 +196,9 @@ func (scoreData *ScoreData) CompareScoreChecksum() bool {
 	return strings.EqualFold(expectedChecksum, scoreData.ScoreChecksum)
 }
 
-func (scoreData *ScoreData) CreateScoreChecksum() string {
+func (scoreData *ScoreData) CreateScoreChecksum(clientDataBase64 string) string {
 	totalScoreRounded := int(math.Round(float64(scoreData.TotalScore)))
+
 	payload := strings.Join([]string{
 		scoreData.BeatmapChecksum,
 		"ngc",
@@ -203,6 +208,7 @@ func (scoreData *ScoreData) CreateScoreChecksum() string {
 		"w32",
 		strconv.Itoa(scoreData.CountMiss),
 		"ds",
+		strconv.Itoa(scoreData.CountGeki),
 		strconv.Itoa(scoreData.Count50),
 		"x",
 		strconv.Itoa(scoreData.MaxCombo),
@@ -215,7 +221,8 @@ func (scoreData *ScoreData) CreateScoreChecksum() string {
 		"0",
 		strconv.Itoa(scoreData.Time),
 		strconv.Itoa(scoreData.ClientBuildDate),
-		strconv.Itoa(scoreData.ClientVersion),
+		"snes",
+		clientDataBase64,
 	}, "")
 
 	checksum := md5.Sum([]byte(payload))
