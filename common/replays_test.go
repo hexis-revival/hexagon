@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"io"
 	"os"
+	"reflect"
 	"testing"
 )
 
@@ -28,8 +29,16 @@ func TestReplayParsing(t *testing.T) {
 		return
 	}
 
-	if replay.Header == nil {
-		t.Error("failed to read replay header")
+	if replay.Mods == nil {
+		t.Fatal("expected parsed replay mods")
+	}
+
+	if replay.Checksum() != replay.ScoreChecksum {
+		t.Fatalf(
+			"replay checksum mismatch: got %s want %s",
+			replay.Checksum(),
+			replay.ScoreChecksum,
+		)
 	}
 
 	if len(replay.Frames) == 0 {
@@ -57,11 +66,19 @@ func TestReplayParsing(t *testing.T) {
 		return
 	}
 
-	if replaySerialized.Header == nil {
-		t.Error("failed to read replay header")
+	if replaySerialized.ScoreChecksum != replay.ScoreChecksum {
+		t.Fatalf(
+			"re-serialized replay checksum mismatch: got %s want %s",
+			replaySerialized.ScoreChecksum,
+			replay.ScoreChecksum,
+		)
 	}
 
 	if len(replaySerialized.Frames) == 0 {
 		t.Error("failed to read replay frames")
+	}
+
+	if !reflect.DeepEqual(replaySerialized, replay) {
+		t.Fatal("re-serialized replay does not match original")
 	}
 }

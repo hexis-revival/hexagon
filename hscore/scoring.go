@@ -62,8 +62,8 @@ func ValidateScore(user *common.User, beatmap *common.Beatmap, request *ScoreSub
 		return true, fmt.Errorf("submitted score with invalid total score '%d'", request.ScoreData.TotalScore)
 	}
 
-	if request.ScoreData.Passed && len(request.Replay.Frames) <= 100 {
-		return true, fmt.Errorf("submitted score with too few replay frames '%d'", len(request.Replay.Frames))
+	if request.ScoreData.Passed && len(request.ReplayFrames) <= 100 {
+		return true, fmt.Errorf("submitted score with too few replay frames '%d'", len(request.ReplayFrames))
 	}
 
 	if request.ScoreData.MaxCombo > beatmap.MaxCombo {
@@ -176,9 +176,10 @@ func InsertScore(user *common.User, beatmap *common.Beatmap, scoreData *ScoreDat
 	return score, common.CreateScore(score, server.State)
 }
 
-func UploadReplay(scoreId int, replay *common.ReplayData, storage common.Storage) error {
+func UploadReplay(scoreId int, frames []*common.ReplayFrame, storage common.Storage) error {
 	stream := common.NewIOStream([]byte{}, binary.BigEndian)
-	replay.SerializeFrames(stream)
+	replay := &common.ReplayData{Frames: frames}
+	replay.Serialize(stream)
 	return storage.SaveReplayFile(scoreId, stream.Get())
 }
 
@@ -352,7 +353,7 @@ func ScoreSubmissionHandler(ctx *Context) {
 	if score.Passed {
 		err = UploadReplay(
 			score.Id,
-			request.Replay,
+			request.ReplayFrames,
 			ctx.Server.State.Storage,
 		)
 
@@ -418,14 +419,14 @@ func NewScoreSubmissionRequest(request *http.Request) (*ScoreSubmissionRequest, 
 	}
 
 	replayStream := common.NewIOStream(replay, binary.BigEndian)
-	replayData, _ := common.ReadCompressedReplay(replayStream)
+	replayFrames, _ := common.ReadReplayFrames(replayStream)
 	processListData := ParseProcessList(processListDecrypted)
 
 	return &ScoreSubmissionRequest{
-		Replay:      replayData,
-		Password:    password,
-		ProcessList: processListData,
-		ScoreData:   scoreDataStruct,
-		ClientData:  string(clientDataDecrypted),
+		ReplayFrames: replayFrames,
+		Password:     password,
+		ProcessList:  processListData,
+		ScoreData:    scoreDataStruct,
+		ClientData:   string(clientDataDecrypted),
 	}, nil
 }
