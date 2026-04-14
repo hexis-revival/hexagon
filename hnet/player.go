@@ -126,6 +126,7 @@ func (player *Player) OnLoginSuccess(responsePassword string, userObject *common
 	response := LoginResponse{
 		UserId:   player.Info.Id,
 		Username: player.Info.Name,
+		Client:   player.Client,
 		Password: responsePassword,
 	}
 
