@@ -61,7 +61,7 @@ func (replay *ReplayData) SerializeHeader(stream *IOStream) {
 	stream.WriteF64(replay.TotalScore)
 	stream.WriteU32(replay.MaxCombo)
 	stream.WriteBool(replay.FullCombo)
-	stream.WriteReplayDateTime(replay.Time, replay.TimeSpec)
+	stream.WriteQDateTime(replay.Time, replay.TimeSpec)
 }
 
 func (replay *ReplayData) SerializeFrames(stream *IOStream) {
@@ -272,7 +272,7 @@ func ReadFullReplay(stream *IOStream) (*ReplayData, error) {
 	replayData.TotalScore = stream.ReadF64()
 	replayData.MaxCombo = stream.ReadU32()
 	replayData.FullCombo = stream.ReadBool()
-	replayData.Time, replayData.TimeSpec = stream.ReadReplayDateTime()
+	replayData.Time, replayData.TimeSpec = stream.ReadQDateTime()
 
 	replayBytes, err := stream.ReadQByteArray()
 	if err != nil {

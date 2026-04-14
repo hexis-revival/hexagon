@@ -188,8 +188,7 @@ func (stream *IOStream) ReadDateTime() time.Time {
 	return time
 }
 
-// TODO: Figure out how to name this properly
-func (stream *IOStream) ReadReplayDateTime() (time.Time, int8) {
+func (stream *IOStream) ReadQDateTime() (time.Time, int8) {
 	julianDay := stream.ReadU32()
 	milliseconds := stream.ReadU32()
 	spec := stream.ReadI8()
@@ -303,8 +302,7 @@ func (stream *IOStream) WriteDateTime(value time.Time) {
 	stream.WriteI32(int32(jd))
 }
 
-// TODO: Figure out how to name this properly
-func (stream *IOStream) WriteReplayDateTime(value time.Time, spec int8) {
+func (stream *IOStream) WriteQDateTime(value time.Time, spec int8) {
 	value = value.UTC()
 	dayStart := time.Date(value.Year(), value.Month(), value.Day(), 0, 0, 0, 0, time.UTC)
 	julianDay := uint32(math.Floor(TimeToJulian(dayStart) + 0.5))
