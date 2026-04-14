@@ -70,5 +70,9 @@ fabric.properties
 # Grrr, vscode
 .vscode
 
+# go work files
+go.work
+go.work.sum
+
 # Data folder
 .data
